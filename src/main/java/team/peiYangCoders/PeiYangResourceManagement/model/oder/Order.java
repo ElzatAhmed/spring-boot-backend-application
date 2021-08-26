@@ -42,13 +42,14 @@ public class Order {
     * order type:
     *   there are two different types of order:
     *   1) lease    2) sale
-    *   every order has to be of one of the these types.
+    *   every order has to be of one of the these types;
+    *   default to lease.
     * */
     @Enumerated(EnumType.STRING)
     @NotBlank
     @NotNull
     @Column(nullable = false)
-    private OrderType type;
+    private OrderType type = OrderType.lease;
 
     /*
     * the initiator of the order(seller)
@@ -88,12 +89,13 @@ public class Order {
     private String openedTime;
 
     /*
-    * determine if the order is closed
+    * determine if the order is closed;
+    * default to false.
     * */
     @NotNull
     @NotBlank
     @Column(nullable = false, updatable = false)
-    private boolean closed;
+    private boolean closed = false;
 
     /*
     * the closed time of the order:

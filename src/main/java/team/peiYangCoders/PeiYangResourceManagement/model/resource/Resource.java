@@ -59,6 +59,28 @@ public class Resource {
     private String name;
 
     /*
+    * there are two different kinds of resource:
+    *   1) needs to pay;
+    *   2) does`nt;
+    *   3) default to false.
+    * */
+    @NotNull
+    @NotBlank
+    @Column(nullable = false)
+    private boolean needsToPay = false;
+
+
+    /*
+    * the price or fee of the resource:
+    *   1) if does`nt need to pay equals to 0;
+    *   2) else equals to the actual price.
+    * */
+    @NotNull
+    @NotBlank
+    @Column(nullable = false)
+    private int fee = 0;
+
+    /*
     * resource description:
     *   users can describe the resources;
     *   but don`t have to.
