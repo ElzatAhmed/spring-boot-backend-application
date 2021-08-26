@@ -25,9 +25,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-@Entity
+@Entity(name = "User")
 @Data
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "student_name_unique", columnNames = "user_name")
+        }
+)
 public class User {
 
     /*
@@ -38,9 +43,14 @@ public class User {
     *   user can change the password only using the right phone number.
     * */
     @Id
-    @NotNull
     @NotBlank
-    @Column(nullable = false, updatable = false)
+    @Column(
+            name = "phone_number",
+            updatable = false,
+            nullable = false,
+            columnDefinition = "VARCHAR(11)",
+            length = 11
+    )
     private String phone;
 
     /*
@@ -51,9 +61,14 @@ public class User {
     *   user name is another one of the user identifications;
     *   max length of a user name is 30 characters.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(
+            name = "user_name",
+            nullable = false,
+            unique = true,
+            columnDefinition = "VARCHAR(50)",
+            length = 50
+    )
     private String name;
 
     /*
@@ -64,9 +79,13 @@ public class User {
     *   cannot be null;
     *   max length is 16 characters.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false, length = 16)
+    @Column(
+            name = "password",
+            nullable = false,
+            columnDefinition = "VARCHAR(16)",
+            length = 16
+    )
     private String password;
 
     /*
@@ -74,6 +93,10 @@ public class User {
     *   each user can have one avatar image.
     * */
     @URL
+    @Column(
+            name = "avatar_url",
+            columnDefinition = "TEXT"
+    )
     private String avatarUrl;
 
     /*
@@ -82,7 +105,12 @@ public class User {
     * each user can have none or many resources;
     *   resources stored in the resources table mapped by user id(phone).
     * */
-    @OneToMany(mappedBy = "user")
+    @OneToMany(
+            mappedBy = "user",
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
     private List<Resource> resources;
 
     /*
@@ -90,7 +118,12 @@ public class User {
     *   user can initiate an order as a seller;
     *   orders stored in the orders table mapped by user ids and resource id;
     * */
-    @OneToMany(mappedBy = "initiator")
+    @OneToMany(
+            mappedBy = "initiator",
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
     private List<Order> initiated_orders;
 
     /*
@@ -98,6 +131,11 @@ public class User {
      *   user can receive an order as a buyer;
      *   orders stored in the orders table mapped by user ids and resource id;
      * */
-    @OneToMany(mappedBy = "recipient")
+    @OneToMany(
+            mappedBy = "recipient",
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
     private List<Order> received_orders;
 }

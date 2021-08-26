@@ -25,7 +25,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Data
-@Entity
+@Entity(name = "Order")
 @Table(name = "orders")
 public class Order {
 
@@ -36,6 +36,9 @@ public class Order {
     * */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(
+            name = "id"
+    )
     private UUID id;
 
     /*
@@ -47,8 +50,12 @@ public class Order {
     * */
     @Enumerated(EnumType.STRING)
     @NotBlank
-    @NotNull
-    @Column(nullable = false)
+    @Column(
+            nullable = false,
+            name = "type",
+            columnDefinition = "VARCHAR(10)",
+            length = 10
+    )
     private OrderType type = OrderType.lease;
 
     /*
@@ -57,7 +64,10 @@ public class Order {
     @NotNull
     @NotBlank
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(
+            name = "initiator_phone",
+            foreignKey = @ForeignKey(name = "order_initiator_fk")
+    )
     private User initiator;
 
     /*
@@ -66,7 +76,10 @@ public class Order {
     @NotNull
     @NotBlank
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(
+            name = "recipient_phone",
+            foreignKey = @ForeignKey(name = "order_recipient_fk")
+    )
     private User recipient;
 
     /*
@@ -75,16 +88,23 @@ public class Order {
     @NotNull
     @NotBlank
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(
+            name = "resource_id",
+            foreignKey = @ForeignKey(name = "order_resource_fk")
+    )
     private Resource resource;
 
     /*
     * initiated time of this order:
     *   if the order type is lease, stands for the start time of the lease.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false, updatable = false)
+    @Column(
+            nullable = false,
+            updatable = false,
+            name = "opened_time",
+            columnDefinition = "TIMESTAMP"
+    )
     @DateTimeFormat
     private String openedTime;
 
@@ -92,9 +112,13 @@ public class Order {
     * determine if the order is closed;
     * default to false.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false, updatable = false)
+    @Column(
+            nullable = false,
+            updatable = false,
+            name = "closed",
+            columnDefinition = "BOOLEAN"
+    )
     private boolean closed = false;
 
     /*
@@ -102,8 +126,11 @@ public class Order {
     *   if the order type is lease, stands for the time when the lease is over;
     *   if the order type is sale, stands for the time when the exchange is over.
     * */
-    @NotNull
-    @NotBlank
     @DateTimeFormat
+    @Column(
+            updatable = false,
+            name = "closed_time",
+            columnDefinition = "TIMESTAMP"
+    )
     private String closedTime;
 }

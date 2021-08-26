@@ -24,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-@Entity
+@Entity(name = "Resource")
 @Data
 @Table(name = "resources")
 public class Resource {
@@ -53,9 +53,12 @@ public class Resource {
     *   any resource has to have a name;
     *   provided by user.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false)
+    @Column(
+            name = "resource_name",
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
     private String name;
 
     /*
@@ -64,9 +67,12 @@ public class Resource {
     *   2) does`nt;
     *   3) default to false.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false)
+    @Column(
+            name = "needs_to_pay",
+            columnDefinition = "BOOLEAN",
+            nullable = false
+    )
     private boolean needsToPay = false;
 
 
@@ -75,9 +81,12 @@ public class Resource {
     *   1) if does`nt need to pay equals to 0;
     *   2) else equals to the actual price.
     * */
-    @NotNull
     @NotBlank
-    @Column(nullable = false)
+    @Column(
+            name = "resource_fee",
+            nullable = false,
+            columnDefinition = "INTEGER"
+    )
     private int fee = 0;
 
     /*
@@ -85,6 +94,10 @@ public class Resource {
     *   users can describe the resources;
     *   but don`t have to.
     * */
+    @Column(
+            name = "description",
+            columnDefinition = "TEXT"
+    )
     private String description;
 
     /*
@@ -93,6 +106,10 @@ public class Resource {
     *   but don`t have to.
     * */
     @URL
+    @Column(
+            name = "image_url",
+            columnDefinition = "TEXT"
+    )
     private String imageUrl;
 
     /*
@@ -104,7 +121,10 @@ public class Resource {
     @NotNull
     @NotBlank
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(
+            name = "user_phone",
+            foreignKey = @ForeignKey(name = "resource_user_fk")
+    )
     private User user;
 
     /*
@@ -112,6 +132,11 @@ public class Resource {
     *   a resource can appear in different orders;
     *   orders stored in the orders table mapped by user ids and resource id.
     * */
-    @OneToMany(mappedBy = "resource")
+    @OneToMany(
+            mappedBy = "resource",
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            fetch = FetchType.LAZY
+    )
     private List<Order> orders;
 }
