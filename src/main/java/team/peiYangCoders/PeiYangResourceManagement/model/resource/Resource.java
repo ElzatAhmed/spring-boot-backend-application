@@ -2,7 +2,7 @@ package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
-import team.peiYangCoders.PeiYangResourceManagement.model.oder.Order;
+import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 

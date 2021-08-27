@@ -4,7 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.validator.constraints.URL;
-import team.peiYangCoders.PeiYangResourceManagement.model.oder.Order;
+import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.UserTag;
 
@@ -191,5 +191,15 @@ public class User {
 
     public boolean isAdmin(){
         return tag.equals(UserTag.administrator);
+    }
+
+    public User(UserInfo info){
+        this.phone = info.getPhone();
+        this.name = info.getName();
+        this.avatarUrl = info.getAvatarUrl();
+        this.password = info.getPassword();
+        this.qqId = info.getQqId();
+        this.wechatId = info.getWechatId();
+        this.tag = UserTag.valueOf(info.getTag());
     }
 }

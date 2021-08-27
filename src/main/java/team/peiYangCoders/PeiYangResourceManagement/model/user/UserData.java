@@ -1,6 +1,6 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.user;
 
-import team.peiYangCoders.PeiYangResourceManagement.model.oder.Order;
+import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
 
 import java.util.List;

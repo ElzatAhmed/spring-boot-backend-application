@@ -1,4 +1,4 @@
-package team.peiYangCoders.PeiYangResourceManagement.model.oder;
+package team.peiYangCoders.PeiYangResourceManagement.model.order;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
