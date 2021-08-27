@@ -3,6 +3,7 @@ package team.peiYangCoders.PeiYangResourceManagement.model.oder;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.OrderTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
@@ -49,23 +50,21 @@ public class Order {
     *   default to lease.
     * */
     @Enumerated(EnumType.STRING)
-    @NotBlank
     @Column(
             nullable = false,
             name = "type",
             columnDefinition = "VARCHAR(10)",
             length = 10
     )
-    private OrderType type = OrderType.lease;
+    private OrderTag tag = OrderTag.lease;
 
     /*
     * the initiator of the order(seller)
     * */
     @NotNull
-    @NotBlank
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
-            name = "initiator_phone",
+            name = "initiator_id",
             foreignKey = @ForeignKey(name = "order_initiator_fk")
     )
     private User initiator;
@@ -74,10 +73,9 @@ public class Order {
     * the receiver of the order(buyer)
     * */
     @NotNull
-    @NotBlank
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
-            name = "recipient_phone",
+            name = "recipient_id",
             foreignKey = @ForeignKey(name = "order_recipient_fk")
     )
     private User recipient;
@@ -86,8 +84,7 @@ public class Order {
     * the resource in this order
     * */
     @NotNull
-    @NotBlank
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
             name = "resource_id",
             foreignKey = @ForeignKey(name = "order_resource_fk")
@@ -112,7 +109,6 @@ public class Order {
     * determine if the order is closed;
     * default to false.
     * */
-    @NotBlank
     @Column(
             nullable = false,
             updatable = false,

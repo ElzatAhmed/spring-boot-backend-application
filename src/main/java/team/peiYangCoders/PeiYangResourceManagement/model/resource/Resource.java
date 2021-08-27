@@ -3,10 +3,10 @@ package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
 import team.peiYangCoders.PeiYangResourceManagement.model.oder.Order;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -53,7 +53,6 @@ public class Resource {
     *   any resource has to have a name;
     *   provided by user.
     * */
-    @NotBlank
     @Column(
             name = "resource_name",
             nullable = false,
@@ -67,7 +66,6 @@ public class Resource {
     *   2) does`nt;
     *   3) default to false.
     * */
-    @NotBlank
     @Column(
             name = "needs_to_pay",
             columnDefinition = "BOOLEAN",
@@ -81,7 +79,6 @@ public class Resource {
     *   1) if does`nt need to pay equals to 0;
     *   2) else equals to the actual price.
     * */
-    @NotBlank
     @Column(
             name = "resource_fee",
             nullable = false,
@@ -99,6 +96,25 @@ public class Resource {
             columnDefinition = "TEXT"
     )
     private String description;
+
+    /*
+    * */
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "tag",
+            columnDefinition = "TEXT"
+    )
+    private ResourceTag tag;
+
+    /*
+    * */
+    @Column(
+            name = "on_time",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "TIMESTAMP"
+    )
+    private String onTime;
 
     /*
     * resource image url:
@@ -119,13 +135,12 @@ public class Resource {
     *   so there is foreign key user_id referenced user.id.
     * */
     @NotNull
-    @NotBlank
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
-            name = "user_phone",
+            name = "owner_id",
             foreignKey = @ForeignKey(name = "resource_user_fk")
     )
-    private User user;
+    private User owner;
 
     /*
     * orders:
@@ -136,7 +151,7 @@ public class Resource {
             mappedBy = "resource",
             orphanRemoval = true,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.LAZY
+            fetch = FetchType.EAGER
     )
     private List<Order> orders;
 }

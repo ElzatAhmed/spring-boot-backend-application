@@ -1,13 +1,15 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.user;
 
 import lombok.*;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.validator.constraints.URL;
 import team.peiYangCoders.PeiYangResourceManagement.model.oder.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.UserTag;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -30,28 +32,63 @@ import java.util.List;
 @Table(
         name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(name = "student_name_unique", columnNames = "user_name")
+                @UniqueConstraint(name = "user_phone_unique", columnNames = "phone_num"),
+                @UniqueConstraint(name = "user_qq_unique", columnNames = "qq_id"),
+                @UniqueConstraint(name = "user_wechat_unique", columnNames = "wechat_id")
         }
 )
 public class User {
 
+    @Id
+    @SequenceGenerator(
+            name = "user_seq_generator",
+            sequenceName = "user_seq",
+            initialValue = 10000,
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "user_seq"
+    )
+    @Column(
+            name = "id",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "INTEGER"
+    )
+    private Long id;
+
     /*
     * phone number:
-    *   primary key;
     *   cannot be null obviously;
     *   one of the user identifications;
     *   user can change the password only using the right phone number.
     * */
-    @Id
-    @NotBlank
     @Column(
-            name = "phone_number",
+            name = "phone_num",
             updatable = false,
             nullable = false,
             columnDefinition = "VARCHAR(11)",
             length = 11
     )
     private String phone;
+
+    /*
+    *
+    * */
+    @Column(
+            name = "qq_id",
+            columnDefinition = "VARCHAR(50)"
+    )
+    private String qqId;
+
+    /*
+    * */
+    @Column(
+            name = "wechat_id",
+            columnDefinition = "VARCHAR(50)"
+    )
+    private String wechatId;
 
     /*
     * user name:
@@ -61,11 +98,9 @@ public class User {
     *   user name is another one of the user identifications;
     *   max length of a user name is 30 characters.
     * */
-    @NotBlank
     @Column(
             name = "user_name",
             nullable = false,
-            unique = true,
             columnDefinition = "VARCHAR(50)",
             length = 50
     )
@@ -79,7 +114,6 @@ public class User {
     *   cannot be null;
     *   max length is 16 characters.
     * */
-    @NotBlank
     @Column(
             name = "password",
             nullable = false,
@@ -99,17 +133,24 @@ public class User {
     )
     private String avatarUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "user_tag",
+            nullable = false,
+            columnDefinition = "VARCHAR(20)"
+    )
+    private UserTag tag = UserTag.ordinary;
+
     /*
     * resources:
     *   as i said, user can be both the seller and the buyer,so
     * each user can have none or many resources;
     *   resources stored in the resources table mapped by user id(phone).
     * */
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(
-            mappedBy = "user",
-            orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.LAZY
+            mappedBy = "owner",
+            orphanRemoval = true
     )
     private List<Resource> resources;
 
@@ -118,24 +159,37 @@ public class User {
     *   user can initiate an order as a seller;
     *   orders stored in the orders table mapped by user ids and resource id;
     * */
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(
             mappedBy = "initiator",
-            orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.LAZY
+            orphanRemoval = true
     )
-    private List<Order> initiated_orders;
+    private List<Order> initiated_orders = new ArrayList<>();
 
     /*
      * received_orders:
      *   user can receive an order as a buyer;
      *   orders stored in the orders table mapped by user ids and resource id;
      * */
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(
             mappedBy = "recipient",
-            orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.LAZY
+            orphanRemoval = true
     )
-    private List<Order> received_orders;
+    private List<Order> received_orders = new ArrayList<>();
+
+    /*
+    *
+    * */
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(
+            mappedBy = "user",
+            orphanRemoval = true
+    )
+    private List<UserProfile> profiles = new ArrayList<>();
+
+
+    public boolean isAdmin(){
+        return tag.equals(UserTag.administrator);
+    }
 }
