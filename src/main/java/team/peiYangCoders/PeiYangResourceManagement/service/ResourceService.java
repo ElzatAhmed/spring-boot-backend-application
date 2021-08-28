@@ -32,7 +32,7 @@ public class ResourceService {
     public Response getResources(ResourcePage page){
         Sort sort = Sort.by(page.getDirection(), page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
-        Page<Resource> resources = resourceRepo.findAll(pageable);
+        Page<Resource> resources = resourceRepo.findAllByVerified(true, pageable);
         for(Resource resource : resources){
             resource.setOwner(null);
             resource.setOrders(null);
@@ -49,35 +49,56 @@ public class ResourceService {
         return Response.okMessage(infos);
     }
 
-    public Response deleteResource(ResourceInfo info, User owner){
-        if(!info.getOwner_phone().equals(owner.getPhone()))
+    public Response deleteResource(Resource resource, User owner){
+        if(!resource.getOwner().getPhone().equals(owner.getPhone()))
             return Response.errorMessage(Response.permissionDenied);
-        resourceRepo.delete(new Resource(info, owner));
-        return Response.okMessage(info);
+        resourceRepo.delete(resource);
+        return Response.okMessage(new ResourceInfo(resource));
     }
 
-    public Response deleteResources(List<ResourceInfo> infos, User owner){
+    public Response deleteResources(List<UUID> codes, User owner){
         List<Resource> resources = new ArrayList<>();
-        for(ResourceInfo info : infos){
-            resources.add(new Resource(info, owner));
+        List<ResourceInfo> infos = new ArrayList<>();
+        for(UUID code : codes){
+            Optional<Resource> resource = resourceRepo.findByCode(code);
+            if(!resource.isPresent()) continue;
+            resources.add(resource.get());
+            infos.add(new ResourceInfo(resource.get()));
         }
         resourceRepo.deleteAll(resources);
         return Response.okMessage(infos);
     }
 
-    public Response getByCode(UUID code){
-        Optional<Resource> resource = resourceRepo.findByCode(code);
-        if(resource.isPresent()) return Response.okMessage(resource);
-        else return Response.errorMessage(Response.noSuchResource);
+    public Optional<Resource> getByCode(UUID code){
+        return resourceRepo.findByCode(code);
     }
 
-    public Response getAll(){
-        List<Resource> allResource = resourceRepo.findAll();
+    public List<ResourceInfo> getAllOrderByTime(){
+        Sort sort = Sort.by(Sort.Direction.DESC, "onTime");
+        List<Resource> allResource = resourceRepo.findAll(sort);
         List<ResourceInfo> infos = new ArrayList<>();
         for(Resource resource : allResource){
             infos.add(new ResourceInfo(resource));
         }
-        return Response.okMessage(infos);
+        return infos;
+    }
+
+    public List<ResourceInfo> getAllOrderByTime(boolean verified){
+        Sort sort = Sort.by(Sort.Direction.DESC, "onTime");
+        List<Resource> allResource = resourceRepo.findAll(sort);
+        List<ResourceInfo> infos = new ArrayList<>();
+        for(Resource resource : allResource){
+            if(resource.isVerified() == verified)
+                infos.add(new ResourceInfo(resource));
+        }
+        return infos;
+    }
+
+    public Response verifyResource(UUID code, boolean verified){
+        Optional<Resource> resource = getByCode(code);
+        if(!resource.isPresent()) return Response.errorMessage(Response.noSuchResource);
+        resource.get().setVerified(verified);
+        return Response.okMessage(resourceRepo.save(resource.get()));
     }
 
     public Response getAllByOwner(User owner){

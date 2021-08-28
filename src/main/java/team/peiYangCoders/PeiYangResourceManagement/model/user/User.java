@@ -58,14 +58,6 @@ public class User {
     )
     private Long id;
 
-    /***/
-    @Column(
-            name = "enabled",
-            nullable = false,
-            updatable = false
-    )
-    private boolean enabled = false;
-
     /*
     * phone number:
     *   cannot be null obviously;
@@ -209,6 +201,5 @@ public class User {
         this.qqId = info.getQqId();
         this.wechatId = info.getWechatId();
         this.tag = UserTag.valueOf(info.getTag());
-        this.enabled = info.isEnabled();
     }
 }

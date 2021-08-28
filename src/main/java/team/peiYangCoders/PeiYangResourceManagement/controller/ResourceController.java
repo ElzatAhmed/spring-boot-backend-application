@@ -3,16 +3,17 @@ package team.peiYangCoders.PeiYangResourceManagement.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
+import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourceInfo;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourcePage;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
-import team.peiYangCoders.PeiYangResourceManagement.service.resourceService.ResourceService;
-import team.peiYangCoders.PeiYangResourceManagement.service.userService.UserService;
+import team.peiYangCoders.PeiYangResourceManagement.service.ResourceService;
+import team.peiYangCoders.PeiYangResourceManagement.service.UserService;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/resource")
@@ -27,16 +28,10 @@ public class ResourceController {
         this.userService = userService;
     }
 
-    @GetMapping("/get/all")
-    public Response getAll(@RequestParam String phone){
-        Response response = userService.isAdmin(phone);
-        if(response.getCode() == Response.OK)
-            return resourceService.getAll();
-        return response;
-    }
 
     /**
-     * @param info
+     * 添加新资源
+     * @param info : 资源信息
      * */
     @PutMapping("/add")
     public Response addResource(@RequestBody ResourceInfo info){
@@ -47,10 +42,16 @@ public class ResourceController {
         return resourceService.add(info, owner.get());
     }
 
+
+    /**
+     * 批量添加资源
+     * @param phone : 用户手机号
+     * @param infos : 资源信息列表
+     * */
     @PutMapping("/add/all")
     public Response addResources(
-            @RequestBody List<ResourceInfo> infos,
-            @RequestParam String phone) {
+            @RequestParam String phone,
+            @RequestBody List<ResourceInfo> infos) {
         Optional<User> owner = userService.getByPhone(phone);
         if(!owner.isPresent())
             return Response.errorMessage(Response.noSuchUser);
@@ -59,31 +60,46 @@ public class ResourceController {
         return resourceService.addResources(infos, owner.get());
     }
 
+
+    /**
+     * 获取单页资源
+     * @param page : 页面信息
+     * */
     @GetMapping("/get/page")
     public Response getResourcePage(@RequestBody ResourcePage page){
         return resourceService.getResources(page);
     }
 
+
+    /**
+     * 删除指定资源
+     * @param phone : 用户手机号码
+     * @param code : 资源信息
+     * */
     @PutMapping("/delete")
     public Response deleteResource(
-            @RequestBody ResourceInfo info,
-            @RequestParam String phone) {
+            @RequestParam String phone, UUID code) {
         Optional<User> user = userService.getByPhone(phone);
         if(!user.isPresent())
             return Response.errorMessage(Response.noSuchUser);
-        Response response = resourceService.getByCode(info.getCode());
-        if(response.getCode() == Response.ERROR)
-            return response;
-        return resourceService.deleteResource(info, user.get());
+        Optional<Resource> resource = resourceService.getByCode(code);
+        if(!resource.isPresent())
+            return Response.errorMessage(Response.noSuchResource);
+        return resourceService.deleteResource(resource.get(), user.get());
     }
 
+    /**
+     * 批量删除资源
+     * @param phone : 用户手机号
+     * @param codes : 资源代码列表
+     * */
     @PutMapping("/delete/all")
     public Response deleteResources(
-            @RequestBody List<ResourceInfo> infos,
-            @RequestParam String phone) {
+            @RequestParam String phone,
+            @RequestBody List<UUID> codes) {
         Optional<User> user = userService.getByPhone(phone);
         if(!user.isPresent())
             return Response.errorMessage(Response.noSuchUser);
-        return resourceService.deleteResources(infos, user.get());
+        return resourceService.deleteResources(codes, user.get());
     }
 }

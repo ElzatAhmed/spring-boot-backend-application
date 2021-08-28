@@ -1,6 +1,8 @@
 package team.peiYangCoders.PeiYangResourceManagement.repository;
 
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
@@ -23,6 +25,8 @@ public interface ResourceRepository extends JpaRepository<Resource, Long> {
     List<Resource> findAllByTag(ResourceTag tag);
 
     List<Resource> findAllByDescriptionContains(String description);
+
+    Page<Resource> findAllByVerified(boolean verified, Pageable pageable);
 
     Optional<Resource> findByCode(UUID code);
 

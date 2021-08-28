@@ -65,6 +65,15 @@ public class Resource {
     )
     private String name;
 
+    /**
+     * verified by administrator
+     * */
+    @Column(
+            name = "verified",
+            nullable = false
+    )
+    private boolean verified = false;
+
     /*
     * there are two different kinds of resource:
     *   1) needs to pay;

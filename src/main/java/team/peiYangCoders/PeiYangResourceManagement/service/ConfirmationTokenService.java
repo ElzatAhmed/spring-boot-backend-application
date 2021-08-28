@@ -36,27 +36,28 @@ public class ConfirmationTokenService {
         return confirmationTokenRepo.findByToken(token);
     }
 
-    public ConfirmationToken send(User user){
+    public ConfirmationToken send(String phone){
         ConfirmationToken cToken = ConfirmationToken.construct(smsParam.getTokenLen(),
-                smsParam.getLatency(), user);
+                smsParam.getLatency(), phone);
         confirmationTokenRepo.save(cToken);
-        sendConfirmationToken(user.getPhone(), cToken.getToken());
+        sendConfirmationToken(phone, cToken.getToken());
         return cToken;
     }
 
-    public Response receive(User user, String token){
+    public Response receive(String user_phone, String token){
         Optional<ConfirmationToken> cToken = confirmationTokenRepo.findByToken(token);
         if(!cToken.isPresent()
-                || !cToken.get().getUser().getPhone().equals(user.getPhone()))
+                || cToken.get().isConfirmed()
+                || !cToken.get().getUser_phone().equals(user_phone))
             return Response.errorMessage(Response.invalidToken);
         LocalDateTime now = LocalDateTime.now();
         boolean valid = now.isBefore(cToken.get().getExpiresAt());
         if(valid) {
             cToken.get().setConfirmedAt(now);
+            cToken.get().setConfirmed(true);
             confirmationTokenRepo.save(cToken.get());
             return Response.okMessage();
         }
-        confirmationTokenRepo.delete(cToken.get());
         return Response.errorMessage(Response.tokenExpired);
     }
 
@@ -68,6 +69,7 @@ public class ConfirmationTokenService {
                     "86", phone, smsParam.getTemplateId(),
                     params, smsParam.getSignature(), "", ""
             );
+            System.out.println(result);
         } catch (HTTPException | IOException e) {
             e.printStackTrace();
         }

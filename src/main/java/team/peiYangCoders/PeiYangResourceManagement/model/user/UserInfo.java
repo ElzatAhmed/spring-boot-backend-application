@@ -24,8 +24,6 @@ public class UserInfo {
 
     private String tag;
 
-    private boolean enabled;
-
     public UserInfo(User user){
         this.phone = user.getPhone();
         this.name = user.getName();
@@ -34,7 +32,6 @@ public class UserInfo {
         this.avatarUrl = user.getAvatarUrl();
         this.tag = user.getTag().toString();
         this.wechatId = user.getWechatId();
-        this.enabled = user.isEnabled();
     }
 
 }

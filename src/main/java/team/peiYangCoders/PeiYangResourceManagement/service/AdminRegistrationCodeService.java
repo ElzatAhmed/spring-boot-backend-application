@@ -29,8 +29,8 @@ public class AdminRegistrationCodeService {
         return adminCode.isPresent() && !adminCode.get().isUsed();
     }
 
-    public Response addCode(String code, UserInfo adderInfo){
-        Optional<User> adder = userRepo.findByPhone(adderInfo.getPhone());
+    public Response addCode(String code, String phone){
+        Optional<User> adder = userRepo.findByPhone(phone);
         if(!adder.isPresent())
             return Response.errorMessage(Response.noSuchUser);
         if(!adder.get().isAdmin())

@@ -14,11 +14,11 @@ public class SMSParam {
 
     private String appKey = "5ee7d76e352b0de1cde8db9ac2fad584";
 
-    private int templateId;
+    private int templateId = 1098964;
 
     private String signature = "山谷说";
 
-    private Long latency = 5;
+    private Long latency = 5L;
 
     private int tokenLen = 6;
 

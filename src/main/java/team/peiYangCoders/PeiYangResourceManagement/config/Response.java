@@ -18,6 +18,8 @@ public class Response {
     public static String codeIsUsed = "code is used";
     public static String invalidToken = "invalid token";
     public static String tokenExpired = "token expired";
+    public static String userDisabled = "user disabled";
+    public static String doTheConfirmationTokenFirst = "";
 
     private String message;
 

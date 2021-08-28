@@ -49,21 +49,26 @@ public class ConfirmationToken {
     )
     private LocalDateTime confirmedAt;
 
-    @ManyToOne
-    @JoinColumn(
+    @Column(
+            name = "confirmed",
+            nullable = false
+    )
+    private boolean confirmed = false;
+
+    @Column(
+            name = "user_phone",
             nullable = false,
-            name = "user_id",
             updatable = false
     )
-    private User user;
+    private String user_phone;
 
 
     public ConfirmationToken(String token, LocalDateTime createdAt,
-                             LocalDateTime expiresAt, User user) {
+                             LocalDateTime expiresAt, String user_phone) {
         this.token = token;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.user = user;
+        this.user_phone = user_phone;
     }
 
     private static String generateRandomToken(int length){
@@ -73,10 +78,10 @@ public class ConfirmationToken {
         return token.toString();
     }
 
-    public static ConfirmationToken construct(int tokenLen, Long latency, User user){
+    public static ConfirmationToken construct(int tokenLen, Long latency, String user_phone){
         String token = generateRandomToken(tokenLen);
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(latency);
-        return new ConfirmationToken(token, createdAt, expiresAt, user);
+        return new ConfirmationToken(token, createdAt, expiresAt, user_phone);
     }
 }
