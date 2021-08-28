@@ -1,6 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.URL;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
@@ -8,7 +9,11 @@ import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /*
 * Resource class:
@@ -26,35 +31,35 @@ import java.util.List;
 @EqualsAndHashCode
 @Entity(name = "Resource")
 @Data
-@Table(name = "resources")
+@Table(
+        name = "resources"
+)
 public class Resource {
 
-    /*
-    * resource id:
-    *   primary key for resource;
-    *   just to identify the resource in database;
-    *   resource id does`nt concern to the real users;
-    *   so it`s generated.
+    /**
+    *
     * */
     @Id
-    @SequenceGenerator(
-            name = "entity_seq_generator",
-            sequenceName = "entity_seq",
-            allocationSize = 1
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @GeneratedValue(
-            generator = "entity_seq_generator",
-            strategy = GenerationType.SEQUENCE
+    @Column(
+            name = "code",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "UUID"
     )
-    private Long id;
+    private UUID code;
 
-    /*
+    /**
     * resource name:
     *   any resource has to have a name;
     *   provided by user.
     * */
     @Column(
-            name = "resource_name",
+            name = "name",
             nullable = false,
             columnDefinition = "TEXT"
     )
@@ -67,7 +72,7 @@ public class Resource {
     *   3) default to false.
     * */
     @Column(
-            name = "needs_to_pay",
+            name = "needs2pay",
             columnDefinition = "BOOLEAN",
             nullable = false
     )
@@ -80,7 +85,7 @@ public class Resource {
     *   2) else equals to the actual price.
     * */
     @Column(
-            name = "resource_fee",
+            name = "fee",
             nullable = false,
             columnDefinition = "INTEGER"
     )
@@ -111,10 +116,9 @@ public class Resource {
     @Column(
             name = "on_time",
             nullable = false,
-            updatable = false,
-            columnDefinition = "TIMESTAMP"
+            updatable = false
     )
-    private String onTime;
+    private LocalDateTime onTime;
 
     /*
     * resource image url:
@@ -154,4 +158,15 @@ public class Resource {
             fetch = FetchType.EAGER
     )
     private List<Order> orders;
+
+    public Resource(ResourceInfo info, User owner){
+        this.name = info.getName();
+        this.description = info.getDescription();
+        this.fee = info.getFee();
+        this.imageUrl = info.getImageUrl();
+        this.needsToPay = info.isNeedsToPay();
+        this.onTime = info.getOnTime();
+        this.tag = ResourceTag.valueOf(info.getTag());
+        this.owner = owner;
+    }
 }

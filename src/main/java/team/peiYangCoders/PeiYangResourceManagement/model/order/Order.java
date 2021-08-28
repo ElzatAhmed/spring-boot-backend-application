@@ -1,6 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.order;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.OrderTag;
@@ -9,6 +10,7 @@ import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /*
@@ -36,11 +38,18 @@ public class Order {
     *   generated UUID;
     * */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(
-            name = "id"
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
     )
-    private UUID id;
+    @Column(
+            name = "code",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "UUID"
+    )
+    private UUID code;
 
     /*
     * order type:
@@ -99,11 +108,10 @@ public class Order {
     @Column(
             nullable = false,
             updatable = false,
-            name = "opened_time",
-            columnDefinition = "TIMESTAMP"
+            name = "opened_time"
     )
     @DateTimeFormat
-    private String openedTime;
+    private LocalDateTime openedTime;
 
     /*
     * determine if the order is closed;
@@ -125,8 +133,7 @@ public class Order {
     @DateTimeFormat
     @Column(
             updatable = false,
-            name = "closed_time",
-            columnDefinition = "TIMESTAMP"
+            name = "closed_time"
     )
-    private String closedTime;
+    private LocalDateTime closedTime;
 }

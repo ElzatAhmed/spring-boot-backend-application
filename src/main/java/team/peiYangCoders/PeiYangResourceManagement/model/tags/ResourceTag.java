@@ -4,6 +4,9 @@ public enum ResourceTag {
 
     conferenceRoom,
     gymnasium,
-    sports
+    file,
+    electricFile,
+    electricDevice,
+    food
 
 }
