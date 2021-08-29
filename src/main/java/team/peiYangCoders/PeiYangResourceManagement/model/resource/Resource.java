@@ -3,6 +3,7 @@ package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.URL;
+import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
@@ -168,13 +169,13 @@ public class Resource {
     )
     private List<Order> orders;
 
-    public Resource(ResourceInfo info, User owner){
+    public Resource(Body.NewResource info, User owner, LocalDateTime onTime){
         this.name = info.getName();
         this.description = info.getDescription();
         this.fee = info.getFee();
         this.imageUrl = info.getImageUrl();
         this.needsToPay = info.isNeedsToPay();
-        this.onTime = info.getOnTime();
+        this.onTime = onTime;
         this.tag = ResourceTag.valueOf(info.getTag());
         this.owner = owner;
     }

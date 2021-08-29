@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.validator.constraints.URL;
+import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.UserTag;
@@ -33,8 +34,7 @@ import java.util.List;
         name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(name = "user_phone_unique", columnNames = "phone_num"),
-                @UniqueConstraint(name = "user_qq_unique", columnNames = "qq_id"),
-                @UniqueConstraint(name = "user_wechat_unique", columnNames = "wechat_id")
+                @UniqueConstraint(name = "user_studentId_unique", columnNames = "student_id")
         }
 )
 public class User {
@@ -72,6 +72,14 @@ public class User {
             length = 11
     )
     private String phone;
+
+    /*
+    *
+    * */
+    @Column(
+            name = "student_id"
+    )
+    private String studentId;
 
     /*
     *
@@ -133,6 +141,15 @@ public class User {
     )
     private String avatarUrl;
 
+    @Column(
+            name = "student_certified",
+            nullable = false
+    )
+    private boolean studentCertified = false;
+
+    /*
+    *
+    * */
     @Enumerated(EnumType.STRING)
     @Column(
             name = "user_tag",
@@ -201,5 +218,11 @@ public class User {
         this.qqId = info.getQqId();
         this.wechatId = info.getWechatId();
         this.tag = UserTag.valueOf(info.getTag());
+    }
+
+    public User(Body.Register info){
+        this.phone = info.getPhone();
+        this.name = info.getName();
+        this.password = info.getPassword();
     }
 }

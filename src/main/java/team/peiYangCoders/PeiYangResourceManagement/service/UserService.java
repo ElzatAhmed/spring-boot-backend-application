@@ -2,15 +2,15 @@ package team.peiYangCoders.PeiYangResourceManagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.UserTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
+import team.peiYangCoders.PeiYangResourceManagement.model.user.UserFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.UserInfo;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -31,16 +31,22 @@ public class UserService {
         return infos;
     }
 
-    public Response login(UserInfo info){
-        Optional<User> user = userRepo.findByPhone(info.getPhone());
+    public UserInfo save(User user){
+        User u = userRepo.save(user);
+        return new UserInfo(u);
+    }
+
+    public Response ordinaryLogin(Body.Login loginInfo){
+        Optional<User> user = userRepo.findByPhone(loginInfo.getPhone());
         if(!user.isPresent()) return Response.errorMessage(Response.noSuchUser);
-        if(!user.get().getPassword().equals(info.getPassword()))
+        if(!user.get().getPassword().equals(loginInfo.getPassword()))
             return Response.errorMessage(Response.invalidPassword);
         return Response.okMessage(new UserInfo(user.get()));
     }
 
-    public UserInfo addNewUser(UserInfo info){
+    public UserInfo addNewUser(Body.Register info, boolean isAdmin){
         User newUser = new User(info);
+        newUser.setTag(isAdmin ? UserTag.admin : UserTag.ordinary);
         newUser = userRepo.save(newUser);
         return new UserInfo(newUser);
     }
@@ -66,5 +72,15 @@ public class UserService {
         if(!user.isPresent()) return Response.errorMessage(Response.noSuchUser);
         userRepo.delete(user.get());
         return Response.okMessage();
+    }
+
+    public List<UserInfo> getByFilter(UserFilter filter){
+        List<User> allUsers = userRepo.findAll();
+        List<UserInfo> filteredUsers = new ArrayList<>();
+        for(User u : allUsers){
+            if(filter.match(u))
+                filteredUsers.add(new UserInfo(u));
+        }
+        return filteredUsers;
     }
 }

@@ -7,6 +7,7 @@ public enum ResourceTag {
     file,
     electricFile,
     electricDevice,
-    food
+    food,
+    book
 
 }

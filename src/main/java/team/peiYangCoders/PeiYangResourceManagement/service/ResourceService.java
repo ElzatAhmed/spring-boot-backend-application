@@ -6,14 +6,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
+import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourceFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourceInfo;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourcePage;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ResourceRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,13 +43,16 @@ public class ResourceService {
         return Response.okMessage(resources);
     }
 
-    public Response addResources(List<ResourceInfo> infos, User owner){
+    public Response addResources(List<Body.NewResource> infos, User owner, LocalDateTime onTime){
         List<Resource> resources = new ArrayList<>();
-        for(ResourceInfo info : infos){
-            resources.add(new Resource(info, owner));
+        List<ResourceInfo> resourceInfos = new ArrayList<>();
+        for(Body.NewResource info : infos){
+            Resource r = new Resource(info, owner, onTime);
+            resources.add(r);
+            resourceInfos.add(new ResourceInfo(r));
         }
         resourceRepo.saveAll(resources);
-        return Response.okMessage(infos);
+        return Response.okMessage(resourceInfos);
     }
 
     public Response deleteResource(Resource resource, User owner){
@@ -56,12 +62,14 @@ public class ResourceService {
         return Response.okMessage(new ResourceInfo(resource));
     }
 
-    public Response deleteResources(List<UUID> codes, User owner){
+    public Response deleteResources(List<String> codes, User owner){
         List<Resource> resources = new ArrayList<>();
         List<ResourceInfo> infos = new ArrayList<>();
-        for(UUID code : codes){
-            Optional<Resource> resource = resourceRepo.findByCode(code);
+        for(String code : codes){
+            Optional<Resource> resource = resourceRepo.findByCode(UUID.fromString(code));
             if(!resource.isPresent()) continue;
+            if(!resource.get().getOwner().getPhone().equals(owner.getPhone()))
+                continue;
             resources.add(resource.get());
             infos.add(new ResourceInfo(resource.get()));
         }
@@ -73,7 +81,7 @@ public class ResourceService {
         return resourceRepo.findByCode(code);
     }
 
-    public List<ResourceInfo> getAllOrderByTime(){
+    public List<ResourceInfo> getAllSortByTime(){
         Sort sort = Sort.by(Sort.Direction.DESC, "onTime");
         List<Resource> allResource = resourceRepo.findAll(sort);
         List<ResourceInfo> infos = new ArrayList<>();
@@ -83,7 +91,7 @@ public class ResourceService {
         return infos;
     }
 
-    public List<ResourceInfo> getAllOrderByTime(boolean verified){
+    public List<ResourceInfo> getAllSortByTime(boolean verified){
         Sort sort = Sort.by(Sort.Direction.DESC, "onTime");
         List<Resource> allResource = resourceRepo.findAll(sort);
         List<ResourceInfo> infos = new ArrayList<>();
@@ -99,6 +107,27 @@ public class ResourceService {
         if(!resource.isPresent()) return Response.errorMessage(Response.noSuchResource);
         resource.get().setVerified(verified);
         return Response.okMessage(resourceRepo.save(resource.get()));
+    }
+
+    public Response updateResource(Body.NewResource info, Resource resource){
+        resource.setName(info.getName());
+        resource.setNeedsToPay(info.isNeedsToPay());
+        resource.setFee(info.getFee());
+        resource.setDescription(info.getDescription());
+        resource.setTag(ResourceTag.valueOf(info.getTag()));
+        resource.setImageUrl(info.getImageUrl());
+        resource = resourceRepo.save(resource);
+        return Response.okMessage(new ResourceInfo(resource));
+    }
+
+    public List<ResourceInfo> getByFilter(ResourceFilter filter){
+        List<Resource> allResources = resourceRepo.findAll();
+        List<ResourceInfo> infos = new ArrayList<>();
+        for(Resource r : allResources){
+            if(filter.match(r))
+                infos.add(new ResourceInfo(r));
+        }
+        return infos;
     }
 
     public Response getAllByOwner(User owner){
@@ -121,8 +150,9 @@ public class ResourceService {
         return Response.okMessage(resourceRepo.findAllByDescriptionContains(description));
     }
 
-    public Response add(ResourceInfo info, User owner){
-        resourceRepo.save(new Resource(info, owner));
-        return Response.okMessage(info);
+    public Response add(Body.NewResource info, User owner, LocalDateTime onTime){
+        Resource newResource = new Resource(info, owner, onTime);
+        resourceRepo.save(newResource);
+        return Response.okMessage(new ResourceInfo(newResource));
     }
 }

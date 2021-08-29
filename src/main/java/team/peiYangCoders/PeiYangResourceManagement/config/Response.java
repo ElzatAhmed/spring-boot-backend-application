@@ -15,11 +15,14 @@ public class Response {
     public static String invalidPhone = "invalid phone";
     public static String permissionDenied = "permission denied";
     public static String noSuchResource = "no such resource";
-    public static String codeIsUsed = "code is used";
+    public static String invalidCode = "invalid code";
     public static String invalidToken = "invalid token";
     public static String tokenExpired = "token expired";
     public static String userDisabled = "user disabled";
     public static String doTheConfirmationTokenFirst = "";
+    public static String noSuchStudentId = "no such student id";
+    public static String studentIdIsUsed = "student id is used";
+    public static String invalidStudentName = "invalid student name";
 
     private String message;
 
