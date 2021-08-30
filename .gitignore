@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 /data.json
+/api_details/api.txt
+/api_details/
+/module_details/

@@ -4,16 +4,12 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.URL;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
-import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /*
@@ -66,6 +62,28 @@ public class Resource {
     )
     private String name;
 
+    /*
+    * resource description:
+    *   users can describe the resources;
+    *   but don`t have to.
+    * */
+    @Column(
+            name = "description",
+            columnDefinition = "TEXT",
+            nullable = false
+    )
+    private String description;
+
+    /*
+    * */
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "tag",
+            columnDefinition = "TEXT",
+            nullable = false
+    )
+    private ResourceTag tag;
+
     /**
      * verified by administrator
      * */
@@ -75,60 +93,18 @@ public class Resource {
     )
     private boolean verified = false;
 
-    /*
-    * there are two different kinds of resource:
-    *   1) needs to pay;
-    *   2) does`nt;
-    *   3) default to false.
-    * */
+    /**/
     @Column(
-            name = "needs2pay",
-            columnDefinition = "BOOLEAN",
+            name = "released",
             nullable = false
     )
-    private boolean needsToPay = false;
+    private boolean released = false;
 
-
-    /*
-    * the price or fee of the resource:
-    *   1) if does`nt need to pay equals to 0;
-    *   2) else equals to the actual price.
-    * */
     @Column(
-            name = "fee",
-            nullable = false,
-            columnDefinition = "INTEGER"
+            name = "accepted",
+            nullable = false
     )
-    private int fee = 0;
-
-    /*
-    * resource description:
-    *   users can describe the resources;
-    *   but don`t have to.
-    * */
-    @Column(
-            name = "description",
-            columnDefinition = "TEXT"
-    )
-    private String description;
-
-    /*
-    * */
-    @Enumerated(EnumType.STRING)
-    @Column(
-            name = "tag",
-            columnDefinition = "TEXT"
-    )
-    private ResourceTag tag;
-
-    /*
-    * */
-    @Column(
-            name = "on_time",
-            nullable = false,
-            updatable = false
-    )
-    private LocalDateTime onTime;
+    private boolean accepted = false;
 
     /*
     * resource image url:
@@ -138,7 +114,8 @@ public class Resource {
     @URL
     @Column(
             name = "image_url",
-            columnDefinition = "TEXT"
+            columnDefinition = "TEXT",
+            nullable = false
     )
     private String imageUrl;
 
@@ -156,27 +133,30 @@ public class Resource {
     )
     private User owner;
 
-    /*
-    * orders:
-    *   a resource can appear in different orders;
-    *   orders stored in the orders table mapped by user ids and resource id.
-    * */
-    @OneToMany(
-            mappedBy = "resource",
-            orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.EAGER
-    )
-    private List<Order> orders;
 
-    public Resource(Body.NewResource info, User owner, LocalDateTime onTime){
-        this.name = info.getName();
-        this.description = info.getDescription();
-        this.fee = info.getFee();
-        this.imageUrl = info.getImageUrl();
-        this.needsToPay = info.isNeedsToPay();
-        this.onTime = onTime;
-        this.tag = ResourceTag.valueOf(info.getTag());
-        this.owner = owner;
+
+    public static Resource getFromBody(Body.ResourceInfos resourceInfos, User owner){
+        Resource resource = new Resource();
+        resource.setName(resourceInfos.getName());
+        resource.setDescription(resourceInfos.getDescription());
+        resource.setTag(ResourceTag.valueOf(resourceInfos.getTag()));
+        resource.setImageUrl(resourceInfos.getImageUrl());
+        resource.setVerified(false);
+        resource.setReleased(false);
+        resource.setOwner(owner);
+        return resource;
+    }
+
+    public static Body.ResourceInfos toBody(Resource resource){
+        Body.ResourceInfos infos = new Body.ResourceInfos();
+        infos.setCode(resource.getCode().toString());
+        infos.setName(resource.getName());
+        infos.setDescription(resource.getDescription());
+        infos.setTag(resource.getTag().toString());
+        infos.setImageUrl(resource.getImageUrl());
+        infos.setVerified(resource.isVerified());
+        infos.setReleased(infos.isReleased());
+        infos.setOwnerPhone(resource.getOwner().getPhone());
+        return infos;
     }
 }

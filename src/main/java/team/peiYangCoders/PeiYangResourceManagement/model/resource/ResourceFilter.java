@@ -19,9 +19,11 @@ public class ResourceFilter {
 
     private Boolean verified = null;
 
+    private Boolean accepted = null;
+
     private Boolean needsToPay = null;
 
-    private Integer fee = null;
+    private Boolean released = null;
 
     private String description = null;
 
@@ -30,16 +32,16 @@ public class ResourceFilter {
     private String owner_phone = null;
 
     public boolean match(Resource resource){
-        boolean c, n, v, nt, f, d, t, o;
+        boolean c, n, a, v, r, d, t, o;
         c = code == null || code.equals(resource.getCode());
         n = name == null || name.equals(resource.getName());
+        a = accepted == null || accepted.equals(resource.isAccepted());
         v = verified == null || verified.equals(resource.isVerified());
-        nt = needsToPay == null || needsToPay.equals(resource.isNeedsToPay());
-        f = fee == null || fee.equals(resource.getFee());
+        r = released == null || released.equals(resource.isReleased());
         d = description == null || description.equals(resource.getDescription());
         t = tag == null || tag.toString().equals(resource.getTag().toString());
         o = owner_phone == null || owner_phone.equals(resource.getOwner().getPhone());
-        return c && n && v && nt && f && d && t && o;
+        return c && n && a && v && r && d && t && o;
     }
 
 }

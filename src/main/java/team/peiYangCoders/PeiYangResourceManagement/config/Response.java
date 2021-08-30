@@ -23,6 +23,9 @@ public class Response {
     public static String noSuchStudentId = "no such student id";
     public static String studentIdIsUsed = "student id is used";
     public static String invalidStudentName = "invalid student name";
+    public static String notVerified = "not verified";
+    public static String notAccepted = "not accepted";
+    public static String existsReleasedResource = "exists released resource";
 
     private String message;
 

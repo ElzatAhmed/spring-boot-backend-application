@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 public class Body {
 
     @Getter
@@ -79,19 +81,49 @@ public class Body {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class NewResource{
+    public static class ResourceInfos {
+
+        private String code;
 
         private String name;
-
-        private boolean needsToPay;
-
-        private int fee;
 
         private String description;
 
         private String tag;
 
         private String imageUrl;
+
+        private String ownerPhone;
+
+        private boolean verified;
+
+        private boolean released;
+
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ItemInfos {
+
+        private String code;
+
+        private String type;
+
+        private boolean needs2Pay;
+
+        private int fee;
+
+        private int count;
+
+        private String feeUnit;
+
+        private LocalDateTime startsAt;
+
+        private LocalDateTime endsAt;
+
+        private int campus;
 
     }
 
