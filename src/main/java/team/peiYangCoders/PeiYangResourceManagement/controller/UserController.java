@@ -32,7 +32,8 @@ public class UserController {
 
 
     @GetMapping("/user")
-    public Response ordinaryLogin(@RequestBody Body.Login info){
+    public Response ordinaryLogin(@RequestParam String phone, String password){
+        Body.Login info = new Body.Login(phone, password);
         return userService.ordinaryLogin(info);
     }
 
@@ -90,7 +91,8 @@ public class UserController {
 
 
     @GetMapping("admin")
-    public Response adminLogin(@RequestBody Body.Login info){
+    public Response adminLogin(@RequestParam String phone, String password){
+        Body.Login info = new Body.Login(phone, password);
         return userService.adminLogin(info);
     }
 
@@ -111,7 +113,15 @@ public class UserController {
 
 
     @GetMapping("users")
-    public Response getByFilter(@RequestBody UserFilter filter){
+    public Response getByFilter(@RequestParam(defaultValue = "null", required = false) String phone,
+                                @RequestParam(defaultValue = "null", required = false) String name,
+                                @RequestParam(defaultValue = "null", required = false) String qqId,
+                                @RequestParam(defaultValue = "null", required = false) String wechatId){
+        UserFilter filter = new UserFilter();
+        filter.setPhone(phone.equals("null") ? null : phone);
+        filter.setName(name.equals("null") ? null : name);
+        filter.setQqId(qqId.equals("null") ? null : qqId);
+        filter.setWechatId(wechatId.equals("null") ? null : wechatId);
         return Response.success(userService.getByFilter(filter));
     }
 
