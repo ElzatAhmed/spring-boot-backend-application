@@ -31,7 +31,7 @@ public class ConfirmationTokenService {
         ConfirmationToken cToken = ConfirmationToken.construct(smsConfig.getTokenLen(),
                 smsConfig.getLatency(), phone);
         confirmationTokenRepo.save(cToken);
-        sendConfirmationToken(phone, cToken.getToken());
+//        sendConfirmationToken(phone, cToken.getToken());
         return cToken;
     }
 

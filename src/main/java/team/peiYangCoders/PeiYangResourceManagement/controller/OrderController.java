@@ -18,7 +18,7 @@ public class OrderController {
     }
 
 
-    @GetMapping("getter/order")
+    @PostMapping ("getter/order/new")
     public Response newOrder(@RequestParam String phone, String code,
                              @RequestBody Body.OrderInfos orderInfos){
         return orderService.newOrder(phone, code, orderInfos);

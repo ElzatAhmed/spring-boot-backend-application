@@ -1,14 +1,13 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
 
 import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Getter
 @Setter
 public class ResourceFilter {
@@ -27,7 +26,7 @@ public class ResourceFilter {
 
     private String description = null;
 
-    private ResourcePage tag = null;
+    private ResourceTag tag = null;
 
     private String owner_phone = null;
 

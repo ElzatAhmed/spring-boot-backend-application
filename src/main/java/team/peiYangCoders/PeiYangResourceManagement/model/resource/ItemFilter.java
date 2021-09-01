@@ -1,9 +1,6 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceType;
 
 import java.util.UUID;
@@ -12,6 +9,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class ItemFilter {
 
     private UUID code = null;

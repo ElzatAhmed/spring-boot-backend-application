@@ -50,6 +50,7 @@ public class ResourceService {
         List<UUID> responses = new ArrayList<>();
         for(Body.ResourceInfos resourceInfo : resourceInfos){
             Resource resource = Resource.getFromBody(resourceInfo, maybeUser.get());
+            resource = resourceRepo.save(resource);
             responses.add(resource.getCode());
         }
         return Response.success(responses);

@@ -113,15 +113,16 @@ public class UserController {
 
 
     @GetMapping("users")
-    public Response getByFilter(@RequestParam(defaultValue = "null", required = false) String phone,
-                                @RequestParam(defaultValue = "null", required = false) String name,
-                                @RequestParam(defaultValue = "null", required = false) String qqId,
-                                @RequestParam(defaultValue = "null", required = false) String wechatId){
+    public Response getByFilter(@RequestParam(required = false) String phone,
+                                @RequestParam(required = false) String name,
+                                @RequestParam(required = false) String qqId,
+                                @RequestParam(required = false) String wechatId){
         UserFilter filter = new UserFilter();
-        filter.setPhone(phone.equals("null") ? null : phone);
-        filter.setName(name.equals("null") ? null : name);
-        filter.setQqId(qqId.equals("null") ? null : qqId);
-        filter.setWechatId(wechatId.equals("null") ? null : wechatId);
+        filter.setPhone(phone);
+        filter.setName(name);
+        filter.setQqId(qqId);
+        filter.setWechatId(wechatId);
+        System.out.println(filter);
         return Response.success(userService.getByFilter(filter));
     }
 

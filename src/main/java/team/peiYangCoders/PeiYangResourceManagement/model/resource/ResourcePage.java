@@ -20,4 +20,9 @@ public class ResourcePage {
 
     private String sortBy = "onTime";
 
+    public ResourcePage(int pageNum, int pageSize, String sortBy) {
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+        this.sortBy = sortBy;
+    }
 }
