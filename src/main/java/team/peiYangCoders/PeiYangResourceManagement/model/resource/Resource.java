@@ -10,6 +10,7 @@ import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /*
@@ -132,6 +133,10 @@ public class Resource {
             foreignKey = @ForeignKey(name = "resource_user_fk")
     )
     private User owner;
+
+
+    @OneToMany
+    private List<Item> items;
 
 
 

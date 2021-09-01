@@ -1,5 +1,6 @@
 package team.peiYangCoders.PeiYangResourceManagement.repository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +16,6 @@ import java.util.UUID;
 public interface ItemRepository extends JpaRepository<Item, UUID> {
 
     Optional<Item> findByItemCode(UUID itemCode);
-
-    List<Item> findAll(Sort sort, Pageable pageable);
 
     boolean existsByResource(Resource resource);
 }

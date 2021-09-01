@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.tomcat.jni.Local;
 
 import java.time.LocalDateTime;
 
@@ -60,6 +61,18 @@ public class Body {
         private String wechatId;
 
         private String avatarUrl;
+
+        private String phone;
+
+        private String studentId;
+
+        private String password;
+
+        private String tag;
+
+        private boolean studentCertified;
+
+        private Long id;
 
     }
 
@@ -124,6 +137,48 @@ public class Body {
         private LocalDateTime endsAt;
 
         private int campus;
+
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderInfos{
+
+        private String getterPhone;
+
+        private int count;
+
+        private String comments;
+
+        private String code;
+
+        private String ownerPhone;
+
+        private LocalDateTime openedTime;
+
+        private LocalDateTime closedTime;
+
+        private LocalDateTime acceptedTime;
+
+        private LocalDateTime canceledTime;
+
+        private LocalDateTime acceptingExpiresAt;
+
+        private LocalDateTime closingExpiresAt;
+
+        private boolean accepted;
+
+        private boolean canceled;
+
+        private boolean closedByOwner;
+
+        private boolean closedByGetter;
+
+        private boolean expired;
+
+        private boolean acceptedOrRejected;
 
     }
 

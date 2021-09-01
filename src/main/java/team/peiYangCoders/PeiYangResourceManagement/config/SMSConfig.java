@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 @Getter
 @Setter
-public class SMSParam {
+public class SMSConfig {
 
     private int appId = 1400565098;
 

@@ -10,7 +10,7 @@ import team.peiYangCoders.PeiYangResourceManagement.model.ConfirmationToken;
 import team.peiYangCoders.PeiYangResourceManagement.service.ConfirmationTokenService;
 
 @RestController
-@RequestMapping("api/v1/token")
+@RequestMapping("api/v1")
 public class ConfirmationTokenController {
 
     private final ConfirmationTokenService confirmationTokenService;
@@ -25,9 +25,9 @@ public class ConfirmationTokenController {
      * 所有的验证码都使用该接口去发送
      * @param phone : 提供手机号
      * */
-    @PostMapping("")
+    @PostMapping("token")
     public Response sendConfirmationToken(@RequestParam String phone){
-        return Response.okMessage(confirmationTokenService.send(phone));
+        return Response.success(confirmationTokenService.send(phone));
     }
 
 }

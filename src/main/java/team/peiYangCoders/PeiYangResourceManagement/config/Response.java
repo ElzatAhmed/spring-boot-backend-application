@@ -5,28 +5,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class Response {
 
-    public static int OK = 0;
-    public static int ERROR = 1;
-
-    public static String ok = "ok";
-    public static String error = "error";
-    public static String noSuchUser = "no such user";
-    public static String invalidPassword = "invalid password";
-    public static String invalidPhone = "invalid phone";
-    public static String permissionDenied = "permission denied";
-    public static String noSuchResource = "no such resource";
-    public static String invalidCode = "invalid code";
-    public static String invalidToken = "invalid token";
-    public static String tokenExpired = "token expired";
-    public static String userDisabled = "user disabled";
-    public static String doTheConfirmationTokenFirst = "";
-    public static String noSuchStudentId = "no such student id";
-    public static String studentIdIsUsed = "student id is used";
-    public static String invalidStudentName = "invalid student name";
-    public static String notVerified = "not verified";
-    public static String notAccepted = "not accepted";
-    public static String existsReleasedResource = "exists released resource";
-
     private String message;
 
     private int code;
@@ -47,14 +25,6 @@ public class Response {
         this.data = data;
     }
 
-    public static Response okMessage(){
-        return new Response("ok", OK);
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
     public int getCode() {
         return code;
     }
@@ -63,27 +33,85 @@ public class Response {
         return data;
     }
 
-    public static Response okMessage(String message){
-        return new Response(message, OK);
+    public boolean succeeded(){
+        return code == 100;
     }
-
-    public static Response okMessage(String message, Object data){
-        return new Response(message, OK, data);
+    public boolean failed(){
+        return code != 100;
     }
-
-    public static Response okMessage(Object data){
-        return new Response(ok, OK, data);
+    public static Response success(Object data){
+        return new Response("success", 100, data);
     }
-
-    public static Response errorMessage(){
-        return new Response(error, ERROR);
+    public static Response confirmationTokenError(){
+        return new Response("sending confirmation token failed", 600, null);
     }
-
-    public static Response errorMessage(String message){
-        return new Response(message, ERROR);
+    public static Response invalidPhone(){
+        return new Response("invalid phone", 601, null);
     }
-
-    public static Response errorMessage(String message, Object data){
-        return new Response(message, ERROR, data);
+    public static Response invalidConfirmationToken(){
+        return new Response("invalid confirmation token", 602, null);
+    }
+    public static Response invalidPassword(){
+        return new Response("invalid password", 603, null);
+    }
+    public static Response invalidStudentInfo(){
+        return new Response("invalid student information", 604, null);
+    }
+    public static Response invalidRegistrationCode(){
+        return new Response("invalid registration code", 605, null);
+    }
+    public static Response permissionDenied(){
+        return new Response("insufficient authority", 606, null);
+    }
+    public static Response invalidResourceCode(){
+        return new Response("invalid resource code", 701, null);
+    }
+    public static Response resourceUnavailableToRelease(){
+        return new Response("resource unavailable to release", 702, null);
+    }
+    public static Response resourceAlreadyReleased(){
+        return new Response("resource already released", 703, null);
+    }
+    public static Response resourceNotOwned(){
+        return new Response("resource is not belong to this user", 704, null);
+    }
+    public static Response invalidItemCode(){
+        return new Response("invalid item code", 801, null);
+    }
+    public static Response itemAlreadyOrdered(){
+        return new Response("item already ordered", 802, null);
+    }
+    public static Response itemNotOwned(){
+        return new Response("item is not belong to this user", 803, null);
+    }
+    public static Response itemNotSufficient(){
+        return new Response("item is not sufficient", 804, null);
+    }
+    public static Response invalidOrderCode(){
+        return new Response("invalid order code", 901, null);
+    }
+    public static Response orderNotOwned(){
+        return new Response("order is not belonged to this user", 902, null);
+    }
+    public static Response orderAlreadyAccepted(){
+        return new Response("order already accepted by owner", 903, null);
+    }
+    public static Response orderIsClosedByAtLeastOneSide(){
+        return new Response("order is closed by at least one side", 904, null);
+    }
+    public static Response orderAlreadyCanceled(){
+        return new Response("order already canceled", 905, null);
+    }
+    public static Response orderExpired(){
+        return new Response("order expired", 906, null);
+    }
+    public static Response orderNotAccepted(){
+        return new Response("order not accepted", 907, null);
+    }
+    public static Response orderIsClosedAtYourSide(){
+        return new Response("order is closed at your side", 908, null);
+    }
+    public static Response orderClosed(){
+        return new Response("order closed", 909, null);
     }
 }

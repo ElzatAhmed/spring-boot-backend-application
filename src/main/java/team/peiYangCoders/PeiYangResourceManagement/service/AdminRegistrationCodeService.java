@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.AdminRegistrationCode;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
-import team.peiYangCoders.PeiYangResourceManagement.model.user.UserInfo;
 import team.peiYangCoders.PeiYangResourceManagement.repository.AdminRegistrationCodeRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
 
@@ -32,9 +31,9 @@ public class AdminRegistrationCodeService {
     public Response addCode(String code, String phone){
         Optional<User> adder = userRepo.findByPhone(phone);
         if(!adder.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         if(!adder.get().isAdmin())
-            return Response.errorMessage(Response.permissionDenied);
-        return Response.okMessage(adminCodeRepo.save(new AdminRegistrationCode(code)));
+            return Response.permissionDenied();
+        return Response.success(adminCodeRepo.save(new AdminRegistrationCode(code)));
     }
 }

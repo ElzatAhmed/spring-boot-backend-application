@@ -178,7 +178,7 @@ public class User {
     * */
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(
-            mappedBy = "initiator",
+            mappedBy = "owner",
             orphanRemoval = true
     )
     private List<Order> initiated_orders = new ArrayList<>();
@@ -190,7 +190,7 @@ public class User {
      * */
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(
-            mappedBy = "recipient",
+            mappedBy = "getter",
             orphanRemoval = true
     )
     private List<Order> received_orders = new ArrayList<>();
@@ -210,19 +210,24 @@ public class User {
         return tag.equals(UserTag.admin);
     }
 
-    public User(UserInfo info){
-        this.phone = info.getPhone();
-        this.name = info.getName();
-        this.avatarUrl = info.getAvatarUrl();
-        this.password = info.getPassword();
-        this.qqId = info.getQqId();
-        this.wechatId = info.getWechatId();
-        this.tag = UserTag.valueOf(info.getTag());
-    }
-
     public User(Body.Register info){
         this.phone = info.getPhone();
         this.name = info.getName();
         this.password = info.getPassword();
+    }
+
+    public static Body.UserDetail toBody(User user){
+        Body.UserDetail detail = new Body.UserDetail();
+        detail.setName(user.getName());
+        detail.setQqId(user.getQqId());
+        detail.setWechatId(user.getWechatId());
+        detail.setAvatarUrl(user.getAvatarUrl());
+        detail.setPhone(user.getPhone());
+        detail.setStudentId(user.getStudentId());
+        detail.setPassword(user.getPassword());
+        detail.setTag(user.getTag().toString());
+        detail.setStudentCertified(user.isStudentCertified());
+        detail.setId(user.getId());
+        return detail;
     }
 }

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -60,15 +59,15 @@ public class ConfirmationToken {
             nullable = false,
             updatable = false
     )
-    private String user_phone;
+    private String userPhone;
 
 
     public ConfirmationToken(String token, LocalDateTime createdAt,
-                             LocalDateTime expiresAt, String user_phone) {
+                             LocalDateTime expiresAt, String userPhone) {
         this.token = token;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.user_phone = user_phone;
+        this.userPhone = userPhone;
     }
 
     private static String generateRandomToken(int length){

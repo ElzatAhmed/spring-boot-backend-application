@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
+import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -107,6 +109,10 @@ public class Item {
             updatable = false
     )
     private Resource resource;
+
+
+    @OneToMany
+    private List<Order> orders;
 
 
     public static Item getFromBody(Body.ItemInfos infos, Resource resource){

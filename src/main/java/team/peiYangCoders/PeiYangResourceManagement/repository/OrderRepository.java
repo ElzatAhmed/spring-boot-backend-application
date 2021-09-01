@@ -8,45 +8,18 @@ import team.peiYangCoders.PeiYangResourceManagement.model.tags.OrderTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
-    List<Order> findAllByInitiator(User initiator);
+    Optional<Order> findByCode(UUID code);
 
-    List<Order> findAllByRecipient(User recipient);
+    List<Order> findByGetter(User getter);
 
-    List<Order> findAllByInitiatorAndRecipient(User initiator, User recipient);
+    List<Order> findByOwner(User owner);
 
-    List<Order> findAllByResourceAndInitiatorAndRecipient(
-            Resource resource,
-            User initiator,
-            User recipient
-    );
-
-    List<Order> findAllByClosed(boolean closed);
-
-    List<Order> findAllByClosedAndInitiator(boolean closed, User initiator);
-
-    List<Order> findAllByClosedAndRecipient(boolean closed, User recipient);
-
-    List<Order> findAllByClosedAndInitiatorAndRecipient(
-            boolean closed,
-            User initiator,
-            User recipient
-    );
-
-    List<Order> findAllByTag(OrderTag tag);
-
-    List<Order> findAllByTagAndInitiator(OrderTag tag, User initiator);
-
-    List<Order> findAllByTagAndRecipient(OrderTag tag, User recipient);
-
-    List<Order> findAllByTagAndInitiatorAndRecipient(
-            OrderTag tag,
-            User initiator,
-            User recipient
-    );
+    List<Order> findByAccepted(boolean accepted);
 
 }

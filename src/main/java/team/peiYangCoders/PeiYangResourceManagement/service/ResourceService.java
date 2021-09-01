@@ -1,6 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,91 +24,91 @@ public class ResourceService {
 
     private final ResourceRepository resourceRepo;
     private final UserRepository userRepo;
-    private final ItemRepository releasedResourceRepo;
+    private final ItemRepository itemRepo;
 
     @Autowired
     public ResourceService(ResourceRepository resourceRepo,
                            UserRepository userRepo,
-                           ItemRepository releasedResourceRepo) {
+                           ItemRepository itemRepo) {
         this.resourceRepo = resourceRepo;
         this.userRepo = userRepo;
-        this.releasedResourceRepo = releasedResourceRepo;
+        this.itemRepo = itemRepo;
     }
 
     public Response postNewResource(Body.ResourceInfos resourceInfos, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         Resource resource = Resource.getFromBody(resourceInfos, maybeUser.get());
-        return Response.okMessage(resourceRepo.save(resource).getCode());
+        return Response.success(resourceRepo.save(resource).getCode());
     }
 
     public Response postMultipleNewResources(List<Body.ResourceInfos> resourceInfos, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         List<UUID> responses = new ArrayList<>();
         for(Body.ResourceInfos resourceInfo : resourceInfos){
             Resource resource = Resource.getFromBody(resourceInfo, maybeUser.get());
             responses.add(resource.getCode());
         }
-        return Response.okMessage(responses);
+        return Response.success(responses);
     }
 
     public Response releaseResource(String resourceCode, String ownerPhone, Body.ItemInfos infos){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
         if(!maybeResource.isPresent())
-            return Response.errorMessage(Response.noSuchResource);
+            return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         if(!resource.getOwner().getPhone().equals(ownerPhone))
-            return Response.errorMessage(Response.permissionDenied);
+            return Response.resourceNotOwned();
         if(!resource.isVerified())
-            return Response.errorMessage(Response.notVerified);
+            return Response.resourceUnavailableToRelease();
         if(!resource.isAccepted())
-            return Response.errorMessage(Response.notAccepted);
+            return Response.resourceUnavailableToRelease();
         Item item = Item.getFromBody(infos, maybeResource.get());
-        item = releasedResourceRepo.save(item);
-        return Response.okMessage(item.getItemCode());
+        item = itemRepo.save(item);
+        return Response.success(item.getItemCode());
     }
 
-    public Response retractResource(String releaseCode, String ownerPhone){
+    public Response retractItem(String itemCode, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
-        Optional<Item> maybeRe = releasedResourceRepo.findByItemCode(UUID.fromString(releaseCode));
+            return Response.invalidPhone();
+        Optional<Item> maybeRe = itemRepo.findByItemCode(UUID.fromString(itemCode));
         if(!maybeRe.isPresent())
-            return Response.errorMessage(Response.noSuchResource);
-        Item resource = maybeRe.get();
-        if(!resource.getResource().getOwner().getPhone().equals(ownerPhone))
-            return Response.errorMessage(Response.permissionDenied);
-        releasedResourceRepo.delete(resource);
-        return Response.okMessage();
+            return Response.invalidItemCode();
+        Item item = maybeRe.get();
+        if(!item.getResource().getOwner().getPhone().equals(ownerPhone))
+            return Response.itemNotOwned();
+        itemRepo.delete(item);
+        return Response.success(null);
     }
 
     public Response deleteResource(String resourceCode, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
         if(!maybeResource.isPresent())
-            return Response.errorMessage(Response.noSuchResource);
+            return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         if(!resource.getOwner().getPhone().equals(ownerPhone))
-            return Response.errorMessage(Response.permissionDenied);
-        boolean exists = releasedResourceRepo.existsByResource(resource);
+            return Response.resourceNotOwned();
+        boolean exists = itemRepo.existsByResource(resource);
         if(exists)
-            return Response.errorMessage(Response.existsReleasedResource);
+            return Response.resourceAlreadyReleased();
         resourceRepo.delete(resource);
-        return Response.okMessage(resource.getCode());
+        return Response.success(resource.getCode());
     }
 
     public Response deleteMultipleResources(List<String> resourceCodes, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         List<String> codes = new ArrayList<>();
         for(String resourceCode : resourceCodes){
             Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
@@ -117,70 +118,70 @@ public class ResourceService {
             codes.add(resource.getCode().toString());
             resourceRepo.delete(resource);
         }
-        return Response.okMessage(codes);
+        return Response.success(codes);
     }
 
     public Response updateResourceInfo(Body.ResourceInfos newInfo, String resourceCode, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
         if(!maybeResource.isPresent())
-            return Response.errorMessage(Response.noSuchResource);
+            return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         if(!resource.getOwner().getPhone().equals(ownerPhone))
-            return Response.errorMessage(Response.permissionDenied);
-        boolean exists = releasedResourceRepo.existsByResource(resource);
+            return Response.resourceNotOwned();
+        boolean exists = itemRepo.existsByResource(resource);
         if(exists)
-            return Response.errorMessage(Response.existsReleasedResource);
+            return Response.resourceAlreadyReleased();
         Resource newResource = Resource.getFromBody(newInfo, maybeUser.get());
         newResource.setCode(resource.getCode());
         resource = resourceRepo.save(newResource);
-        return Response.okMessage(resource.getCode());
+        return Response.success(resource.getCode());
     }
 
     public Response acceptResource(String resourceCode, String adminPhone){
         Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         User user = maybeUser.get();
         if(!user.isAdmin())
-            return Response.errorMessage(Response.permissionDenied);
+            return Response.permissionDenied();
         Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
         if(!maybeResource.isPresent())
-            return Response.errorMessage(Response.noSuchResource);
+            return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         resource.setVerified(true);
         resource.setAccepted(true);
         resource = resourceRepo.save(resource);
-        return Response.okMessage(resource.getCode());
+        return Response.success(resource.getCode());
     }
 
     public Response rejectResource(String resourceCode, String adminPhone){
         Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
         if(!maybeUser.isPresent())
-            return Response.errorMessage(Response.noSuchUser);
+            return Response.invalidPhone();
         User user = maybeUser.get();
         if(!user.isAdmin())
-            return Response.errorMessage(Response.permissionDenied);
+            return Response.permissionDenied();
         Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
         if(!maybeResource.isPresent())
-            return Response.errorMessage(Response.noSuchResource);
+            return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         resource.setVerified(true);
         resource.setAccepted(false);
         resource = resourceRepo.save(resource);
-        return Response.okMessage(resource.getCode());
+        return Response.success(resource.getCode());
     }
 
     public Response getItem(ItemFilter filter){
-        List<Item> items = releasedResourceRepo.findAll();
+        List<Item> items = itemRepo.findAll();
         List<Body.ItemInfos> resultInfos = new ArrayList<>();
         for(Item resource : items){
             if(filter.match(resource))
                 resultInfos.add(Item.toBody(resource));
         }
-        return Response.okMessage(resultInfos);
+        return Response.success(resultInfos);
     }
 
     public Response getResource(ResourceFilter filter){
@@ -190,17 +191,17 @@ public class ResourceService {
             if(filter.match(resource))
                 resultInfos.add(Resource.toBody(resource));
         }
-        return Response.okMessage(resultInfos);
+        return Response.success(resultInfos);
     }
 
     public Response getPage(ResourcePage page){
         Sort sort = Sort.by(page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
-        List<Item> resources = releasedResourceRepo.findAll(sort, pageable);
+        Page<Item> resources = itemRepo.findAll(pageable);
         List<Body.ItemInfos> resultInfos = new ArrayList<>();
         for(Item resource : resources){
             resultInfos.add(Item.toBody(resource));
         }
-        return Response.okMessage(resultInfos);
+        return Response.success(resultInfos);
     }
 }

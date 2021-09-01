@@ -4,21 +4,34 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
+import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.UserFilter;
 import team.peiYangCoders.PeiYangResourceManagement.service.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/")
 public class UserController {
 
     private final UserService userService;
+    private final ConfirmationTokenService confirmationTokenService;
+    private final StudentIdService studentIdService;
+    private final AdminRegistrationCodeService adminCodeService;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                          ConfirmationTokenService confirmationTokenService,
+                          StudentIdService studentIdService,
+                          AdminRegistrationCodeService adminCodeService) {
         this.userService = userService;
+        this.confirmationTokenService = confirmationTokenService;
+        this.studentIdService = studentIdService;
+        this.adminCodeService = adminCodeService;
     }
 
 
-    @PostMapping("/user")
+    @GetMapping("/user")
     public Response ordinaryLogin(@RequestBody Body.Login info){
         return userService.ordinaryLogin(info);
     }
@@ -29,7 +42,12 @@ public class UserController {
     public Response ordinaryRegister(
             @RequestBody Body.Register info,
             @RequestParam String token){
-        return userService.ordinaryRegister(info, token);
+        if(userService.getByPhone(info.getPhone()).isPresent())
+            return Response.invalidPhone();
+        Response response = confirmationTokenService.receive(info.getPhone(), token);
+        if(response.succeeded())
+            return Response.success(userService.addNewUser(info, false));
+        return response;
     }
 
 
@@ -37,7 +55,13 @@ public class UserController {
     public Response updatePassword(
             @RequestBody Body.NewPassword info,
             @RequestParam String phone){
-        return userService.updatePassword(info, phone);
+        Optional<User> user = userService.getByPhone(phone);
+        if(!user.isPresent())
+            return Response.invalidPhone();
+        Response response = confirmationTokenService.receive(phone, info.getToken());
+        if(response.succeeded())
+            return Response.success(userService.updatePassword(user.get(), info.getNewPassword()));
+        return response;
     }
 
 
@@ -53,12 +77,19 @@ public class UserController {
     public Response studentCertification(
             @RequestBody Body.Certification certificate,
             @RequestParam String phone){
-        return userService.studentCertification(certificate, phone);
+        Optional<User> user = userService.getByPhone(phone);
+        if(!user.isPresent())
+            return Response.invalidPhone();
+        return studentIdService.studentCertification(
+                user.get(),
+                certificate.getStudentId(),
+                certificate.getStudentName(),
+                certificate.getStudentPassword());
     }
 
 
 
-    @PostMapping("admin")
+    @GetMapping("admin")
     public Response adminLogin(@RequestBody Body.Login info){
         return userService.adminLogin(info);
     }
@@ -68,13 +99,20 @@ public class UserController {
     public Response adminRegister(
             @RequestBody Body.Register info,
             @RequestParam String code, String token){
-        return userService.adminRegister(info, code, token);
+        if(userService.getByPhone(info.getPhone()).isPresent())
+            return Response.invalidPhone();
+        if(!adminCodeService.isValid(code))
+            return Response.invalidRegistrationCode();
+        Response response = confirmationTokenService.receive(info.getPhone(), token);
+        if(response.succeeded())
+            return Response.success(userService.addNewUser(info, true));
+        return response;
     }
 
 
     @GetMapping("users")
     public Response getByFilter(@RequestBody UserFilter filter){
-        return Response.okMessage(userService.getByFilter(filter));
+        return Response.success(userService.getByFilter(filter));
     }
 
 
