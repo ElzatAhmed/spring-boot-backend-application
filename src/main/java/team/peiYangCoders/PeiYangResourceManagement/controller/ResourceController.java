@@ -8,7 +8,7 @@ import team.peiYangCoders.PeiYangResourceManagement.model.resource.ItemFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourceFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.ItemPage;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
-import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceType;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.ItemType;
 import team.peiYangCoders.PeiYangResourceManagement.service.ResourceService;
 import team.peiYangCoders.PeiYangResourceManagement.service.UserTokenService;
 
@@ -228,7 +228,7 @@ public class ResourceController {
             return Response.invalidUserToken();
         ItemFilter filter = new ItemFilter();
         filter.setCode(code == null ? null : UUID.fromString(code));
-        filter.setType(type == null ? null : ResourceType.valueOf(type));
+        filter.setType(type == null ? null : ItemType.valueOf(type));
         filter.setNeeds2Pay(needs2pay);
         filter.setOrdered(ordered);
         filter.setCompleted(completed);

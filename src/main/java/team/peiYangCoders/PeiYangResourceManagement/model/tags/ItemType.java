@@ -1,6 +1,6 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.tags;
 
-public enum ResourceType {
+public enum ItemType {
 
     lease,
     sell

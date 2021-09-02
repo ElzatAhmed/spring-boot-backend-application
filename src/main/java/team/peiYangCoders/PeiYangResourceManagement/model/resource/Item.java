@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
-import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceType;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.ItemType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public class Item {
             nullable = false,
             updatable = false
     )
-    private ResourceType type;
+    private ItemType type;
 
     @Column(
             name = "count",
@@ -124,7 +124,7 @@ public class Item {
 
     public static Item getFromBody(Body.ItemInfos infos, Resource resource){
         Item item = new Item();
-        item.type = ResourceType.valueOf(infos.getType());
+        item.type = ItemType.valueOf(infos.getType());
         item.count = infos.getCount();
         item.needs2Pay = infos.isNeeds2pay();
         item.fee = infos.getFee();

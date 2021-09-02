@@ -1,7 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.model.resource;
 
 import lombok.*;
-import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceType;
+import team.peiYangCoders.PeiYangResourceManagement.model.tags.ItemType;
 
 import java.util.UUID;
 
@@ -14,7 +14,7 @@ public class ItemFilter {
 
     private UUID code = null;
 
-    private ResourceType type = null;
+    private ItemType type = null;
 
     private Boolean needs2Pay = null;
 
