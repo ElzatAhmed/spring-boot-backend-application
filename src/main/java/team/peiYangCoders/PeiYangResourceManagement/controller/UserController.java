@@ -18,105 +18,199 @@ public class UserController {
     private final ConfirmationTokenService confirmationTokenService;
     private final StudentIdService studentIdService;
     private final AdminRegistrationCodeService adminCodeService;
+    private final UserTokenService userTokenService;
 
     @Autowired
     public UserController(UserService userService,
                           ConfirmationTokenService confirmationTokenService,
                           StudentIdService studentIdService,
-                          AdminRegistrationCodeService adminCodeService) {
+                          AdminRegistrationCodeService adminCodeService,
+                          UserTokenService userTokenService) {
         this.userService = userService;
         this.confirmationTokenService = confirmationTokenService;
         this.studentIdService = studentIdService;
         this.adminCodeService = adminCodeService;
+        this.userTokenService = userTokenService;
     }
 
 
+    /**
+     * user login api
+     * @param userPhone : user phone number
+     * @param password : user password
+     * */
     @GetMapping("/user")
-    public Response ordinaryLogin(@RequestParam String phone, String password){
-        Body.Login info = new Body.Login(phone, password);
-        return userService.ordinaryLogin(info);
+    public Response ordinaryLogin(@RequestParam(name = "user_phone") String userPhone,
+                                  @RequestParam(name = "password") String password){
+        Body.Login info = new Body.Login(userPhone, password);
+        Response response = userService.ordinaryLogin(info);
+        return response.succeeded() ? userTokenService.provideNewCode(userPhone) : response;
     }
 
 
 
+    /**
+     * user register api
+     * @param info : register information body
+     *             {
+     *                  "phone": "",
+     *                  "name": "",
+     *                  "password": ""
+     *             }
+     * @param confirmationToken : the confirmation token user received
+     * */
     @PostMapping("/user")
     public Response ordinaryRegister(
             @RequestBody Body.Register info,
-            @RequestParam String token){
-        if(userService.getByPhone(info.getPhone()).isPresent())
+            @RequestParam(name = "confirm_token") String confirmationToken){
+        if(userService.getByPhone(info.getUser_phone()).isPresent())
             return Response.invalidPhone();
-        Response response = confirmationTokenService.receive(info.getPhone(), token);
+        Response response = confirmationTokenService.receive(info.getUser_phone(), confirmationToken);
         if(response.succeeded())
             return Response.success(userService.addNewUser(info, false));
         return response;
     }
 
 
+    /**
+     * user update password api
+     * @param info : NewPassword information body
+     *             {
+     *                  "newPassword": "",
+     *                  "token": ""
+     *             }
+     * @param userPhone : user phone number
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @PutMapping("user/password")
     public Response updatePassword(
             @RequestBody Body.NewPassword info,
-            @RequestParam String phone){
-        Optional<User> user = userService.getByPhone(phone);
+            @RequestParam(name = "user_phone") String userPhone,
+            @RequestParam(name = "user_token") String userToken){
+        Optional<User> user = userService.getByPhone(userPhone);
         if(!user.isPresent())
             return Response.invalidPhone();
-        Response response = confirmationTokenService.receive(phone, info.getToken());
-        if(response.succeeded())
-            return Response.success(userService.updatePassword(user.get(), info.getNewPassword()));
-        return response;
+        Response response = confirmationTokenService.receive(userPhone, info.getConfirm_token());
+        if(response.failed())
+            return response;
+        if(!userTokenService.codeIsValid(userPhone, userToken))
+            return Response.invalidUserCode();
+        return Response.success(userService.updatePassword(user.get(), info.getNew_password()));
     }
 
 
+    /**
+     * user update information api
+     * @param detail : UserDetail information body
+     *               {
+     *                      "name": "",
+     *                      "qqId": "",
+     *                      "wechatId": "",
+     *                      "avatarUrl": ""
+     *               }
+     * @param userPhone : user phone number
+     * */
     @PutMapping("user")
     public Response updateInfo(
             @RequestBody Body.UserDetail detail,
-            @RequestParam String phone){
-        return userService.updateInfo(detail, phone);
+            @RequestParam(name = "user_phone") String userPhone,
+            @RequestParam(name = "user_token") String userToken){
+        if(!userTokenService.codeIsValid(userPhone, userToken))
+            return Response.invalidUserCode();
+        return userService.updateInfo(detail, userPhone);
     }
 
 
+    /**
+     * user student certification api
+     * @param certificate : Certification information body
+     *                    {
+     *                          "studentId": "",
+     *                          "studentName": "",
+     *                          "studentPassword": ""
+     *                    }
+     * @param userPhone : user phone number
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @PostMapping("user/student")
     public Response studentCertification(
             @RequestBody Body.Certification certificate,
-            @RequestParam String phone){
-        Optional<User> user = userService.getByPhone(phone);
+            @RequestParam(name = "user_phone") String userPhone,
+            @RequestParam(name = "user_token") String userToken){
+        Optional<User> user = userService.getByPhone(userPhone);
         if(!user.isPresent())
             return Response.invalidPhone();
+        if(!userTokenService.codeIsValid(userPhone, userToken))
+            return Response.invalidUserCode();
         return studentIdService.studentCertification(
                 user.get(),
-                certificate.getStudentId(),
-                certificate.getStudentName(),
-                certificate.getStudentPassword());
+                certificate.getStudent_id(),
+                certificate.getStudent_name(),
+                certificate.getStudent_password());
     }
 
 
-
+    /**
+     * administrator login api
+     * @param userPhone : admin phone number
+     * @param password : admin password
+     * */
     @GetMapping("admin")
-    public Response adminLogin(@RequestParam String phone, String password){
-        Body.Login info = new Body.Login(phone, password);
-        return userService.adminLogin(info);
+    public Response adminLogin(@RequestParam(name = "user_phone") String userPhone,
+                               @RequestParam(name = "password") String password){
+        Body.Login info = new Body.Login(userPhone, password);
+        Response response = userService.adminLogin(info);
+        return response.succeeded() ? userTokenService.provideNewCode(userPhone) : response;
     }
 
 
+    /**
+     * administrator register api
+     * @param info : register information body
+     *             {
+     *                  "phone": "",
+     *                  "name": "",
+     *                  "password": ""
+     *             }
+     * @param registrationCode : admin registration code
+     * @param confirmationToken : the confirmation token admin received
+     * */
     @PostMapping("admin")
     public Response adminRegister(
             @RequestBody Body.Register info,
-            @RequestParam String code, String token){
-        if(userService.getByPhone(info.getPhone()).isPresent())
+            @RequestParam(name = "reg_code") String registrationCode,
+            @RequestParam(name = "confirm_Token") String confirmationToken){
+        System.out.println(info);
+        if(userService.getByPhone(info.getUser_phone()).isPresent())
             return Response.invalidPhone();
-        if(!adminCodeService.isValid(code))
+        if(!adminCodeService.isValid(registrationCode))
             return Response.invalidRegistrationCode();
-        Response response = confirmationTokenService.receive(info.getPhone(), token);
-        if(response.succeeded())
+        Response response = confirmationTokenService.receive(info.getUser_phone(), confirmationToken);
+        if(response.succeeded()) {
             return Response.success(userService.addNewUser(info, true));
+        }
         return response;
     }
 
 
+    /**
+     * get user by filter api
+     * @param userPhone : user phone number
+     * @param userToken : the valid token system has distributed to the user
+     * @param phone : filter param, not required
+     * @param name : filter param, not required
+     * @param qqId : filter param, not required
+     * @param wechatId : filter param, not required
+     * */
     @GetMapping("users")
-    public Response getByFilter(@RequestParam(required = false) String phone,
+    public Response getByFilter(@RequestParam(name = "user_phone") String userPhone,
+                                @RequestParam(name = "user_token") String userToken,
+                                @RequestParam(required = false) String phone,
                                 @RequestParam(required = false) String name,
                                 @RequestParam(required = false) String qqId,
                                 @RequestParam(required = false) String wechatId){
+        if(!userTokenService.codeIsValid(userPhone, userToken))
+            return Response.invalidUserCode();
         UserFilter filter = new UserFilter();
         filter.setPhone(phone);
         filter.setName(name);
@@ -127,8 +221,18 @@ public class UserController {
     }
 
 
+    /**
+     * admin delete user api
+     * @param adminPhone : admin phone number
+     * @param userPhone : user phone number
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @DeleteMapping("users")
-    public Response deleteUser(@RequestParam String adminPhone, String userPhone){
+    public Response deleteUser(@RequestParam(name = "admin_phone") String adminPhone,
+                               @RequestParam(name = "user_phone") String userPhone,
+                               @RequestParam(name = "user_token") String userToken){
+        if(!userTokenService.codeIsValid(adminPhone, userToken))
+            return Response.invalidUserCode();
         return userService.deleteUser(adminPhone, userPhone);
     }
 }

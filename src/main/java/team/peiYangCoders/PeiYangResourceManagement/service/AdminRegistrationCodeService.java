@@ -25,7 +25,16 @@ public class AdminRegistrationCodeService {
 
     public boolean isValid(String code){
         Optional<AdminRegistrationCode> adminCode = adminCodeRepo.findByCode(code);
-        return adminCode.isPresent() && !adminCode.get().isUsed();
+        if(adminCode.isPresent() && !adminCode.get().isUsed()){
+            use(adminCode.get());
+            return true;
+        }
+        return false;
+    }
+
+    public void use(AdminRegistrationCode code){
+        code.setUsed(true);
+        adminCodeRepo.save(code);
     }
 
     public Response addCode(String code, String phone){

@@ -46,6 +46,13 @@ public class Item {
     private int count;
 
     @Column(
+            name = "on_time",
+            nullable = false,
+            updatable = false
+    )
+    private LocalDateTime onTime;
+
+    @Column(
             name = "needs2Pay",
             nullable = false,
             updatable = false
@@ -119,27 +126,29 @@ public class Item {
         Item item = new Item();
         item.type = ResourceType.valueOf(infos.getType());
         item.count = infos.getCount();
-        item.needs2Pay = infos.isNeeds2Pay();
+        item.needs2Pay = infos.isNeeds2pay();
         item.fee = infos.getFee();
-        item.feeUnit = infos.getFeeUnit();
+        item.feeUnit = infos.getFee_unit();
         item.campus = infos.getCampus();
         item.startsAt = infos.getStartsAt();
         item.endsAt = infos.getEndsAt();
         item.resource = resource;
+        item.onTime = infos.getOnTime();
         return item;
     }
 
     public static Body.ItemInfos toBody(Item item){
         Body.ItemInfos infos = new Body.ItemInfos();
-        infos.setCode(item.getItemCode().toString());
+        infos.setItem_code(item.getItemCode().toString());
         infos.setType(item.getType().toString());
         infos.setCount(item.getCount());
-        infos.setNeeds2Pay(item.isNeeds2Pay());
+        infos.setNeeds2pay(item.isNeeds2Pay());
         infos.setFee(item.getFee());
-        infos.setFeeUnit(item.getFeeUnit());
+        infos.setFee_unit(item.getFeeUnit());
         infos.setCampus(item.getCampus());
         infos.setStartsAt(item.getStartsAt());
         infos.setEndsAt(item.getEndsAt());
+        infos.setOnTime(item.onTime);
         return infos;
     }
 

@@ -22,7 +22,7 @@ public class UserService {
     }
 
     public Response ordinaryLogin(Body.Login loginInfo){
-        Optional<User> user = userRepo.findByPhone(loginInfo.getPhone());
+        Optional<User> user = userRepo.findByPhone(loginInfo.getUser_phone());
         if(!user.isPresent()) return Response.invalidPhone();
         if(!user.get().getPassword().equals(loginInfo.getPassword()))
             return Response.invalidPassword();
@@ -34,7 +34,7 @@ public class UserService {
         if(!user.isPresent())
             return Response.invalidPhone();
         User newUser = user.get();
-        newUser.setName(detail.getName());
+        newUser.setName(detail.getUser_name());
         newUser.setQqId(detail.getQqId());
         newUser.setWechatId(detail.getWechatId());
         newUser.setAvatarUrl(detail.getAvatarUrl());
@@ -42,7 +42,7 @@ public class UserService {
     }
 
     public Response adminLogin(Body.Login info){
-        Response response = isAdmin(info.getPhone());
+        Response response = isAdmin(info.getUser_phone());
         if(response.failed())
             return response;
         Body.UserDetail userInfo = (Body.UserDetail) response.getData();

@@ -14,6 +14,7 @@ import team.peiYangCoders.PeiYangResourceManagement.repository.ItemRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ResourceRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +72,7 @@ public class ResourceService {
         if(!resource.isAccepted())
             return Response.resourceUnavailableToRelease();
         Item item = Item.getFromBody(infos, maybeResource.get());
+        item.setOnTime(LocalDateTime.now());
         item = itemRepo.save(item);
         return Response.success(item.getItemCode());
     }
@@ -195,7 +197,7 @@ public class ResourceService {
         return Response.success(resultInfos);
     }
 
-    public Response getPage(ResourcePage page){
+    public Response getPage(ItemPage page){
         Sort sort = Sort.by(page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
         Page<Item> resources = itemRepo.findAll(pageable);

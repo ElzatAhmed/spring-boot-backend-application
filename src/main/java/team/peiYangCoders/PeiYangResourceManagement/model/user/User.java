@@ -211,18 +211,18 @@ public class User {
     }
 
     public User(Body.Register info){
-        this.phone = info.getPhone();
-        this.name = info.getName();
+        this.phone = info.getUser_phone();
+        this.name = info.getUser_name();
         this.password = info.getPassword();
     }
 
     public static Body.UserDetail toBody(User user){
         Body.UserDetail detail = new Body.UserDetail();
-        detail.setName(user.getName());
+        detail.setUser_name(user.getName());
         detail.setQqId(user.getQqId());
         detail.setWechatId(user.getWechatId());
         detail.setAvatarUrl(user.getAvatarUrl());
-        detail.setPhone(user.getPhone());
+        detail.setUser_phone(user.getPhone());
         detail.setStudentId(user.getStudentId());
         detail.setPassword(user.getPassword());
         detail.setTag(user.getTag().toString());

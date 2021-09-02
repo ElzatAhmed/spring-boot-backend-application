@@ -230,7 +230,7 @@ public class Order {
         Body.OrderInfos infos = new Body.OrderInfos();
         infos.setCount(order.getCount());
         infos.setComments(order.getComments());
-        infos.setGetterPhone(order.getGetter().getPhone());
+        infos.setGetter_phone(order.getGetter().getPhone());
         infos.setCode(order.getCode().toString());
         infos.setOpenedTime(order.getOpenedTime());
         infos.setClosedTime(order.getClosedTime());

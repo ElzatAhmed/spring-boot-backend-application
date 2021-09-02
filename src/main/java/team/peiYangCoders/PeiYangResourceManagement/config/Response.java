@@ -1,8 +1,16 @@
 package team.peiYangCoders.PeiYangResourceManagement.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Response {
 
     private String message;
@@ -10,28 +18,6 @@ public class Response {
     private int code;
 
     private Object data;
-
-    public Response() {
-    }
-
-    public Response(String message, int code) {
-        this.message = message;
-        this.code = code;
-    }
-
-    public Response(String message, int code, Object data) {
-        this.message = message;
-        this.code = code;
-        this.data = data;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public Object getData() {
-        return data;
-    }
 
     public boolean succeeded(){
         return code == 100;
@@ -62,6 +48,9 @@ public class Response {
     }
     public static Response permissionDenied(){
         return new Response("insufficient authority", 606, null);
+    }
+    public static Response invalidUserCode(){
+        return new Response("invalid user code", 607, null);
     }
     public static Response invalidResourceCode(){
         return new Response("invalid resource code", 701, null);

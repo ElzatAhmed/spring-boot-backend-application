@@ -9,7 +9,6 @@ import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -142,10 +141,10 @@ public class Resource {
 
     public static Resource getFromBody(Body.ResourceInfos resourceInfos, User owner){
         Resource resource = new Resource();
-        resource.setName(resourceInfos.getName());
+        resource.setName(resourceInfos.getResource_name());
         resource.setDescription(resourceInfos.getDescription());
         resource.setTag(ResourceTag.valueOf(resourceInfos.getTag()));
-        resource.setImageUrl(resourceInfos.getImageUrl());
+        resource.setImageUrl(resourceInfos.getImage_url());
         resource.setVerified(false);
         resource.setReleased(false);
         resource.setOwner(owner);
@@ -154,14 +153,14 @@ public class Resource {
 
     public static Body.ResourceInfos toBody(Resource resource){
         Body.ResourceInfos infos = new Body.ResourceInfos();
-        infos.setCode(resource.getCode().toString());
-        infos.setName(resource.getName());
+        infos.setResource_code(resource.getCode().toString());
+        infos.setResource_name(resource.getName());
         infos.setDescription(resource.getDescription());
         infos.setTag(resource.getTag().toString());
-        infos.setImageUrl(resource.getImageUrl());
+        infos.setImage_url(resource.getImageUrl());
         infos.setVerified(resource.isVerified());
         infos.setReleased(infos.isReleased());
-        infos.setOwnerPhone(resource.getOwner().getPhone());
+        infos.setOwner_phone(resource.getOwner().getPhone());
         return infos;
     }
 }

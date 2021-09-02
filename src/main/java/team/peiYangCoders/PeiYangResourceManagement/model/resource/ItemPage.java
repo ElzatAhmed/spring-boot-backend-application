@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResourcePage {
+public class ItemPage {
 
     private int pageNum;
 
@@ -20,7 +20,7 @@ public class ResourcePage {
 
     private String sortBy = "onTime";
 
-    public ResourcePage(int pageNum, int pageSize, String sortBy) {
+    public ItemPage(int pageNum, int pageSize, String sortBy) {
         this.pageNum = pageNum;
         this.pageSize = pageSize;
         this.sortBy = sortBy;

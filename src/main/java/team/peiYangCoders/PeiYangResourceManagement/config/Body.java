@@ -1,9 +1,6 @@
 package team.peiYangCoders.PeiYangResourceManagement.config;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.apache.tomcat.jni.Local;
 
 import java.time.LocalDateTime;
@@ -16,7 +13,7 @@ public class Body {
     @AllArgsConstructor
     public static class Login {
 
-        private String phone;
+        private String user_phone;
 
         private String password;
 
@@ -26,11 +23,12 @@ public class Body {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @ToString
     public static class Register {
 
-        private String phone;
+        private String user_phone;
 
-        private String name;
+        private String user_name;
 
         private String password;
 
@@ -42,9 +40,9 @@ public class Body {
     @AllArgsConstructor
     public static class NewPassword {
 
-        private String newPassword;
+        private String new_password;
 
-        private String token;
+        private String confirm_token;
 
     }
 
@@ -54,7 +52,7 @@ public class Body {
     @AllArgsConstructor
     public static class UserDetail{
 
-        private String name;
+        private String user_name;
 
         private String qqId;
 
@@ -62,7 +60,7 @@ public class Body {
 
         private String avatarUrl;
 
-        private String phone;
+        private String user_phone;
 
         private String studentId;
 
@@ -82,11 +80,11 @@ public class Body {
     @AllArgsConstructor
     public static class Certification{
 
-        private String studentId;
+        private String student_id;
 
-        private String studentName;
+        private String student_name;
 
-        private String studentPassword;
+        private String student_password;
 
     }
 
@@ -96,17 +94,17 @@ public class Body {
     @AllArgsConstructor
     public static class ResourceInfos {
 
-        private String code;
+        private String resource_code;
 
-        private String name;
+        private String resource_name;
 
         private String description;
 
         private String tag;
 
-        private String imageUrl;
+        private String image_url;
 
-        private String ownerPhone;
+        private String owner_phone;
 
         private boolean verified;
 
@@ -120,23 +118,25 @@ public class Body {
     @AllArgsConstructor
     public static class ItemInfos {
 
-        private String code;
+        private String item_code;
 
         private String type;
 
-        private boolean needs2Pay;
+        private boolean needs2pay;
 
         private int fee;
 
         private int count;
 
-        private String feeUnit;
+        private String fee_unit;
 
         private LocalDateTime startsAt;
 
         private LocalDateTime endsAt;
 
         private int campus;
+
+        private LocalDateTime onTime;
 
     }
 
@@ -146,7 +146,7 @@ public class Body {
     @AllArgsConstructor
     public static class OrderInfos{
 
-        private String getterPhone;
+        private String getter_phone;
 
         private int count;
 
@@ -154,7 +154,7 @@ public class Body {
 
         private String code;
 
-        private String ownerPhone;
+        private String owner_phone;
 
         private LocalDateTime openedTime;
 
