@@ -182,7 +182,7 @@ public class UserController {
     public Response adminRegister(
             @RequestBody Body.Register info,
             @RequestParam(name = "reg_code") String registrationCode,
-            @RequestParam(name = "confirm_Token") String confirmationToken){
+            @RequestParam(name = "confirm_token") String confirmationToken){
         System.out.println(info);
         if(userService.getByPhone(info.getUser_phone()).isPresent())
             return Response.invalidPhone();
