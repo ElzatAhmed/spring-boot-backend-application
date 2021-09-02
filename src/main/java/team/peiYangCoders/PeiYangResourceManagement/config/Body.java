@@ -54,11 +54,11 @@ public class Body {
 
         private String user_name;
 
-        private String qqId;
+        private String qq_id;
 
-        private String wechatId;
+        private String wechat_id;
 
-        private String avatarUrl;
+        private String avatar_url;
 
         private String user_phone;
 

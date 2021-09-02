@@ -219,9 +219,9 @@ public class User {
     public static Body.UserDetail toBody(User user){
         Body.UserDetail detail = new Body.UserDetail();
         detail.setUser_name(user.getName());
-        detail.setQqId(user.getQqId());
-        detail.setWechatId(user.getWechatId());
-        detail.setAvatarUrl(user.getAvatarUrl());
+        detail.setQq_id(user.getQqId());
+        detail.setWechat_id(user.getWechatId());
+        detail.setAvatar_url(user.getAvatarUrl());
         detail.setUser_phone(user.getPhone());
         detail.setStudentId(user.getStudentId());
         detail.setPassword(user.getPassword());

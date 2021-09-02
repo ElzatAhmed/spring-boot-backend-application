@@ -27,7 +27,8 @@ public class ConfirmationTokenController {
      * */
     @PostMapping("token")
     public Response sendConfirmationToken(@RequestParam String phone){
-        return Response.success(confirmationTokenService.send(phone));
+        confirmationTokenService.send(phone);
+        return Response.success(null);
     }
 
 }

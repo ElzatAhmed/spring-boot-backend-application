@@ -35,10 +35,11 @@ public class UserService {
             return Response.invalidPhone();
         User newUser = user.get();
         newUser.setName(detail.getUser_name());
-        newUser.setQqId(detail.getQqId());
-        newUser.setWechatId(detail.getWechatId());
-        newUser.setAvatarUrl(detail.getAvatarUrl());
-        return Response.success(User.toBody(userRepo.save(newUser)));
+        newUser.setQqId(detail.getQq_id());
+        newUser.setWechatId(detail.getWechat_id());
+        newUser.setAvatarUrl(detail.getAvatar_url());
+        userRepo.save(newUser);
+        return Response.success(null);
     }
 
     public Response adminLogin(Body.Login info){
@@ -48,7 +49,7 @@ public class UserService {
         Body.UserDetail userInfo = (Body.UserDetail) response.getData();
         if(!userInfo.getPassword().equals(info.getPassword()))
             return Response.invalidPassword();
-        return Response.success(userInfo);
+        return Response.success(null);
     }
 
 
@@ -80,9 +81,9 @@ public class UserService {
         return Response.success(User.toBody(u.get()));
     }
 
-    public Body.UserDetail updatePassword(User newUser, String newPassword){
+    public void updatePassword(User newUser, String newPassword){
         newUser.setPassword(newPassword);
-        return User.toBody(userRepo.save(newUser));
+        userRepo.save(newUser);
     }
 
     public List<Body.UserDetail> getByFilter(UserFilter filter){

@@ -37,8 +37,8 @@ public class OrderController {
                              @RequestParam(name = "item_code") String itemCode,
                              @RequestParam(name = "user_token") String userToken,
                              @RequestBody Body.OrderInfos orderInfos){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return orderService.newOrder(phone, itemCode, orderInfos);
     }
 
@@ -53,8 +53,8 @@ public class OrderController {
     public Response cancelOrder(@RequestParam(name = "user_phone") String phone,
                                 @RequestParam(name = "order_code") String orderCode,
                                 @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return orderService.cancelOrder(phone, orderCode);
     }
 
@@ -69,8 +69,8 @@ public class OrderController {
     public Response acceptOrder(@RequestParam(name = "user_phone") String phone,
                                 @RequestParam(name = "order_code") String orderCode,
                                 @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return orderService.acceptOrRejectOrder(phone, orderCode, true);
     }
 
@@ -86,8 +86,8 @@ public class OrderController {
     public Response rejectOrder(@RequestParam(name = "user_phone") String phone,
                                 @RequestParam(name = "order_code") String orderCode,
                                 @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return orderService.acceptOrRejectOrder(phone, orderCode, false);
     }
 
@@ -102,8 +102,8 @@ public class OrderController {
     public Response getterCompleteOrder(@RequestParam(name = "user_phone") String phone,
                                         @RequestParam(name = "order_code") String orderCode,
                                         @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return orderService.getterCompleteOrder(phone, orderCode);
     }
 
@@ -118,8 +118,8 @@ public class OrderController {
     public Response ownerCompleteOrder(@RequestParam(name = "user_phone") String phone,
                                        @RequestParam(name = "order_code") String orderCode,
                                        @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return orderService.ownerCompleteOrder(phone, orderCode);
     }
 }

@@ -49,8 +49,8 @@ public class Response {
     public static Response permissionDenied(){
         return new Response("insufficient authority", 606, null);
     }
-    public static Response invalidUserCode(){
-        return new Response("invalid user code", 607, null);
+    public static Response invalidUserToken(){
+        return new Response("invalid user token", 607, null);
     }
     public static Response invalidResourceCode(){
         return new Response("invalid resource code", 701, null);
@@ -62,7 +62,7 @@ public class Response {
         return new Response("resource already released", 703, null);
     }
     public static Response resourceNotOwned(){
-        return new Response("resource is not belong to this user", 704, null);
+        return new Response("resource not belong to the user", 704, null);
     }
     public static Response invalidItemCode(){
         return new Response("invalid item code", 801, null);
@@ -71,7 +71,7 @@ public class Response {
         return new Response("item already ordered", 802, null);
     }
     public static Response itemNotOwned(){
-        return new Response("item is not belong to this user", 803, null);
+        return new Response("item belong to the user", 803, null);
     }
     public static Response itemNotSufficient(){
         return new Response("item is not sufficient", 804, null);
@@ -80,7 +80,7 @@ public class Response {
         return new Response("invalid order code", 901, null);
     }
     public static Response orderNotOwned(){
-        return new Response("order is not belonged to this user", 902, null);
+        return new Response("order not belonged to the user", 902, null);
     }
     public static Response orderAlreadyAccepted(){
         return new Response("order already accepted by owner", 903, null);

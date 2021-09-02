@@ -45,7 +45,7 @@ public class OrderService {
             return Response.itemNotSufficient();
         Order order = Order.newOrderFromBody(infos, maybeUser.get(), item);
         item.setCount(item.getCount() - infos.getCount());
-        return Response.success(orderRepo.save(order));
+        return Response.success(Order.toBody(orderRepo.save(order)));
     }
 
     public Response cancelOrder(String getterPhone, String orderCode){

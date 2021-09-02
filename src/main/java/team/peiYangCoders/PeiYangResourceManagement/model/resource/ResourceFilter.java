@@ -18,10 +18,6 @@ public class ResourceFilter {
 
     private Boolean verified = null;
 
-    private Boolean accepted = null;
-
-    private Boolean needsToPay = null;
-
     private Boolean released = null;
 
     private String description = null;
@@ -31,16 +27,15 @@ public class ResourceFilter {
     private String owner_phone = null;
 
     public boolean match(Resource resource){
-        boolean c, n, a, v, r, d, t, o;
+        boolean c, n, v, r, d, t, o;
         c = code == null || code.equals(resource.getCode());
         n = name == null || name.contains(resource.getName());
-        a = accepted == null || accepted.equals(resource.isAccepted());
         v = verified == null || verified.equals(resource.isVerified());
         r = released == null || released.equals(resource.isReleased());
         d = description == null || description.contains(resource.getDescription());
         t = tag == null || tag.toString().equals(resource.getTag().toString());
         o = owner_phone == null || owner_phone.equals(resource.getOwner().getPhone());
-        return c && n && a && v && r && d && t && o;
+        return c && n && v && r && d && t && o;
     }
 
 }

@@ -105,7 +105,7 @@ public class ResourceService {
         if(exists)
             return Response.resourceAlreadyReleased();
         resourceRepo.delete(resource);
-        return Response.success(resource.getCode());
+        return Response.success(null);
     }
 
     public Response deleteMultipleResources(List<String> resourceCodes, String ownerPhone){
@@ -156,8 +156,8 @@ public class ResourceService {
         Resource resource = maybeResource.get();
         resource.setVerified(true);
         resource.setAccepted(true);
-        resource = resourceRepo.save(resource);
-        return Response.success(resource.getCode());
+        resourceRepo.save(resource);
+        return Response.success(null);
     }
 
     public Response rejectResource(String resourceCode, String adminPhone){

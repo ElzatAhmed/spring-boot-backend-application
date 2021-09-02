@@ -45,10 +45,10 @@ public class ResourceController {
     @PostMapping("resource")
     public Response postNewResource(
             @RequestBody Body.ResourceInfos info,
-            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.postNewResource(info, phone);
     }
 
@@ -64,8 +64,8 @@ public class ResourceController {
             @RequestParam(name = "phone") String phone,
             @RequestParam(name = "user_token") String userToken,
             @RequestBody List<Body.ResourceInfos> infos) {
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.postMultipleNewResources(infos, phone);
     }
 
@@ -87,12 +87,12 @@ public class ResourceController {
      * */
     @PostMapping("item")
     public Response releaseResource(
-            @RequestParam(name = "phone") String phone,
-            @RequestParam(name = "resourceCode") String resourceCode,
+            @RequestParam(name = "user_phone") String phone,
+            @RequestParam(name = "resource_code") String resourceCode,
             @RequestParam(name = "user_token") String userToken,
             @RequestBody Body.ItemInfos infos){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.releaseResource(resourceCode, phone, infos);
     }
 
@@ -104,11 +104,11 @@ public class ResourceController {
      * @param userToken : the valid token system has distributed to the user
      * */
     @DeleteMapping("item")
-    public Response retractResource(@RequestParam(name = "phone") String phone,
+    public Response retractResource(@RequestParam(name = "user_phone") String phone,
                                     @RequestParam(name = "resource_code") String resourceCode,
                                     @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.retractItem(resourceCode, phone);
     }
 
@@ -121,11 +121,11 @@ public class ResourceController {
      * */
     @DeleteMapping("resource")
     public Response deleteResource(
-            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "resource_code") String resourceCode,
             @RequestParam(name = "user_token") String userToken) {
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.deleteResource(resourceCode, phone);
     }
 
@@ -139,10 +139,10 @@ public class ResourceController {
     @DeleteMapping("resource/all")
     public Response deleteMultipleResources(
             @RequestBody List<String> codes,
-            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "user_token") String userToken) {
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.deleteMultipleResources(codes, phone);
     }
 
@@ -163,11 +163,11 @@ public class ResourceController {
     @PutMapping("resource")
     public Response updateResourceInfo(
             @RequestBody Body.ResourceInfos info,
-            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "resource_code") String resourceCode,
             @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.updateResourceInfo(info, phone, resourceCode);
     }
 
@@ -179,11 +179,11 @@ public class ResourceController {
      * @param userToken : the valid token system has distributed to the user
      * */
     @PostMapping("resource/valid")
-    public Response acceptResource(@RequestParam(name = "phone") String phone,
+    public Response acceptResource(@RequestParam(name = "user_phone") String phone,
                                    @RequestParam(name = "resource_code") String resourceCode,
                                    @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.acceptResource(resourceCode, phone);
     }
 
@@ -195,11 +195,11 @@ public class ResourceController {
      * @param userToken : the valid token system has distributed to the user
      * */
     @PostMapping("resource/invalid")
-    public Response rejectResource(@RequestParam(name = "phone") String phone,
+    public Response rejectResource(@RequestParam(name = "user_phone") String phone,
                                    @RequestParam(name = "resource_code") String resourceCode,
                                    @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(phone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return Response.invalidUserToken();
         return resourceService.rejectResource(resourceCode, phone);
     }
 
@@ -218,14 +218,14 @@ public class ResourceController {
     @GetMapping("items")
     public Response getItem(@RequestParam(name = "user_phone") String userPhone,
                             @RequestParam(name = "user_token") String userToken,
-                            @RequestParam(required = false) String code,
-                            @RequestParam(required = false) String type,
-                            @RequestParam(required = false) Boolean needs2pay,
-                            @RequestParam(required = false) Boolean ordered,
-                            @RequestParam(required = false) Boolean completed,
-                            @RequestParam(required = false) String owner_phone){
-        if(!userTokenService.codeIsValid(userPhone, userToken))
-            return Response.invalidUserCode();
+                            @RequestParam(name = "code", required = false) String code,
+                            @RequestParam(name = "type", required = false) String type,
+                            @RequestParam(name = "needs2pay", required = false) Boolean needs2pay,
+                            @RequestParam(name = "ordered", required = false) Boolean ordered,
+                            @RequestParam(name = "completed", required = false) Boolean completed,
+                            @RequestParam(name = "owner_phone", required = false) String owner_phone){
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
         ItemFilter filter = new ItemFilter();
         filter.setCode(code == null ? null : UUID.fromString(code));
         filter.setType(type == null ? null : ResourceType.valueOf(type));
@@ -255,23 +255,19 @@ public class ResourceController {
     @GetMapping("resources")
     public Response getResource(@RequestParam(name = "user_phone") String userPhone,
                                 @RequestParam(name = "user_token") String userToken,
-                                @RequestParam(required = false) String code,
-                                @RequestParam(required = false) String name,
-                                @RequestParam(required = false) Boolean verified,
-                                @RequestParam(required = false) Boolean accepted,
-                                @RequestParam(required = false) Boolean needs2pay,
-                                @RequestParam(required = false) Boolean released,
-                                @RequestParam(required = false) String description,
-                                @RequestParam(required = false) String tag,
-                                @RequestParam(required = false) String owner_phone){
-        if(!userTokenService.codeIsValid(userPhone, userToken))
-            return Response.invalidUserCode();
+                                @RequestParam(name = "code", required = false) String code,
+                                @RequestParam(name = "name", required = false) String name,
+                                @RequestParam(name = "verified", required = false) Boolean verified,
+                                @RequestParam(name = "released", required = false) Boolean released,
+                                @RequestParam(name = "description", required = false) String description,
+                                @RequestParam(name = "tag", required = false) String tag,
+                                @RequestParam(name = "owner_phone", required = false) String owner_phone){
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
         ResourceFilter filter = new ResourceFilter();
         filter.setCode(code == null ? null : UUID.fromString(code));
         filter.setName(name);
         filter.setVerified(verified);
-        filter.setAccepted(accepted);
-        filter.setNeedsToPay(needs2pay);
         filter.setReleased(released);
         filter.setDescription(description);
         filter.setTag(tag == null ? null : ResourceTag.valueOf(tag));
@@ -287,10 +283,12 @@ public class ResourceController {
      * @param pageNum : page number
      * @param sortBy : the attribute to sort item with
      * */
-    @GetMapping("resources/page")
-    public Response getPage(@RequestParam int pageNum,
-                            @RequestParam(defaultValue = "30", required = false) int pageSize,
-                            @RequestParam(defaultValue = "onTime", required = false) String sortBy){
+    @GetMapping("items/page")
+    public Response getPage(@RequestParam(name = "page_num") int pageNum,
+                            @RequestParam(name = "page_size", defaultValue = "30",
+                                    required = false) int pageSize,
+                            @RequestParam(name = "sort_by", defaultValue = "onTime",
+                                    required = false) String sortBy){
         ItemPage page = new ItemPage(pageNum, pageSize, sortBy);
         return resourceService.getPage(page);
     }

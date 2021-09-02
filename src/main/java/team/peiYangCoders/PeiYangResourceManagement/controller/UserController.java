@@ -66,8 +66,10 @@ public class UserController {
         if(userService.getByPhone(info.getUser_phone()).isPresent())
             return Response.invalidPhone();
         Response response = confirmationTokenService.receive(info.getUser_phone(), confirmationToken);
-        if(response.succeeded())
-            return Response.success(userService.addNewUser(info, false));
+        if(response.succeeded()) {
+            userService.addNewUser(info, false);
+            return Response.success(null);
+        }
         return response;
     }
 
@@ -93,9 +95,10 @@ public class UserController {
         Response response = confirmationTokenService.receive(userPhone, info.getConfirm_token());
         if(response.failed())
             return response;
-        if(!userTokenService.codeIsValid(userPhone, userToken))
-            return Response.invalidUserCode();
-        return Response.success(userService.updatePassword(user.get(), info.getNew_password()));
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
+        userService.updatePassword(user.get(), info.getNew_password());
+        return Response.success(null);
     }
 
 
@@ -103,10 +106,10 @@ public class UserController {
      * user update information api
      * @param detail : UserDetail information body
      *               {
-     *                      "name": "",
-     *                      "qqId": "",
-     *                      "wechatId": "",
-     *                      "avatarUrl": ""
+     *                      "user_name": "",
+     *                      "qq_id": "",
+     *                      "wechat_id": "",
+     *                      "avatar_url": ""
      *               }
      * @param userPhone : user phone number
      * */
@@ -115,8 +118,8 @@ public class UserController {
             @RequestBody Body.UserDetail detail,
             @RequestParam(name = "user_phone") String userPhone,
             @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(userPhone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
         return userService.updateInfo(detail, userPhone);
     }
 
@@ -140,8 +143,8 @@ public class UserController {
         Optional<User> user = userService.getByPhone(userPhone);
         if(!user.isPresent())
             return Response.invalidPhone();
-        if(!userTokenService.codeIsValid(userPhone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
         return studentIdService.studentCertification(
                 user.get(),
                 certificate.getStudent_id(),
@@ -187,7 +190,8 @@ public class UserController {
             return Response.invalidRegistrationCode();
         Response response = confirmationTokenService.receive(info.getUser_phone(), confirmationToken);
         if(response.succeeded()) {
-            return Response.success(userService.addNewUser(info, true));
+            userService.addNewUser(info, true);
+            return Response.success(null);
         }
         return response;
     }
@@ -205,12 +209,14 @@ public class UserController {
     @GetMapping("users")
     public Response getByFilter(@RequestParam(name = "user_phone") String userPhone,
                                 @RequestParam(name = "user_token") String userToken,
-                                @RequestParam(required = false) String phone,
-                                @RequestParam(required = false) String name,
-                                @RequestParam(required = false) String qqId,
-                                @RequestParam(required = false) String wechatId){
-        if(!userTokenService.codeIsValid(userPhone, userToken))
-            return Response.invalidUserCode();
+                                @RequestParam(name = "phone", required = false) String phone,
+                                @RequestParam(name = "name", required = false) String name,
+                                @RequestParam(name = "qq_id", required = false) String qqId,
+                                @RequestParam(name = "wechat_id", required = false) String wechatId){
+        if(!userService.getByPhone(userPhone).isPresent())
+            return Response.invalidPhone();
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
         UserFilter filter = new UserFilter();
         filter.setPhone(phone);
         filter.setName(name);
@@ -231,8 +237,8 @@ public class UserController {
     public Response deleteUser(@RequestParam(name = "admin_phone") String adminPhone,
                                @RequestParam(name = "user_phone") String userPhone,
                                @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.codeIsValid(adminPhone, userToken))
-            return Response.invalidUserCode();
+        if(!userTokenService.tokenIsValid(adminPhone, userToken))
+            return Response.invalidUserToken();
         return userService.deleteUser(adminPhone, userPhone);
     }
 }

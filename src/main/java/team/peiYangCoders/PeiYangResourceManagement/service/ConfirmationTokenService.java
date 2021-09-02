@@ -27,12 +27,11 @@ public class ConfirmationTokenService {
         this.smsConfig = smsConfig;
     }
 
-    public ConfirmationToken send(String phone){
+    public void send(String phone){
         ConfirmationToken cToken = ConfirmationToken.construct(smsConfig.getTokenLen(),
                 smsConfig.getLatency(), phone);
         confirmationTokenRepo.save(cToken);
 //        sendConfirmationToken(phone, cToken.getToken());
-        return cToken;
     }
 
     public Response receive(String user_phone, String token){

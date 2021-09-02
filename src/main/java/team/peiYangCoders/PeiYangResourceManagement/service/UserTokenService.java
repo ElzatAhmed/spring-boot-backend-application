@@ -30,10 +30,11 @@ public class UserTokenService {
         UserToken userToken = new UserToken();
         userToken.setCode(UUID.randomUUID());
         userToken.setPhone(phone);
-        return Response.success(userTokenRepo.save(userToken));
+        userTokenRepo.save(userToken);
+        return Response.success(null);
     }
 
-    public boolean codeIsValid(String phone, String code){
+    public boolean tokenIsValid(String phone, String code){
         Optional<User> maybeUser = userRepo.findByPhone(phone);
         if(!maybeUser.isPresent())
             return false;
