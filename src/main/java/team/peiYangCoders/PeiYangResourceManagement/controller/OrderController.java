@@ -21,18 +21,36 @@ public class OrderController {
     }
 
 
+    /**
+     * user post new order api (as getter)
+     * @param phone : user phone
+     * @param itemCode : the code of the item to order
+     * @param userToken : the valid token system has distributed to the user
+     * @param orderInfos : Order information body
+     *                   {
+     *                      "count" : "",
+     *                      "comment": ""
+     *                   }
+     * */
     @PostMapping ("getter/order/new")
-    public Response newOrder(@RequestParam(name = "phone") String phone,
-                             @RequestParam(name = "resource_code") String resourceCode,
+    public Response newOrder(@RequestParam(name = "user_phone") String phone,
+                             @RequestParam(name = "item_code") String itemCode,
                              @RequestParam(name = "user_token") String userToken,
                              @RequestBody Body.OrderInfos orderInfos){
         if(!userTokenService.codeIsValid(phone, userToken))
             return Response.invalidUserCode();
-        return orderService.newOrder(phone, resourceCode, orderInfos);
+        return orderService.newOrder(phone, itemCode, orderInfos);
     }
 
+
+    /**
+     * user cancel order api (as getter)
+     * @param phone : user phone number
+     * @param orderCode : the code of the order to cancel
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @DeleteMapping("getter/order")
-    public Response cancelOrder(@RequestParam(name = "phone") String phone,
+    public Response cancelOrder(@RequestParam(name = "user_phone") String phone,
                                 @RequestParam(name = "order_code") String orderCode,
                                 @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.codeIsValid(phone, userToken))
@@ -40,8 +58,15 @@ public class OrderController {
         return orderService.cancelOrder(phone, orderCode);
     }
 
+
+    /**
+     * user accept order api (as owner)
+     * @param phone : user phone
+     * @param orderCode : the code of the order to accept
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @PostMapping("owner/order")
-    public Response acceptOrder(@RequestParam(name = "phone") String phone,
+    public Response acceptOrder(@RequestParam(name = "user_phone") String phone,
                                 @RequestParam(name = "order_code") String orderCode,
                                 @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.codeIsValid(phone, userToken))
@@ -49,8 +74,16 @@ public class OrderController {
         return orderService.acceptOrRejectOrder(phone, orderCode, true);
     }
 
+
+
+    /**
+     * user reject order api (as owner)
+     * @param phone : user phone
+     * @param orderCode : the code of the order to accept
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @DeleteMapping("owner/order")
-    public Response rejectOrder(@RequestParam(name = "phone") String phone,
+    public Response rejectOrder(@RequestParam(name = "user_phone") String phone,
                                 @RequestParam(name = "order_code") String orderCode,
                                 @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.codeIsValid(phone, userToken))
@@ -58,8 +91,15 @@ public class OrderController {
         return orderService.acceptOrRejectOrder(phone, orderCode, false);
     }
 
+
+    /**
+     * user complete order api (as getter)
+     * @param phone : user phone
+     * @param orderCode : the code of the order to accept
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @PutMapping("getter/order")
-    public Response getterCompleteOrder(@RequestParam(name = "phone") String phone,
+    public Response getterCompleteOrder(@RequestParam(name = "user_phone") String phone,
                                         @RequestParam(name = "order_code") String orderCode,
                                         @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.codeIsValid(phone, userToken))
@@ -67,12 +107,19 @@ public class OrderController {
         return orderService.getterCompleteOrder(phone, orderCode);
     }
 
+
+    /**
+     * user complete order api (as owner)
+     * @param phone : user phone
+     * @param orderCode : the code of the order to accept
+     * @param userToken : the valid token system has distributed to the user
+     * */
     @PutMapping("owner/order")
-    public Response ownerCompleteOrder(@RequestParam(name = "phone") String phone,
+    public Response ownerCompleteOrder(@RequestParam(name = "user_phone") String phone,
                                        @RequestParam(name = "order_code") String orderCode,
                                        @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.codeIsValid(phone, userToken))
             return Response.invalidUserCode();
-        return orderService.ownerCompleteOrder(phone, userToken);
+        return orderService.ownerCompleteOrder(phone, orderCode);
     }
 }
