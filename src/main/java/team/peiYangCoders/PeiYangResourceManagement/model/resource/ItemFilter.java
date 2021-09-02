@@ -18,21 +18,15 @@ public class ItemFilter {
 
     private Boolean needs2Pay = null;
 
-    private Boolean ordered = null;
-
-    private Boolean completed = null;
-
     private String ownerPhone = null;
 
     public boolean match(Item resource){
-        boolean c, t, n, o, cp, op;
+        boolean c, t, n, op;
         c = code == null || code.equals(resource.getItemCode());
         t = type == null || type.toString().equals(resource.getType().toString());
         n = needs2Pay == null || needs2Pay.equals(resource.isNeeds2Pay());
-        o = ordered == null ||  ordered.equals(resource.isOrdered());
-        cp = completed == null || completed.equals(resource.isCompleted());
         op = ownerPhone == null || ownerPhone.equals(resource.getResource().getOwner().getPhone());
-        return c && t && n && o && cp && op;
+        return c && t && n && op;
     }
 
 }

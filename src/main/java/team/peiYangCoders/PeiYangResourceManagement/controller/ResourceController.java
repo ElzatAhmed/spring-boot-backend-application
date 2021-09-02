@@ -211,8 +211,6 @@ public class ResourceController {
      * @param code : filter param, not required
      * @param type : filter param, not required
      * @param needs2pay : filter param, not required
-     * @param ordered : filter param, not required
-     * @param completed : filter param, not required
      * @param owner_phone : filter param, not required
      * */
     @GetMapping("items")
@@ -221,8 +219,6 @@ public class ResourceController {
                             @RequestParam(name = "code", required = false) String code,
                             @RequestParam(name = "type", required = false) String type,
                             @RequestParam(name = "needs2pay", required = false) Boolean needs2pay,
-                            @RequestParam(name = "ordered", required = false) Boolean ordered,
-                            @RequestParam(name = "completed", required = false) Boolean completed,
                             @RequestParam(name = "owner_phone", required = false) String owner_phone){
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
@@ -230,8 +226,6 @@ public class ResourceController {
         filter.setCode(code == null ? null : UUID.fromString(code));
         filter.setType(type == null ? null : ItemType.valueOf(type));
         filter.setNeeds2Pay(needs2pay);
-        filter.setOrdered(ordered);
-        filter.setCompleted(completed);
         filter.setOwnerPhone(owner_phone);
         System.out.println(filter);
         return resourceService.getItem(filter);

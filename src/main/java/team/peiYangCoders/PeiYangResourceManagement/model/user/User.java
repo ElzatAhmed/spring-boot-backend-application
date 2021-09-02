@@ -181,7 +181,7 @@ public class User {
             mappedBy = "owner",
             orphanRemoval = true
     )
-    private List<Order> initiated_orders = new ArrayList<>();
+    private List<Order> ordersAsOwner = new ArrayList<>();
 
     /*
      * received_orders:
@@ -193,7 +193,17 @@ public class User {
             mappedBy = "getter",
             orphanRemoval = true
     )
-    private List<Order> received_orders = new ArrayList<>();
+    private List<Order> ordersAsGetter = new ArrayList<>();
+
+
+    /**
+     * */
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(
+            mappedBy = "owner",
+            orphanRemoval = true
+    )
+    private List<Resource> resource = new ArrayList<>();
 
     /*
     *

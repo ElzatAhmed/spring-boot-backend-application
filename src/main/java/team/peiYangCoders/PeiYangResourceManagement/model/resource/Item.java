@@ -90,13 +90,6 @@ public class Item {
     private boolean ordered = false;
 
 
-
-    @Column(
-            name = "completed",
-            nullable = false
-    )
-    private boolean completed = false;
-
     /**
      * 0: old campus
      * 1: new campus
