@@ -1,4 +1,4 @@
-package team.peiYangCoders.PeiYangResourceManagement.model.resource;
+package team.peiYangCoders.PeiYangResourceManagement.model.Item;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -35,3 +35,5 @@ build/
 /api_details/api.txt
 /api_details/
 /module_details/
+/src/main/java/team/peiYangCoders/PeiYangResourceManagement/RandomDataGenerator/
+/src/main/java/team/peiYangCoders/PeiYangResourceManagement/generate/

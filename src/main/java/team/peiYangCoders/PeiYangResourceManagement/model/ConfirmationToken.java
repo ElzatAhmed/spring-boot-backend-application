@@ -30,21 +30,21 @@ public class ConfirmationToken {
     private String token;
 
     @Column(
-            name = "created_at",
+            name = "createdAt",
             nullable = false,
             updatable = false
     )
     private LocalDateTime createdAt;
 
     @Column(
-            name = "expires_at",
+            name = "expiresAt",
             nullable = false,
             updatable = false
     )
     private LocalDateTime expiresAt;
 
     @Column(
-            name = "confirmed_at"
+            name = "confirmedAt"
     )
     private LocalDateTime confirmedAt;
 
@@ -55,7 +55,7 @@ public class ConfirmationToken {
     private boolean confirmed = false;
 
     @Column(
-            name = "user_phone",
+            name = "userPhone",
             nullable = false,
             updatable = false
     )

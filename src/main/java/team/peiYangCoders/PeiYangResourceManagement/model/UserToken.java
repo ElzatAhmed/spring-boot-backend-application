@@ -21,16 +21,22 @@ public class UserToken {
 
     @Id
     @Column(
-            name = "user_phone",
+            name = "userPhone",
             nullable = false,
             updatable = false
     )
-    private String phone;
+    private String userPhone;
 
     @Column(
-            name = "code",
+            name = "userName",
             nullable = false
     )
-    private UUID code;
+    private String userName;
+
+    @Column(
+            name = "token",
+            nullable = false
+    )
+    private String token;
 
 }

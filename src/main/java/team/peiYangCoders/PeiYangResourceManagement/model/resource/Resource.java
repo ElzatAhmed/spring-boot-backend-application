@@ -43,12 +43,12 @@ public class Resource {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @Column(
-            name = "code",
+            name = "resource_code",
             nullable = false,
             updatable = false,
             columnDefinition = "UUID"
     )
-    private UUID code;
+    private String resourceCode;
 
     /**
     * resource name:
@@ -56,11 +56,11 @@ public class Resource {
     *   provided by user.
     * */
     @Column(
-            name = "name",
+            name = "resource_name",
             nullable = false,
             columnDefinition = "TEXT"
     )
-    private String name;
+    private String resourceName;
 
     /*
     * resource description:
@@ -76,13 +76,12 @@ public class Resource {
 
     /*
     * */
-    @Enumerated(EnumType.STRING)
     @Column(
-            name = "tag",
+            name = "resource_tag",
             columnDefinition = "TEXT",
             nullable = false
     )
-    private ResourceTag tag;
+    private String resourceTag;
 
     /**
      * verified by administrator
@@ -119,48 +118,7 @@ public class Resource {
     )
     private String imageUrl;
 
-    /*
-    * user id:
-    *   every resource has to belong to a user;
-    *   user stored in the users table;
-    *   so there is foreign key user_id referenced user.id.
-    * */
-    @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "owner_id",
-            foreignKey = @ForeignKey(name = "resource_user_fk")
-    )
-    private User owner;
 
 
-    @OneToMany
-    private List<Item> items;
-
-
-
-    public static Resource getFromBody(Body.ResourceInfos resourceInfos, User owner){
-        Resource resource = new Resource();
-        resource.setName(resourceInfos.getResource_name());
-        resource.setDescription(resourceInfos.getDescription());
-        resource.setTag(ResourceTag.valueOf(resourceInfos.getTag()));
-        resource.setImageUrl(resourceInfos.getImage_url());
-        resource.setVerified(false);
-        resource.setReleased(false);
-        resource.setOwner(owner);
-        return resource;
-    }
-
-    public static Body.ResourceInfos toBody(Resource resource){
-        Body.ResourceInfos infos = new Body.ResourceInfos();
-        infos.setResource_code(resource.getCode().toString());
-        infos.setResource_name(resource.getName());
-        infos.setDescription(resource.getDescription());
-        infos.setTag(resource.getTag().toString());
-        infos.setImage_url(resource.getImageUrl());
-        infos.setVerified(resource.isVerified());
-        infos.setReleased(infos.isReleased());
-        infos.setOwner_phone(resource.getOwner().getPhone());
-        return infos;
-    }
+    private String ownerPhone;
 }

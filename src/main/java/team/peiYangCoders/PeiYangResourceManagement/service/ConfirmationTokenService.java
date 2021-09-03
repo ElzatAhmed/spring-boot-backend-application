@@ -27,10 +27,14 @@ public class ConfirmationTokenService {
         this.smsConfig = smsConfig;
     }
 
-    public void send(String phone){
+    public ConfirmationToken send(String phone){
+        Optional<ConfirmationToken> maybe = confirmationTokenRepo.findByUserPhone(phone);
+        if(maybe.isPresent() && !maybe.get().isConfirmed() && maybe.get().getExpiresAt().isAfter(LocalDateTime.now()))
+            return maybe.get();
         ConfirmationToken cToken = ConfirmationToken.construct(smsConfig.getTokenLen(),
                 smsConfig.getLatency(), phone);
         confirmationTokenRepo.save(cToken);
+        return cToken;
 //        sendConfirmationToken(phone, cToken.getToken());
     }
 

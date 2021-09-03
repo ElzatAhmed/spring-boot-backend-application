@@ -103,4 +103,8 @@ public class Response {
     public static Response orderClosed(){
         return new Response("order closed", 909, null);
     }
+
+    public static Response imageNotFount(){
+        return new Response("image not found", 1001, null);
+    }
 }

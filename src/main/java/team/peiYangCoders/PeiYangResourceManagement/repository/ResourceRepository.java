@@ -17,10 +17,19 @@ import java.util.UUID;
 @Repository
 public interface ResourceRepository extends JpaRepository<Resource, Long> {
 
-    List<Resource> findAllByOwner(User owner);
+    Optional<Resource> findByResourceCode(String resourceCode);
+
+    List<Resource> findAllByResourceNameContains(String name);
+
+    List<Resource> findAllByVerified(boolean verified);
 
     List<Resource> findAllByReleased(boolean released);
 
-    Optional<Resource> findByCode(UUID code);
+    List<Resource> findAllByDescriptionContains(String description);
 
+    List<Resource> findAllByResourceTag(String resourceTag);
+
+    List<Resource> findAllByOwnerPhone(String ownerPhone);
+
+    List<Resource> findAllByAccepted(boolean accepted);
 }

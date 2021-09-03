@@ -6,8 +6,9 @@ import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.UserTag;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
-import team.peiYangCoders.PeiYangResourceManagement.model.user.UserFilter;
+import team.peiYangCoders.PeiYangResourceManagement.model.filter.UserFilter;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
+import team.peiYangCoders.PeiYangResourceManagement.utils.MyUtils;
 
 import java.util.*;
 
@@ -26,18 +27,18 @@ public class UserService {
         if(!user.isPresent()) return Response.invalidPhone();
         if(!user.get().getPassword().equals(loginInfo.getPassword()))
             return Response.invalidPassword();
-        return Response.success(User.toBody(user.get()));
+        return Response.success(null);
     }
 
-    public Response updateInfo(Body.UserDetail detail, String phone){
-        Optional<User> user = getByPhone(phone);
-        if(!user.isPresent())
+    public Response updateInfo(User user, String phone){
+        Optional<User> maybe_user = getByPhone(phone);
+        if(!maybe_user.isPresent())
             return Response.invalidPhone();
-        User newUser = user.get();
-        newUser.setName(detail.getUser_name());
-        newUser.setQqId(detail.getQq_id());
-        newUser.setWechatId(detail.getWechat_id());
-        newUser.setAvatarUrl(detail.getAvatar_url());
+        User newUser = maybe_user.get();
+        newUser.setUserName(user.getUserName());
+        newUser.setQqId(user.getQqId());
+        newUser.setWechatId(user.getWechatId());
+        newUser.setAvatarUrl(user.getAvatarUrl());
         userRepo.save(newUser);
         return Response.success(null);
     }
@@ -46,7 +47,7 @@ public class UserService {
         Response response = isAdmin(info.getUser_phone());
         if(response.failed())
             return response;
-        Body.UserDetail userInfo = (Body.UserDetail) response.getData();
+        User userInfo = (User) response.getData();
         if(!userInfo.getPassword().equals(info.getPassword()))
             return Response.invalidPassword();
         return Response.success(null);
@@ -63,11 +64,10 @@ public class UserService {
         return Response.success(null);
     }
 
-    public Body.UserDetail addNewUser(Body.Register info, boolean isAdmin){
+    public User addNewUser(Body.Register info, boolean isAdmin){
         User newUser = new User(info);
-        newUser.setTag(isAdmin ? UserTag.admin : UserTag.ordinary);
-        newUser = userRepo.save(newUser);
-        return User.toBody(newUser);
+        newUser.setUserTag(isAdmin ? UserTag.admin.toString() : UserTag.ordinary.toString());
+        return userRepo.save(newUser);
     }
 
     public Optional<User> getByPhone(String phone){
@@ -78,7 +78,7 @@ public class UserService {
         Optional<User> u = userRepo.findByPhone(phone);
         if(!u.isPresent()) return Response.invalidPhone();
         if(!u.get().isAdmin()) return Response.permissionDenied();
-        return Response.success(User.toBody(u.get()));
+        return Response.success(u.get());
     }
 
     public void updatePassword(User newUser, String newPassword){
@@ -86,13 +86,34 @@ public class UserService {
         userRepo.save(newUser);
     }
 
-    public List<Body.UserDetail> getByFilter(UserFilter filter){
-        List<User> allUsers = userRepo.findAll();
-        List<Body.UserDetail> filteredUsers = new ArrayList<>();
-        for(User u : allUsers){
-            if(filter.match(u))
-                filteredUsers.add(User.toBody(u));
+    public List<User> getByFilter(UserFilter filter){
+
+        if(filter.allNull())
+            return userRepo.findAll();
+        else if(filter.nullExceptPhone()){
+            Optional<User> maybe = userRepo.findByPhone(filter.getPhone());
+            return maybe.map(Collections::singletonList).orElse(Collections.emptyList());
         }
-        return filteredUsers;
+        else if(filter.getPhone() != null)
+            return Collections.emptyList();
+
+        List<User> name = null;
+        List<User> qqId = null;
+        List<User> wechatId = null;
+        List<User> studentCertified = null;
+
+        if(filter.getName() != null)
+            name = userRepo.findByUserNameContains(filter.getName());
+        if(filter.getQqId() != null)
+            qqId = userRepo.findByQqId(filter.getQqId());
+        if(filter.getWechatId() != null)
+            wechatId = userRepo.findByWechatId(filter.getWechatId());
+        if(filter.getStudentCertified() != null)
+            studentCertified = userRepo.findByStudentCertified(filter.getStudentCertified());
+
+        return MyUtils.userListIntersection(MyUtils.userListIntersection(name, qqId),
+                MyUtils.userListIntersection(wechatId, studentCertified));
     }
+
+
 }

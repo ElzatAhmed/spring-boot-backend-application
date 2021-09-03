@@ -3,15 +3,10 @@ package team.peiYangCoders.PeiYangResourceManagement.model.order;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.format.annotation.DateTimeFormat;
-import team.peiYangCoders.PeiYangResourceManagement.config.Body;
-import team.peiYangCoders.PeiYangResourceManagement.config.OrderConfig;
-import team.peiYangCoders.PeiYangResourceManagement.model.resource.Item;
-import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /*
 * Order class:
@@ -40,22 +35,20 @@ public class Order {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @Column(
-            name = "code",
+            name = "orderCode",
             nullable = false,
             updatable = false,
             columnDefinition = "UUID"
     )
-    private UUID code;
+    private String orderCode;
 
 
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "getter_id",
-            foreignKey = @ForeignKey(name = "order_getter_fk"),
-            nullable = false
+    @Column(
+            name = "getterPhone",
+            nullable = false,
+            updatable = false
     )
-    private User getter;
+    private String getterPhone;
 
 
     @Column(
@@ -66,23 +59,20 @@ public class Order {
     private String comments;
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "owner_id",
-            foreignKey = @ForeignKey(name = "order_owner_fk"),
-            nullable = false
-    )
-    private User owner;
-
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-            name = "item_id",
-            foreignKey = @ForeignKey(name = "order_item_fk"),
+    @Column(
+            name = "ownerPhone",
             nullable = false,
             updatable = false
     )
-    private Item item;
+    private String ownerPhone;
+
+
+    @Column(
+            name = "itemCode",
+            nullable = false,
+            updatable = false
+    )
+    private String itemCode;
 
 
     @Column(
@@ -199,51 +189,4 @@ public class Order {
             nullable = false
     )
     private boolean unCompletedByGetter = false;
-
-
-
-    public static Order newOrderFromBody(Body.OrderInfos infos, User getter, Item item) {
-        OrderConfig config = new OrderConfig();
-        User owner = item.getResource().getOwner();
-        Order order = new Order();
-        order.setCount(infos.getCount());
-        order.setComments(infos.getComments());
-        order.setGetter(getter);
-        order.setOwner(owner);
-        order.setItem(item);
-        order.setOpenedTime(LocalDateTime.now());
-        order.setClosedTime(null);
-        order.setAcceptedOrRejectedTime(null);
-        order.setCanceledTime(null);
-        order.setAcceptingOrRejectingExpiresAt(order.getOpenedTime().plusHours(config.getAcceptingValidTime()));
-        order.setCompletionExpiresAt(null);
-        order.setAccepted(false);
-        order.setCompletedByOwner(false);
-        order.setCompletedByGetter(false);
-        order.setCanceled(false);
-        order.setExpired(false);
-        order.setAcceptedOrRejected(infos.isAcceptedOrRejected());
-        return order;
-    }
-
-    public static Body.OrderInfos toBody(Order order){
-        Body.OrderInfos infos = new Body.OrderInfos();
-        infos.setCount(order.getCount());
-        infos.setComments(order.getComments());
-        infos.setGetter_phone(order.getGetter().getPhone());
-        infos.setCode(order.getCode().toString());
-        infos.setOpenedTime(order.getOpenedTime());
-        infos.setClosedTime(order.getClosedTime());
-        infos.setAcceptedTime(order.getAcceptedOrRejectedTime());
-        infos.setCanceledTime(order.getCanceledTime());
-        infos.setAcceptingExpiresAt(order.getAcceptingOrRejectingExpiresAt());
-        infos.setClosingExpiresAt(order.getCompletionExpiresAt());
-        infos.setAccepted(order.isAccepted());
-        infos.setClosedByOwner(order.isCompletedByOwner());
-        infos.setClosedByGetter(order.isCompletedByGetter());
-        infos.setCanceled(order.isCanceled());
-        infos.setExpired(order.isExpired());
-        infos.setAcceptedOrRejected(order.isAcceptedOrRejected());
-        return infos;
-    }
 }

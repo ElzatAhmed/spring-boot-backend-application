@@ -2,18 +2,16 @@ package team.peiYangCoders.PeiYangResourceManagement.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
-import team.peiYangCoders.PeiYangResourceManagement.model.resource.ItemFilter;
-import team.peiYangCoders.PeiYangResourceManagement.model.resource.ResourceFilter;
-import team.peiYangCoders.PeiYangResourceManagement.model.resource.ItemPage;
-import team.peiYangCoders.PeiYangResourceManagement.model.tags.ResourceTag;
-import team.peiYangCoders.PeiYangResourceManagement.model.tags.ItemType;
+import team.peiYangCoders.PeiYangResourceManagement.model.Item.Item;
+import team.peiYangCoders.PeiYangResourceManagement.model.Item.ItemPage;
+import team.peiYangCoders.PeiYangResourceManagement.model.filter.ItemFilter;
+import team.peiYangCoders.PeiYangResourceManagement.model.filter.ResourceFilter;
+import team.peiYangCoders.PeiYangResourceManagement.model.resource.*;
 import team.peiYangCoders.PeiYangResourceManagement.service.ResourceService;
 import team.peiYangCoders.PeiYangResourceManagement.service.UserTokenService;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1")
@@ -32,7 +30,7 @@ public class ResourceController {
 
     /**
      * user post new resource api
-     * @param info : Resource information body
+     * @param resource : Resource information body
      *             {
      *                  "resource_name": "",
      *                  "description": "",
@@ -44,18 +42,18 @@ public class ResourceController {
      * */
     @PostMapping("resource")
     public Response postNewResource(
-            @RequestBody Body.ResourceInfos info,
+            @RequestBody Resource resource,
             @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
-        return resourceService.postNewResource(info, phone);
+        return resourceService.postNewResource(resource, phone);
     }
 
 
     /**
      * user post multiple resources api
-     * @param infos : a list of Resource information body
+     * @param resources : a list of Resource information body
      * @param phone : user phone number
      * @param userToken : the valid token system has distributed to the user
      * */
@@ -63,10 +61,10 @@ public class ResourceController {
     public Response postMultipleNewResources(
             @RequestParam(name = "phone") String phone,
             @RequestParam(name = "user_token") String userToken,
-            @RequestBody List<Body.ResourceInfos> infos) {
+            @RequestBody List<Resource> resources) {
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
-        return resourceService.postMultipleNewResources(infos, phone);
+        return resourceService.postMultipleNewResources(resources, phone);
     }
 
 
@@ -75,7 +73,7 @@ public class ResourceController {
      * @param phone : user phone number
      * @param resourceCode : the code of the resource to release
      * @param userToken : the valid token system has distributed to the user
-     * @param infos : Item information body
+     * @param item : Item information body
      *              {
      *                  "count": "",
      *                  "type": "",
@@ -90,10 +88,10 @@ public class ResourceController {
             @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "resource_code") String resourceCode,
             @RequestParam(name = "user_token") String userToken,
-            @RequestBody Body.ItemInfos infos){
+            @RequestBody Item item){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
-        return resourceService.releaseResource(resourceCode, phone, infos);
+        return resourceService.releaseResource(resourceCode, phone, item);
     }
 
 
@@ -149,7 +147,7 @@ public class ResourceController {
 
     /**
      * user update resource information api
-     * @param info : new information
+     * @param resource : new information
      *             {
      *                  "resource_name": "",
      *                  "description": "",
@@ -162,13 +160,13 @@ public class ResourceController {
      * */
     @PutMapping("resource")
     public Response updateResourceInfo(
-            @RequestBody Body.ResourceInfos info,
+            @RequestBody Resource resource,
             @RequestParam(name = "user_phone") String phone,
             @RequestParam(name = "resource_code") String resourceCode,
             @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
-        return resourceService.updateResourceInfo(info, phone, resourceCode);
+        return resourceService.updateResourceInfo(resource, phone, resourceCode);
     }
 
 
@@ -211,24 +209,27 @@ public class ResourceController {
      * @param code : filter param, not required
      * @param type : filter param, not required
      * @param needs2pay : filter param, not required
-     * @param owner_phone : filter param, not required
+     * @param campus : filter param, not required
+     * @param resourceCode : filter param, not required
      * */
     @GetMapping("items")
     public Response getItem(@RequestParam(name = "user_phone") String userPhone,
                             @RequestParam(name = "user_token") String userToken,
-                            @RequestParam(name = "code", required = false) String code,
-                            @RequestParam(name = "type", required = false) String type,
-                            @RequestParam(name = "needs2pay", required = false) Boolean needs2pay,
-                            @RequestParam(name = "owner_phone", required = false) String owner_phone){
+                            @RequestParam(required = false) String code,
+                            @RequestParam(required = false) String type,
+                            @RequestParam(required = false) Boolean needs2pay,
+                            @RequestParam(required = false) Integer campus,
+                            @RequestParam(required = false) String resourceCode){
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
         ItemFilter filter = new ItemFilter();
-        filter.setCode(code == null ? null : UUID.fromString(code));
-        filter.setType(type == null ? null : ItemType.valueOf(type));
+        filter.setCode(code);
+        filter.setType(type);
         filter.setNeeds2Pay(needs2pay);
-        filter.setOwnerPhone(owner_phone);
+        filter.setCampus(campus);
+        filter.setResourceCode(resourceCode);
         System.out.println(filter);
-        return resourceService.getItem(filter);
+        return Response.success(resourceService.getItem(filter));
     }
 
 
@@ -239,8 +240,6 @@ public class ResourceController {
      * @param code : filter param, not required
      * @param name : filter param, not required
      * @param verified : filter param, not required
-     * @param accepted : filter param, not required
-     * @param needs2pay : filter param, not required
      * @param released : filter param, not required
      * @param description : filter param, not required
      * @param tag : filter param, not required
@@ -259,15 +258,15 @@ public class ResourceController {
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
         ResourceFilter filter = new ResourceFilter();
-        filter.setCode(code == null ? null : UUID.fromString(code));
+        filter.setCode(code);
         filter.setName(name);
         filter.setVerified(verified);
         filter.setReleased(released);
         filter.setDescription(description);
-        filter.setTag(tag == null ? null : ResourceTag.valueOf(tag));
+        filter.setTag(tag);
         filter.setOwner_phone(owner_phone);
         System.out.println(filter);
-        return resourceService.getResource(filter);
+        return Response.success(resourceService.getResource(filter));
     }
 
 

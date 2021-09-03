@@ -1,0 +1,6 @@
+insert into users (id, avatar_url, user_name, password, phone_num, qq_id, user_tag, wechat_id) values
+    (1, '', 'peng', '123456', '12345678910', '123456', 'ordinary', '123456');
+insert into users (id, avatar_url, user_name, password, phone_num, qq_id, user_tag, wechat_id) values
+    (2, '', 'shi', '123456', '10987654321', '123456', 'ordinary', '123456');
+insert into users (id, avatar_url, user_name, password, phone_num, qq_id, user_tag, wechat_id) values
+    (3, '', 'Elzat', '300059', '17627669320', '1208915986', 'admin', '123456');

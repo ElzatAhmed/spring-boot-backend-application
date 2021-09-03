@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
+import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.service.OrderService;
 import team.peiYangCoders.PeiYangResourceManagement.service.UserTokenService;
 
@@ -26,7 +27,7 @@ public class OrderController {
      * @param phone : user phone
      * @param itemCode : the code of the item to order
      * @param userToken : the valid token system has distributed to the user
-     * @param orderInfos : Order information body
+     * @param order : Order information body
      *                   {
      *                      "count" : "",
      *                      "comment": ""
@@ -36,10 +37,10 @@ public class OrderController {
     public Response newOrder(@RequestParam(name = "user_phone") String phone,
                              @RequestParam(name = "item_code") String itemCode,
                              @RequestParam(name = "user_token") String userToken,
-                             @RequestBody Body.OrderInfos orderInfos){
+                             @RequestBody Order order){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
-        return orderService.newOrder(phone, itemCode, orderInfos);
+        return orderService.newOrder(phone, itemCode, order);
     }
 
 

@@ -14,11 +14,11 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
-    Optional<Order> findByCode(UUID code);
+    Optional<Order> findByOrderCode(String code);
 
-    List<Order> findByGetter(User getter);
+    List<Order> findByGetterPhone(String getterPhone);
 
-    List<Order> findByOwner(User owner);
+    List<Order> findByOwnerPhone(String ownerPhone);
 
     List<Order> findByAccepted(boolean accepted);
 

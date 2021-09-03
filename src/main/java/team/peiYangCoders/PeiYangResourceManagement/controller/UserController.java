@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
-import team.peiYangCoders.PeiYangResourceManagement.model.user.UserFilter;
+import team.peiYangCoders.PeiYangResourceManagement.model.filter.UserFilter;
 import team.peiYangCoders.PeiYangResourceManagement.service.*;
 
 import java.util.Optional;
@@ -104,7 +104,7 @@ public class UserController {
 
     /**
      * user update information api
-     * @param detail : UserDetail information body
+     * @param user : UserDetail information body
      *               {
      *                      "user_name": "",
      *                      "qq_id": "",
@@ -115,12 +115,12 @@ public class UserController {
      * */
     @PutMapping("user")
     public Response updateInfo(
-            @RequestBody Body.UserDetail detail,
+            @RequestBody User user,
             @RequestParam(name = "user_phone") String userPhone,
             @RequestParam(name = "user_token") String userToken){
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
-        return userService.updateInfo(detail, userPhone);
+        return userService.updateInfo(user, userPhone);
     }
 
 
@@ -207,12 +207,14 @@ public class UserController {
      * @param wechatId : filter param, not required
      * */
     @GetMapping("users")
-    public Response getByFilter(@RequestParam(name = "user_phone") String userPhone,
-                                @RequestParam(name = "user_token") String userToken,
-                                @RequestParam(name = "phone", required = false) String phone,
-                                @RequestParam(name = "name", required = false) String name,
-                                @RequestParam(name = "qq_id", required = false) String qqId,
-                                @RequestParam(name = "wechat_id", required = false) String wechatId){
+    public Response getByFilter(
+            @RequestParam(name = "user_phone") String userPhone,
+            @RequestParam(name = "user_token") String userToken,
+            @RequestParam(name = "phone", required = false) String phone,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "qq_id", required = false) String qqId,
+            @RequestParam(name = "wechat_id", required = false) String wechatId,
+            @RequestParam(name = "student_certified", required = false) Boolean student_certified){
         if(!userService.getByPhone(userPhone).isPresent())
             return Response.invalidPhone();
         if(!userTokenService.tokenIsValid(userPhone, userToken))
@@ -222,7 +224,7 @@ public class UserController {
         filter.setName(name);
         filter.setQqId(qqId);
         filter.setWechatId(wechatId);
-        System.out.println(filter);
+        filter.setStudentCertified(student_certified);
         return Response.success(userService.getByFilter(filter));
     }
 

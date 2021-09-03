@@ -1,24 +1,24 @@
 package team.peiYangCoders.PeiYangResourceManagement.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
+import team.peiYangCoders.PeiYangResourceManagement.model.Item.Item;
+import team.peiYangCoders.PeiYangResourceManagement.model.Item.ItemPage;
+import team.peiYangCoders.PeiYangResourceManagement.model.filter.ItemFilter;
+import team.peiYangCoders.PeiYangResourceManagement.model.filter.ResourceFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.*;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ItemRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ResourceRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
+import team.peiYangCoders.PeiYangResourceManagement.utils.MyUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ResourceService {
@@ -36,42 +36,38 @@ public class ResourceService {
         this.itemRepo = itemRepo;
     }
 
-    public Response postNewResource(Body.ResourceInfos resourceInfos, String ownerPhone){
+    public Response postNewResource(Resource resource, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Resource resource = Resource.getFromBody(resourceInfos, maybeUser.get());
-        return Response.success(resourceRepo.save(resource).getCode());
+        return Response.success(resourceRepo.save(resource).getResourceCode());
     }
 
-    public Response postMultipleNewResources(List<Body.ResourceInfos> resourceInfos, String ownerPhone){
+    public Response postMultipleNewResources(List<Resource> resources, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        List<UUID> responses = new ArrayList<>();
-        for(Body.ResourceInfos resourceInfo : resourceInfos){
-            Resource resource = Resource.getFromBody(resourceInfo, maybeUser.get());
-            resource = resourceRepo.save(resource);
-            responses.add(resource.getCode());
-        }
+        List<String> responses = new ArrayList<>();
+        resources = resourceRepo.saveAll(resources);
+        for(Resource resource : resources)
+            responses.add(resource.getResourceCode().toString());
         return Response.success(responses);
     }
 
-    public Response releaseResource(String resourceCode, String ownerPhone, Body.ItemInfos infos){
+    public Response releaseResource(String resourceCode, String ownerPhone, Item item){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
+        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
         if(!maybeResource.isPresent())
             return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
-        if(!resource.getOwner().getPhone().equals(ownerPhone))
+        if(!resource.getOwnerPhone().equals(ownerPhone))
             return Response.resourceNotOwned();
         if(!resource.isVerified())
             return Response.resourceUnavailableToRelease();
         if(!resource.isAccepted())
             return Response.resourceUnavailableToRelease();
-        Item item = Item.getFromBody(infos, maybeResource.get());
         item.setOnTime(LocalDateTime.now());
         item = itemRepo.save(item);
         return Response.success(item.getItemCode());
@@ -81,11 +77,14 @@ public class ResourceService {
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Item> maybeRe = itemRepo.findByItemCode(UUID.fromString(itemCode));
+        Optional<Item> maybeRe = itemRepo.findByItemCode(itemCode);
         if(!maybeRe.isPresent())
             return Response.invalidItemCode();
         Item item = maybeRe.get();
-        if(!item.getResource().getOwner().getPhone().equals(ownerPhone))
+        Optional<Resource> resource = resourceRepo.findByResourceCode(item.getResourceCode());
+        if(!resource.isPresent())
+            return Response.invalidResourceCode();
+        if(!resource.get().getOwnerPhone().equals(ownerPhone))
             return Response.itemNotOwned();
         itemRepo.delete(item);
         return Response.success(null);
@@ -95,13 +94,13 @@ public class ResourceService {
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
+        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
         if(!maybeResource.isPresent())
             return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
-        if(!resource.getOwner().getPhone().equals(ownerPhone))
+        if(!resource.getOwnerPhone().equals(ownerPhone))
             return Response.resourceNotOwned();
-        boolean exists = itemRepo.existsByResource(resource);
+        boolean exists = itemRepo.existsByResourceCode(resourceCode);
         if(exists)
             return Response.resourceAlreadyReleased();
         resourceRepo.delete(resource);
@@ -114,33 +113,32 @@ public class ResourceService {
             return Response.invalidPhone();
         List<String> codes = new ArrayList<>();
         for(String resourceCode : resourceCodes){
-            Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
+            Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
             if(!maybeResource.isPresent()) continue;
             Resource resource = maybeResource.get();
-            if(!resource.getOwner().getPhone().equals(ownerPhone)) continue;
-            codes.add(resource.getCode().toString());
+            if(!resource.getOwnerPhone().equals(ownerPhone)) continue;
+            codes.add(resource.getResourceCode());
             resourceRepo.delete(resource);
         }
         return Response.success(codes);
     }
 
-    public Response updateResourceInfo(Body.ResourceInfos newInfo, String resourceCode, String ownerPhone){
+    public Response updateResourceInfo(Resource newResource, String resourceCode, String ownerPhone){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
+        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
         if(!maybeResource.isPresent())
             return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
-        if(!resource.getOwner().getPhone().equals(ownerPhone))
+        if(!resource.getOwnerPhone().equals(ownerPhone))
             return Response.resourceNotOwned();
-        boolean exists = itemRepo.existsByResource(resource);
+        boolean exists = itemRepo.existsByResourceCode(resourceCode);
         if(exists)
             return Response.resourceAlreadyReleased();
-        Resource newResource = Resource.getFromBody(newInfo, maybeUser.get());
-        newResource.setCode(resource.getCode());
+        newResource.setResourceCode(resource.getResourceCode());
         resource = resourceRepo.save(newResource);
-        return Response.success(resource.getCode());
+        return Response.success(resource.getResourceCode());
     }
 
     public Response acceptResource(String resourceCode, String adminPhone){
@@ -150,7 +148,7 @@ public class ResourceService {
         User user = maybeUser.get();
         if(!user.isAdmin())
             return Response.permissionDenied();
-        Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
+        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
         if(!maybeResource.isPresent())
             return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
@@ -167,44 +165,83 @@ public class ResourceService {
         User user = maybeUser.get();
         if(!user.isAdmin())
             return Response.permissionDenied();
-        Optional<Resource> maybeResource = resourceRepo.findByCode(UUID.fromString(resourceCode));
+        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
         if(!maybeResource.isPresent())
             return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         resource.setVerified(true);
         resource.setAccepted(false);
         resource = resourceRepo.save(resource);
-        return Response.success(resource.getCode());
+        return Response.success(resource.getResourceCode());
     }
 
-    public Response getItem(ItemFilter filter){
-        List<Item> items = itemRepo.findAll();
-        List<Body.ItemInfos> resultInfos = new ArrayList<>();
-        for(Item resource : items){
-            if(filter.match(resource))
-                resultInfos.add(Item.toBody(resource));
+    public List<Item> getItem(ItemFilter filter){
+        if(filter.allNull())
+            return itemRepo.findAll();
+        else if(filter.nullExceptCode()){
+            Optional<Item> maybe = itemRepo.findByItemCode(filter.getCode());
+            return maybe.map(Collections::singletonList).orElse(Collections.emptyList());
         }
-        return Response.success(resultInfos);
+        else if(filter.getCode() != null)
+            return Collections.emptyList();
+
+        List<Item> type = null;
+        List<Item> needs2Pay = null;
+        List<Item> campus = null;
+        List<Item> resourceCode = null;
+        if(filter.getType() != null)
+            type = itemRepo.findAllByItemType(filter.getType());
+        if(filter.getNeeds2Pay() != null)
+            needs2Pay = itemRepo.findAllByNeeds2Pay(filter.getNeeds2Pay());
+        if(filter.getCampus() != null)
+            campus = itemRepo.findAllByCampus(filter.getCampus());
+        if(filter.getResourceCode() != null)
+            resourceCode = itemRepo.findAllByResourceCode(filter.getResourceCode());
+        return MyUtils.itemListIntersection(MyUtils.itemListIntersection(type, needs2Pay),
+                MyUtils.itemListIntersection(campus, resourceCode));
     }
 
-    public Response getResource(ResourceFilter filter){
-        List<Resource> resources = resourceRepo.findAll();
-        List<Body.ResourceInfos> resultInfos = new ArrayList<>();
-        for(Resource resource : resources){
-            if(filter.match(resource))
-                resultInfos.add(Resource.toBody(resource));
+    public List<Resource> getResource(ResourceFilter filter){
+        if(filter.allNull())
+            return resourceRepo.findAll();
+        else if(filter.nullExceptCode()){
+            Optional<Resource> maybe = resourceRepo.findByResourceCode(filter.getCode());
+            return maybe.map(Collections::singletonList).orElse(Collections.emptyList());
         }
-        return Response.success(resultInfos);
+        else if(filter.getCode() != null)
+            return Collections.emptyList();
+
+        List<Resource> name = null;
+        List<Resource> verified = null;
+        List<Resource> released = null;
+        List<Resource> description = null;
+        List<Resource> tag = null;
+        List<Resource> ownerPhone = null;
+        List<Resource> accepted = null;
+        if(filter.getName() != null)
+            name = resourceRepo.findAllByResourceNameContains(filter.getName());
+        if(filter.getVerified() != null)
+            verified = resourceRepo.findAllByVerified(filter.getVerified());
+        if(filter.getReleased() != null)
+            released = resourceRepo.findAllByReleased(filter.getReleased());
+        if(filter.getDescription() != null)
+            description = resourceRepo.findAllByDescriptionContains(filter.getDescription());
+        if(filter.getTag() != null)
+            tag = resourceRepo.findAllByResourceTag(filter.getTag());
+        if(filter.getOwner_phone() != null)
+            ownerPhone = resourceRepo.findAllByOwnerPhone(filter.getOwner_phone());
+        if(filter.getAccepted() != null)
+            accepted = resourceRepo.findAllByAccepted(filter.getAccepted());
+        List<Resource> r1 = MyUtils.resourceListIntersection(name, verified);
+        List<Resource> r2 = MyUtils.resourceListIntersection(released, description);
+        List<Resource> r3 = MyUtils.resourceListIntersection(tag, ownerPhone);
+        return MyUtils.resourceListIntersection(MyUtils.resourceListIntersection(r1, accepted),
+                MyUtils.resourceListIntersection(r2, r3));
     }
 
     public Response getPage(ItemPage page){
         Sort sort = Sort.by(page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
-        Page<Item> resources = itemRepo.findAll(pageable);
-        List<Body.ItemInfos> resultInfos = new ArrayList<>();
-        for(Item resource : resources){
-            resultInfos.add(Item.toBody(resource));
-        }
-        return Response.success(resultInfos);
+        return Response.success(itemRepo.findAll(pageable));
     }
 }

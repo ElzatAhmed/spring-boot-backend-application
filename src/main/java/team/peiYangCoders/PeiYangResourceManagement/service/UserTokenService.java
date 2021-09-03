@@ -28,8 +28,9 @@ public class UserTokenService {
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
         UserToken userToken = new UserToken();
-        userToken.setCode(UUID.randomUUID());
-        userToken.setPhone(phone);
+        userToken.setToken(UUID.randomUUID().toString());
+        userToken.setUserPhone(phone);
+        userToken.setUserName(maybeUser.get().getUserName());
         return Response.success(userTokenRepo.save(userToken));
     }
 
@@ -40,6 +41,6 @@ public class UserTokenService {
         Optional<UserToken> maybe = userTokenRepo.findById(phone);
         if(!maybe.isPresent())
             return false;
-        return maybe.get().getCode().equals(UUID.fromString(code));
+        return maybe.get().getToken().equals(code);
     }
 }

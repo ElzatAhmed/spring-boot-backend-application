@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
-import team.peiYangCoders.PeiYangResourceManagement.model.resource.Item;
+import team.peiYangCoders.PeiYangResourceManagement.model.Item.Item;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ItemRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.OrderRepository;
@@ -16,7 +15,6 @@ import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Component
@@ -33,30 +31,29 @@ public class OrderService {
         this.itemRepo = itemRepo;
     }
 
-    public Response newOrder(String getterPhone, String itemCode, Body.OrderInfos infos){
+    public Response newOrder(String getterPhone, String itemCode, Order order){
         Optional<User> maybeUser = userRepo.findByPhone(getterPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Item> maybeItem = itemRepo.findByItemCode(UUID.fromString(itemCode));
+        Optional<Item> maybeItem = itemRepo.findByItemCode(itemCode);
         if(!maybeItem.isPresent())
             return Response.invalidItemCode();
         Item item = maybeItem.get();
-        if(item.getCount() < infos.getCount())
+        if(item.getCount() < order.getCount())
             return Response.itemNotSufficient();
-        Order order = Order.newOrderFromBody(infos, maybeUser.get(), item);
-        item.setCount(item.getCount() - infos.getCount());
-        return Response.success(Order.toBody(orderRepo.save(order)));
+        item.setCount(item.getCount() - order.getCount());
+        return Response.success(orderRepo.save(order));
     }
 
     public Response cancelOrder(String getterPhone, String orderCode){
         Optional<User> maybeUser = userRepo.findByPhone(getterPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Order> maybeOrder = orderRepo.findByCode(UUID.fromString(orderCode));
+        Optional<Order> maybeOrder = orderRepo.findByOrderCode(orderCode);
         if(!maybeOrder.isPresent())
             return Response.invalidOrderCode();
         Order order = maybeOrder.get();
-        if(!order.getGetter().getPhone().equals(getterPhone))
+        if(!order.getGetterPhone().equals(getterPhone))
             return Response.orderNotOwned();
         if(order.isExpired())
             return Response.orderExpired();
@@ -70,18 +67,18 @@ public class OrderService {
             return Response.orderAlreadyAccepted();
         order.setCanceled(true);
         order.setCanceledTime(LocalDateTime.now());
-        return Response.success(Order.toBody(orderRepo.save(order)));
+        return Response.success(orderRepo.save(order));
     }
 
     public Response acceptOrRejectOrder(String ownerPhone, String orderCode, boolean accept){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Order> maybeOrder = orderRepo.findByCode(UUID.fromString(orderCode));
+        Optional<Order> maybeOrder = orderRepo.findByOrderCode(orderCode);
         if(!maybeOrder.isPresent())
             return Response.invalidOrderCode();
         Order order = maybeOrder.get();
-        if(!order.getOwner().getPhone().equals(ownerPhone))
+        if(!order.getOwnerPhone().equals(ownerPhone))
             return Response.orderNotOwned();
         if(order.isExpired())
             return Response.orderExpired();
@@ -95,18 +92,18 @@ public class OrderService {
             return Response.orderAlreadyAccepted();
         order.setAcceptedOrRejectedTime(LocalDateTime.now());
         order.setAccepted(accept);
-        return Response.success(Order.toBody(orderRepo.save(order)));
+        return Response.success(orderRepo.save(order));
     }
 
     public Response getterCompleteOrder(String getterPhone, String orderCode){
         Optional<User> maybeUser = userRepo.findByPhone(getterPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Order> maybeOrder = orderRepo.findByCode(UUID.fromString(orderCode));
+        Optional<Order> maybeOrder = orderRepo.findByOrderCode(orderCode);
         if(!maybeOrder.isPresent())
             return Response.invalidOrderCode();
         Order order = maybeOrder.get();
-        if(!order.getOwner().getPhone().equals(getterPhone))
+        if(!order.getOwnerPhone().equals(getterPhone))
             return Response.orderNotOwned();
         if(order.isExpired())
             return Response.orderExpired();
@@ -119,18 +116,18 @@ public class OrderService {
         if(order.isCompletedByGetter())
             return Response.orderIsClosedAtYourSide();
         order.setCompletedByGetter(true);
-        return Response.success(Order.toBody(orderRepo.save(order)));
+        return Response.success(orderRepo.save(order));
     }
 
     public Response ownerCompleteOrder(String ownerPhone, String orderCode){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
-        Optional<Order> maybeOrder = orderRepo.findByCode(UUID.fromString(orderCode));
+        Optional<Order> maybeOrder = orderRepo.findByOrderCode(orderCode);
         if(!maybeOrder.isPresent())
             return Response.invalidOrderCode();
         Order order = maybeOrder.get();
-        if(!order.getOwner().getPhone().equals(ownerPhone))
+        if(!order.getOwnerPhone().equals(ownerPhone))
             return Response.orderNotOwned();
         if(order.isExpired())
             return Response.orderExpired();
@@ -143,7 +140,7 @@ public class OrderService {
         if(order.isCompletedByOwner())
             return Response.orderIsClosedAtYourSide();
         order.setCompletedByOwner(true);
-        return Response.success(Order.toBody(orderRepo.save(order)));
+        return Response.success(orderRepo.save(order));
     }
 
 
