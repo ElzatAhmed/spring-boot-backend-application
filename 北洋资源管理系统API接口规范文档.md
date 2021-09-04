@@ -620,5 +620,46 @@
       | `phone`  | String   | 用户手机号  |
       | `uToken` | String   | 用户token码 |
 
-      
+* **上传资源图片**
+
+    * HTTP报头：`POST`
+
+    * 请求URL：`api/v1/resource/image`
+
+    * 请求参数：
+
+      | 参数名         | 参数类型      | 参数说明     |
+      | -------------- | ------------- | ------------ |
+      | `phone`        | String        | 用户手机号   |
+      | `uToken`       | String        | 用户token码  |
+      | `resourceCode` | String        | 资源代码     |
+      | `image`        | MultiPartFile | 资源头像文件 |
+
+* **下载资源图片**
+
+    * HTTP报头：`GET`
+
+    * 请求URL：`api/v1/resource/image`
+
+    * 请求参数：
+
+      | 参数名         | 参数类型 | 参数说明    |
+      | -------------- | -------- | ----------- |
+      | `phone`        | String   | 用户手机号  |
+      | `uToken`       | String   | 用户token码 |
+      | `resourceCode` | String   | 资源代码    |
+
+* **发送短信验证码**
+
+    * HTTP报头：`POST`
+
+    * 请求URL：`api/v1/token`
+
+    * 请求参数：
+
+        | 参数名  | 参数类型 | 参数说明   |
+        | ------- | -------- | ---------- |
+        | `phone` | String   | 用户手机号 |
+
+        
 

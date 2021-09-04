@@ -259,4 +259,8 @@ public class ResourceService {
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
         return Response.success(itemRepo.findAll(pageable));
     }
+
+    public Optional<Resource> getByCode(String code){
+        return resourceRepo.findByResourceCode(code);
+    }
 }
