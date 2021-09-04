@@ -31,7 +31,8 @@ public class UserTokenService {
         userToken.setToken(UUID.randomUUID().toString());
         userToken.setUserPhone(phone);
         userToken.setUserName(maybeUser.get().getUserName());
-        return Response.success(userTokenRepo.save(userToken));
+        userToken = userTokenRepo.save(userToken);
+        return Response.success(userToken.getToken());
     }
 
     public boolean tokenIsValid(String phone, String code){

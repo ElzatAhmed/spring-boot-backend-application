@@ -43,8 +43,8 @@ public class ResourceController {
     @PostMapping("resource")
     public Response postNewResource(
             @RequestBody Resource resource,
-            @RequestParam(name = "user_phone") String phone,
-            @RequestParam(name = "user_token") String userToken){
+            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "uToken") String userToken){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
         return resourceService.postNewResource(resource, phone);
@@ -60,7 +60,7 @@ public class ResourceController {
     @PostMapping("resource/all")
     public Response postMultipleNewResources(
             @RequestParam(name = "phone") String phone,
-            @RequestParam(name = "user_token") String userToken,
+            @RequestParam(name = "uToken") String userToken,
             @RequestBody List<Resource> resources) {
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
@@ -85,9 +85,9 @@ public class ResourceController {
      * */
     @PostMapping("item")
     public Response releaseResource(
-            @RequestParam(name = "user_phone") String phone,
-            @RequestParam(name = "resource_code") String resourceCode,
-            @RequestParam(name = "user_token") String userToken,
+            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "resourceCode") String resourceCode,
+            @RequestParam(name = "uToken") String userToken,
             @RequestBody Item item){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
@@ -98,16 +98,16 @@ public class ResourceController {
     /**
      * user retract resource api
      * @param phone : user phone number
-     * @param resourceCode : the code of the resource to retract
+     * @param itemCode : the code of the resource to retract
      * @param userToken : the valid token system has distributed to the user
      * */
     @DeleteMapping("item")
-    public Response retractResource(@RequestParam(name = "user_phone") String phone,
-                                    @RequestParam(name = "resource_code") String resourceCode,
-                                    @RequestParam(name = "user_token") String userToken){
+    public Response retractResource(@RequestParam(name = "phone") String phone,
+                                    @RequestParam(name = "itemCode") String itemCode,
+                                    @RequestParam(name = "uToken") String userToken){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
-        return resourceService.retractItem(resourceCode, phone);
+        return resourceService.retractItem(itemCode, phone);
     }
 
 
@@ -119,9 +119,9 @@ public class ResourceController {
      * */
     @DeleteMapping("resource")
     public Response deleteResource(
-            @RequestParam(name = "user_phone") String phone,
-            @RequestParam(name = "resource_code") String resourceCode,
-            @RequestParam(name = "user_token") String userToken) {
+            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "resourceCode") String resourceCode,
+            @RequestParam(name = "uToken") String userToken) {
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
         return resourceService.deleteResource(resourceCode, phone);
@@ -161,9 +161,9 @@ public class ResourceController {
     @PutMapping("resource")
     public Response updateResourceInfo(
             @RequestBody Resource resource,
-            @RequestParam(name = "user_phone") String phone,
-            @RequestParam(name = "resource_code") String resourceCode,
-            @RequestParam(name = "user_token") String userToken){
+            @RequestParam(name = "phone") String phone,
+            @RequestParam(name = "resourceCode") String resourceCode,
+            @RequestParam(name = "uToken") String userToken){
         if(!userTokenService.tokenIsValid(phone, userToken))
             return Response.invalidUserToken();
         return resourceService.updateResourceInfo(resource, phone, resourceCode);
@@ -202,6 +202,18 @@ public class ResourceController {
     }
 
 
+    @PostMapping("resource/admin")
+    public Response checkResource(@RequestParam(name = "phone") String userPhone,
+                                  @RequestParam(name = "resourceCode") String resourceCode,
+                                  @RequestParam(name = "uToken") String userToken,
+                                  @RequestParam(name = "valid") Boolean valid){
+        if(!userTokenService.tokenIsValid(userPhone, userToken))
+            return Response.invalidUserToken();
+        if(valid)
+            return resourceService.acceptResource(resourceCode, userPhone);
+        return resourceService.rejectResource(resourceCode, userPhone);
+    }
+
     /**
      * user get item infos by filter api
      * @param userPhone : user phone number
@@ -213,8 +225,8 @@ public class ResourceController {
      * @param resourceCode : filter param, not required
      * */
     @GetMapping("items")
-    public Response getItem(@RequestParam(name = "user_phone") String userPhone,
-                            @RequestParam(name = "user_token") String userToken,
+    public Response getItem(@RequestParam(name = "uPhone") String userPhone,
+                            @RequestParam(name = "uToken") String userToken,
                             @RequestParam(required = false) String code,
                             @RequestParam(required = false) String type,
                             @RequestParam(required = false) Boolean needs2pay,
@@ -246,15 +258,16 @@ public class ResourceController {
      * @param owner_phone : filter param, not required
      * */
     @GetMapping("resources")
-    public Response getResource(@RequestParam(name = "user_phone") String userPhone,
-                                @RequestParam(name = "user_token") String userToken,
+    public Response getResource(@RequestParam(name = "uPhone") String userPhone,
+                                @RequestParam(name = "uToken") String userToken,
                                 @RequestParam(name = "code", required = false) String code,
                                 @RequestParam(name = "name", required = false) String name,
                                 @RequestParam(name = "verified", required = false) Boolean verified,
                                 @RequestParam(name = "released", required = false) Boolean released,
+                                @RequestParam(name = "accepted", required = false) Boolean accepted,
                                 @RequestParam(name = "description", required = false) String description,
                                 @RequestParam(name = "tag", required = false) String tag,
-                                @RequestParam(name = "owner_phone", required = false) String owner_phone){
+                                @RequestParam(name = "phone", required = false) String owner_phone){
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
         ResourceFilter filter = new ResourceFilter();
@@ -262,6 +275,7 @@ public class ResourceController {
         filter.setName(name);
         filter.setVerified(verified);
         filter.setReleased(released);
+        filter.setAccepted(accepted);
         filter.setDescription(description);
         filter.setTag(tag);
         filter.setOwner_phone(owner_phone);
@@ -277,10 +291,10 @@ public class ResourceController {
      * @param sortBy : the attribute to sort item with
      * */
     @GetMapping("items/page")
-    public Response getPage(@RequestParam(name = "page_num") int pageNum,
-                            @RequestParam(name = "page_size", defaultValue = "30",
+    public Response getPage(@RequestParam(name = "pageNum") int pageNum,
+                            @RequestParam(name = "pageSize", defaultValue = "30",
                                     required = false) int pageSize,
-                            @RequestParam(name = "sort_by", defaultValue = "onTime",
+                            @RequestParam(name = "sortBy", defaultValue = "onTime",
                                     required = false) String sortBy){
         ItemPage page = new ItemPage(pageNum, pageSize, sortBy);
         return resourceService.getPage(page);

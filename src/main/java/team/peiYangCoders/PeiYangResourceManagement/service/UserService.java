@@ -64,10 +64,9 @@ public class UserService {
         return Response.success(null);
     }
 
-    public User addNewUser(Body.Register info, boolean isAdmin){
-        User newUser = new User(info);
-        newUser.setUserTag(isAdmin ? UserTag.admin.toString() : UserTag.ordinary.toString());
-        return userRepo.save(newUser);
+    public void addNewUser(User info, boolean isAdmin){
+        info.setUserTag(isAdmin ? UserTag.admin.toString() : UserTag.ordinary.toString());
+        userRepo.save(info);
     }
 
     public Optional<User> getByPhone(String phone){

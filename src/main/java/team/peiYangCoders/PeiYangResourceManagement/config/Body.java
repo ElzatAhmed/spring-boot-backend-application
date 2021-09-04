@@ -23,9 +23,9 @@ public class Body {
     @ToString
     public static class Register {
 
-        private String user_phone;
+        private String userPhone;
 
-        private String user_name;
+        private String userName;
 
         private String password;
 
@@ -49,11 +49,11 @@ public class Body {
     @AllArgsConstructor
     public static class Certification{
 
-        private String student_id;
+        private String studentId;
 
-        private String student_name;
+        private String studentName;
 
-        private String student_password;
+        private String studentPassword;
 
     }
 

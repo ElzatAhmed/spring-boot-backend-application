@@ -3,7 +3,6 @@ package team.peiYangCoders.PeiYangResourceManagement.model.user;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
-import team.peiYangCoders.PeiYangResourceManagement.model.tags.UserTag;
 
 import javax.persistence.*;
 
@@ -179,8 +178,8 @@ public class User {
     }
 
     public User(Body.Register info){
-        this.phone = info.getUser_phone();
-        this.userName = info.getUser_name();
+        this.phone = info.getUserPhone();
+        this.userName = info.getUserName();
         this.password = info.getPassword();
     }
 }
