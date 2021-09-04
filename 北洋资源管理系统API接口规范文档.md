@@ -507,7 +507,7 @@
 
    * HTTP报头：`POST`
 
-   * 请求URL：`api/v1/order`
+   * 请求URL：`api/v1/order/new`
 
    * 请求参数：
 
