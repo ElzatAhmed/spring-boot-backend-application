@@ -113,5 +113,9 @@ public class Item {
     )
     private String resourceCode;
 
+    @Column(
+            name = "owner_phone"
+    )
+    private String ownerPhone;
 
 }

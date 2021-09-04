@@ -1,8 +1,10 @@
 package team.peiYangCoders.PeiYangResourceManagement.controller;
 
+import org.apache.http.HttpResponse;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +38,9 @@ public class ImageController {
     }
 
     @PostMapping("user/image")
-    public Response uploadUserImage(@RequestParam(name = "user_phone") String phone,
-                                    @RequestParam(name = "user_token") String userToken,
-                                    @RequestParam(name = "file") MultipartFile file) throws IOException {
+    public Response uploadUserImage(@RequestParam(name = "phone") String phone,
+                                    @RequestParam(name = "uToken") String userToken,
+                                    @RequestParam(name = "image") MultipartFile file) throws IOException {
         if(!userService.getByPhone(phone).isPresent())
             return Response.invalidPhone();
         if(!userTokenService.tokenIsValid(phone, userToken))
@@ -50,22 +52,20 @@ public class ImageController {
     }
 
     @GetMapping("user/image")
-    public ResponseEntity<Resource> downloadUserImage(@RequestParam(name = "user_phone") String phone,
-                                      @RequestParam(name = "user_token") String userToken) throws IOException {
-//        if(!userService.getByPhone(phone).isPresent())
-//            return Response.invalidPhone();
-//        if(!userTokenService.tokenIsValid(phone, userToken))
-//            return Response.invalidUserToken();
-        Path path = get(USER_DIRECTORY).toAbsolutePath().normalize().resolve(phone + ".jpg");
-        if(!Files.exists(path))
-            return ResponseEntity.badRequest().build();
-//            return Response.imageNotFount();
-        Resource fileResource = new UrlResource(path.toUri());
+    public ResponseEntity<Resource> downloadUserImage(@RequestParam(name = "phone") String phone,
+                                      @RequestParam(name = "uToken") String userToken) throws IOException {
+        if(!userService.getByPhone(phone).isPresent())
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if(!userTokenService.tokenIsValid(phone, userToken))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Path filePath = get(USER_DIRECTORY).toAbsolutePath().normalize().resolve(phone + ".jpg");
+        Resource resource = new UrlResource(filePath.toUri());
         HttpHeaders headers = new HttpHeaders();
-        headers.add("File-Name", String.valueOf(fileResource.getFilename()));
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;File-Name=" + fileResource.getFilename());
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(Files.probeContentType(path)))
-                .headers(headers).body(fileResource);
+        headers.add("File-Name", String.valueOf(filePath.getFileName()));
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;File-Name="
+                + filePath.getFileName());
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(Files.probeContentType(filePath)))
+                .headers(headers).body(resource);
     }
 
 }

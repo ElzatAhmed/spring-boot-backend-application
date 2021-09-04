@@ -37,11 +37,11 @@ public class Resource {
     *
     * */
     @Id
-    @GeneratedValue(generator = "UUID")
     @GenericGenerator(
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
+    @GeneratedValue(generator = "UUID")
     @Column(
             name = "resource_code",
             nullable = false,

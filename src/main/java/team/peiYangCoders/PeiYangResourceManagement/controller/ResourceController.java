@@ -267,7 +267,8 @@ public class ResourceController {
                                 @RequestParam(name = "accepted", required = false) Boolean accepted,
                                 @RequestParam(name = "description", required = false) String description,
                                 @RequestParam(name = "tag", required = false) String tag,
-                                @RequestParam(name = "phone", required = false) String owner_phone){
+                                @RequestParam(name = "phone", required = false) String owner_phone,
+                                @RequestParam(name = "requestCount", required = false) Integer requestCount){
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
         ResourceFilter filter = new ResourceFilter();
@@ -280,7 +281,7 @@ public class ResourceController {
         filter.setTag(tag);
         filter.setOwner_phone(owner_phone);
         System.out.println(filter);
-        return Response.success(resourceService.getResource(filter));
+        return Response.success(resourceService.getResource(filter, requestCount));
     }
 
 
@@ -291,10 +292,10 @@ public class ResourceController {
      * @param sortBy : the attribute to sort item with
      * */
     @GetMapping("items/page")
-    public Response getPage(@RequestParam(name = "pageNum") int pageNum,
-                            @RequestParam(name = "pageSize", defaultValue = "30",
+    public Response getItemPage(@RequestParam(name = "pageNum") int pageNum,
+                                @RequestParam(name = "pageSize", defaultValue = "30",
                                     required = false) int pageSize,
-                            @RequestParam(name = "sortBy", defaultValue = "onTime",
+                                @RequestParam(name = "sortBy", defaultValue = "onTime",
                                     required = false) String sortBy){
         ItemPage page = new ItemPage(pageNum, pageSize, sortBy);
         return resourceService.getPage(page);

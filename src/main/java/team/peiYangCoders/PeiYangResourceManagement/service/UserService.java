@@ -23,9 +23,12 @@ public class UserService {
     }
 
     public Response ordinaryLogin(Body.Login loginInfo){
-        Optional<User> user = userRepo.findByPhone(loginInfo.getUser_phone());
-        if(!user.isPresent()) return Response.invalidPhone();
-        if(!user.get().getPassword().equals(loginInfo.getPassword()))
+        Optional<User> maybe = userRepo.findByPhone(loginInfo.getUser_phone());
+        if(!maybe.isPresent()) return Response.invalidPhone();
+        User user = maybe.get();
+        if(user.getUserTag().equals(UserTag.admin.toString()))
+            return Response.invalidPhone();
+        if(!user.getPassword().equals(loginInfo.getPassword()))
             return Response.invalidPassword();
         return Response.success(null);
     }

@@ -96,9 +96,8 @@ public class OrderController {
         Order order = maybe.get();
         if(order.getOwnerPhone().equals(phone))
             return orderService.ownerCompleteOrder(phone, orderCode);
-        else if(order.getGetterPhone().equals(phone))
+        if(order.getGetterPhone().equals(phone))
             return orderService.getterCompleteOrder(phone, orderCode);
-        else
-            return Response.orderNotOwned();
+        return Response.orderNotOwned();
     }
 }

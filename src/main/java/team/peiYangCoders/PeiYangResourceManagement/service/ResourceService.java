@@ -70,6 +70,8 @@ public class ResourceService {
         if(!resource.isAccepted())
             return Response.resourceUnavailableToRelease();
         item.setOnTime(LocalDateTime.now());
+        item.setOwnerPhone(ownerPhone);
+        item.setResourceCode(resourceCode);
         item = itemRepo.save(item);
         return Response.success(item.getItemCode());
     }
@@ -202,7 +204,7 @@ public class ResourceService {
                 MyUtils.itemListIntersection(campus, resourceCode));
     }
 
-    public List<Resource> getResource(ResourceFilter filter){
+    public List<Resource> getResource(ResourceFilter filter, Integer requestCount){
         if(filter.allNull())
             return resourceRepo.findAll();
         else if(filter.nullExceptCode()){
@@ -236,8 +238,20 @@ public class ResourceService {
         List<Resource> r1 = MyUtils.resourceListIntersection(name, verified);
         List<Resource> r2 = MyUtils.resourceListIntersection(released, description);
         List<Resource> r3 = MyUtils.resourceListIntersection(tag, ownerPhone);
-        return MyUtils.resourceListIntersection(MyUtils.resourceListIntersection(r1, accepted),
+        List<Resource> intersected = MyUtils.resourceListIntersection(
+                MyUtils.resourceListIntersection(r1, accepted),
                 MyUtils.resourceListIntersection(r2, r3));
+        if(intersected == null) return null;
+        if(requestCount != null){
+            List<Resource> result = new ArrayList<>();
+            for(int i = 0; i < requestCount; i++){
+                if(i >= intersected.size())
+                    break;
+                result.add(intersected.get(i));
+            }
+            return result;
+        }
+        return intersected;
     }
 
     public Response getPage(ItemPage page){

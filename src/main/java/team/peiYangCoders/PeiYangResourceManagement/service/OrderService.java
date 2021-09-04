@@ -48,6 +48,10 @@ public class OrderService {
         order.setOpenedTime(now);
         order.setAcceptingOrRejectingExpiresAt(now.plusDays(config.getAcceptingValidTime()));
         order.setCompletionExpiresAt(now.plusDays(config.getCompletionValidTime()));
+        order.setGetterPhone(getterPhone);
+        order.setOwnerPhone(item.getOwnerPhone());
+        order.setItemCode(itemCode);
+        System.out.println(order);
         return Response.success(orderRepo.save(order));
     }
 
@@ -100,6 +104,7 @@ public class OrderService {
             return Response.orderAlreadyAccepted();
         order.setAcceptedOrRejectedTime(LocalDateTime.now());
         order.setAccepted(accept);
+        order.setAcceptedOrRejected(true);
         return Response.success(orderRepo.save(order));
     }
 
@@ -111,7 +116,7 @@ public class OrderService {
         if(!maybeOrder.isPresent())
             return Response.invalidOrderCode();
         Order order = maybeOrder.get();
-        if(!order.getOwnerPhone().equals(getterPhone))
+        if(!order.getGetterPhone().equals(getterPhone))
             return Response.orderNotOwned();
         if(order.isExpired())
             return Response.orderExpired();

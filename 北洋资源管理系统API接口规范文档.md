@@ -588,3 +588,37 @@
   * 用例示范
 
     `PUT	localhost:8080/api/v1/order/?phone=***&orderCode=***&uToken=***`
+
+### 4. 其他接口
+
+ * **用户上传头像**
+
+    * HTTP报头：`POST`
+
+    * 请求URL：`api/v1/user/image`
+
+    * 请求参数：
+
+      | 参数名   | 参数类型      | 参数说明     |
+      | -------- | ------------- | ------------ |
+      | `phone`  | String        | 用户手机号   |
+      | `uToken` | String        | 用户token码  |
+      | `image`  | MultiPartFile | 用户头像文件 |
+
+      
+
+ * **下载用户头像**
+
+    * HTTP报头：`GET`
+
+    * 请求URL：`api/v1/user/image`
+
+    * 请求参数：
+
+      | 参数名   | 参数类型 | 参数说明    |
+      | -------- | -------- | ----------- |
+      | `phone`  | String   | 用户手机号  |
+      | `uToken` | String   | 用户token码 |
+
+      
+
