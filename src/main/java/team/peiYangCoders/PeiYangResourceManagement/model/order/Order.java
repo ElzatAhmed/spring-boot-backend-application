@@ -35,16 +35,16 @@ public class Order {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @Column(
-            name = "orderCode",
+            name = "order_code",
             nullable = false,
             updatable = false,
-            columnDefinition = "UUID"
+            columnDefinition = "VARCHAR"
     )
     private String orderCode;
 
 
     @Column(
-            name = "getterPhone",
+            name = "getter_phone",
             nullable = false,
             updatable = false
     )
@@ -60,7 +60,7 @@ public class Order {
 
 
     @Column(
-            name = "ownerPhone",
+            name = "owner_phone",
             nullable = false,
             updatable = false
     )
@@ -68,7 +68,7 @@ public class Order {
 
 
     @Column(
-            name = "itemCode",
+            name = "item_code",
             nullable = false,
             updatable = false
     )
@@ -83,17 +83,14 @@ public class Order {
 
 
 
-    @NotBlank
     @Column(
             nullable = false,
             updatable = false,
             name = "opened_time"
     )
-    @DateTimeFormat
     private LocalDateTime openedTime;
 
 
-    @DateTimeFormat
     @Column(
             updatable = false,
             name = "closed_time"
@@ -122,6 +119,7 @@ public class Order {
 
 
     @Column(
+            nullable = false,
             name = "completion_expires_at"
     )
     private LocalDateTime completionExpiresAt;
@@ -134,7 +132,7 @@ public class Order {
     private boolean accepted = false;
 
     @Column(
-            name = "acceptedOrRejected",
+            name = "accepted_or_rejected",
             nullable = false
     )
     private boolean acceptedOrRejected = false;

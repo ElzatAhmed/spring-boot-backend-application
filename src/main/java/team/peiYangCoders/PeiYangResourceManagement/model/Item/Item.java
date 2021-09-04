@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import team.peiYangCoders.PeiYangResourceManagement.config.Body;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.tags.ItemType;
@@ -22,12 +23,16 @@ import java.util.UUID;
 public class Item {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @GeneratedValue(generator = "UUID")
     @Column(
             name = "item_code",
             nullable = false,
             updatable = false,
-            columnDefinition = "UUID"
+            columnDefinition = "VARCHAR"
     )
     private String itemCode;
 

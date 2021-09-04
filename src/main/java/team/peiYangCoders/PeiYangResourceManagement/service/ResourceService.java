@@ -40,6 +40,7 @@ public class ResourceService {
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
+        resource.setOwnerPhone(ownerPhone);
         return Response.success(resourceRepo.save(resource).getResourceCode());
     }
 
@@ -50,7 +51,7 @@ public class ResourceService {
         List<String> responses = new ArrayList<>();
         resources = resourceRepo.saveAll(resources);
         for(Resource resource : resources)
-            responses.add(resource.getResourceCode().toString());
+            responses.add(resource.getResourceCode());
         return Response.success(responses);
     }
 

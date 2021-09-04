@@ -46,7 +46,7 @@ public class Resource {
             name = "resource_code",
             nullable = false,
             updatable = false,
-            columnDefinition = "UUID"
+            columnDefinition = "VARCHAR"
     )
     private String resourceCode;
 

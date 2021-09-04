@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class OrderConfig {
 
-    private int acceptingValidTime = 24;        // hours
+    private int acceptingValidTime = 1;        // hours
 
-    private int closingValidTime = 24 * 7;      // hours
+    private int completionValidTime = 7;      // hours
 
 }

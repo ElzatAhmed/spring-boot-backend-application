@@ -12,11 +12,11 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
     Optional<User> findByPhone(String phone);
 
-    List<User> findByUserNameContains(String userName);
+    List<User> findAllByUserNameContains(String userName);
 
-    List<User> findByQqId(String qqId);
+    List<User> findAllByQqId(String qqId);
 
-    List<User> findByWechatId(String wechatId);
+    List<User> findAllByWechatId(String wechatId);
 
-    List<User> findByStudentCertified(boolean studentCertified);
+    List<User> findAllByStudentCertified(boolean studentCertified);
 }

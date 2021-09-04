@@ -102,13 +102,13 @@ public class UserService {
         List<User> studentCertified = null;
 
         if(filter.getName() != null)
-            name = userRepo.findByUserNameContains(filter.getName());
+            name = userRepo.findAllByUserNameContains(filter.getName());
         if(filter.getQqId() != null)
-            qqId = userRepo.findByQqId(filter.getQqId());
+            qqId = userRepo.findAllByQqId(filter.getQqId());
         if(filter.getWechatId() != null)
-            wechatId = userRepo.findByWechatId(filter.getWechatId());
+            wechatId = userRepo.findAllByWechatId(filter.getWechatId());
         if(filter.getStudentCertified() != null)
-            studentCertified = userRepo.findByStudentCertified(filter.getStudentCertified());
+            studentCertified = userRepo.findAllByStudentCertified(filter.getStudentCertified());
 
         return MyUtils.userListIntersection(MyUtils.userListIntersection(name, qqId),
                 MyUtils.userListIntersection(wechatId, studentCertified));

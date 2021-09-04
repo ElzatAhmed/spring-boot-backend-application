@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import team.peiYangCoders.PeiYangResourceManagement.config.OrderConfig;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.order.Order;
 import team.peiYangCoders.PeiYangResourceManagement.model.Item.Item;
@@ -42,6 +43,11 @@ public class OrderService {
         if(item.getCount() < order.getCount())
             return Response.itemNotSufficient();
         item.setCount(item.getCount() - order.getCount());
+        LocalDateTime now = LocalDateTime.now();
+        OrderConfig config = new OrderConfig();
+        order.setOpenedTime(now);
+        order.setAcceptingOrRejectingExpiresAt(now.plusDays(config.getAcceptingValidTime()));
+        order.setCompletionExpiresAt(now.plusDays(config.getCompletionValidTime()));
         return Response.success(orderRepo.save(order));
     }
 
@@ -67,6 +73,8 @@ public class OrderService {
             return Response.orderAlreadyAccepted();
         order.setCanceled(true);
         order.setCanceledTime(LocalDateTime.now());
+        Optional<Item> maybe = itemRepo.findByItemCode(order.getItemCode());
+        maybe.ifPresent(item -> item.setCount(item.getCount() + order.getCount()));
         return Response.success(orderRepo.save(order));
     }
 
