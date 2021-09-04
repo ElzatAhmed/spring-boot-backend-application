@@ -503,5 +503,88 @@
 
 ### 3.订单信息接口
 
-	* 
-	* 
+ * **用户下单**
+
+   * HTTP报头：`POST`
+
+   * 请求URL：`api/v1/order`
+
+   * 请求参数：
+
+     | 参数名     | 参数类型 | 参数说明    |
+     | ---------- | -------- | ----------- |
+     | `phone`    | String   | 用户手机号  |
+     | `itemCode` | String   | 商品编号    |
+     | `uToken`   | String   | 用户token码 |
+
+   * json参数（下单时必需，接受订单时不需要）：
+
+     | 参数名    | 参数类型 | 参数说明 |
+     | --------- | -------- | -------- |
+     | `count`   | Integer  | 数量     |
+     | `comment` | String   | 备注     |
+
+   * 用例示范：
+
+     `POST	localhost:8080/api/v1/order/new/?phone=***&itemCode=***&uToken=***`
+
+     ```json
+     {
+         "count": "",
+         "comment": ""
+     }
+     ```
+
+ * **订单失效（买家取消订单或卖家拒绝订单）**
+
+   * HTTP报头：`DELETE`
+
+   * 请求URL：`api/v1/order`
+
+   * 请求参数：
+
+     | 参数名      | 参数类型 | 参数说明    |
+     | ----------- | -------- | ----------- |
+     | `phone`     | String   | 用户手机号  |
+     | `orderCode` | String   | 订单编号    |
+     | `uToken`    | String   | 用户token码 |
+
+   * 用例示范：
+
+     `DELETE	localhost:8080/api/v1/order/?phone=***&orderCode=***&uToken=***`
+
+* **卖家接受订单**
+
+  * HTTP报头：`POST`
+
+  * 请求URL：`api/v1/order`
+
+  * 请求参数：
+
+    | 参数名      | 参数类型 | 参数说明    |
+    | ----------- | -------- | ----------- |
+    | `phone`     | String   | 用户手机号  |
+    | `orderCode` | String   | 订单编号    |
+    | `uToken`    | String   | 用户token码 |
+
+  * 用例示范：
+
+    `POST	localhost:8080/api/v1/order/?phone=***&orderCode=***&uToken=***`
+
+* **完成订单（双方都一样）**
+
+  * HTTP报头：`PUT`
+
+  * 请求URL：`api/v1/order`
+
+  * 请求参数
+
+    | 参数名      | 参数类型 | 参数说明    |
+    | ----------- | -------- | ----------- |
+    | `phone`     | String   | 用户手机号  |
+    | `orderCode` | String   | 订单编号    |
+    | `uToken`    | String   | 用户token码 |
+
+  * 用例示范
+
+    `PUT	localhost:8080/api/v1/order/?phone=***&orderCode=***&uToken=***`

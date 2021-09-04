@@ -143,6 +143,10 @@ public class OrderService {
         return Response.success(orderRepo.save(order));
     }
 
+    public Optional<Order> getByCode(String code){
+        return orderRepo.findByOrderCode(code);
+    }
+
 
     @Scheduled(fixedRate = 600000L)
     void checkOrders(){
