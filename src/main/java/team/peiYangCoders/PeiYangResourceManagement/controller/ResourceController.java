@@ -170,38 +170,6 @@ public class ResourceController {
     }
 
 
-    /**
-     * admin accept resource api
-     * @param phone : admin phone number
-     * @param resourceCode : the code of the resource to accept
-     * @param userToken : the valid token system has distributed to the user
-     * */
-    @PostMapping("resource/valid")
-    public Response acceptResource(@RequestParam(name = "user_phone") String phone,
-                                   @RequestParam(name = "resource_code") String resourceCode,
-                                   @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.tokenIsValid(phone, userToken))
-            return Response.invalidUserToken();
-        return resourceService.acceptResource(resourceCode, phone);
-    }
-
-
-    /**
-     * admin reject resource api
-     * @param phone : admin phone number
-     * @param resourceCode : the code of the resource to reject
-     * @param userToken : the valid token system has distributed to the user
-     * */
-    @PostMapping("resource/invalid")
-    public Response rejectResource(@RequestParam(name = "user_phone") String phone,
-                                   @RequestParam(name = "resource_code") String resourceCode,
-                                   @RequestParam(name = "user_token") String userToken){
-        if(!userTokenService.tokenIsValid(phone, userToken))
-            return Response.invalidUserToken();
-        return resourceService.rejectResource(resourceCode, phone);
-    }
-
-
     @PostMapping("resource/admin")
     public Response checkResource(@RequestParam(name = "phone") String userPhone,
                                   @RequestParam(name = "resourceCode") String resourceCode,
@@ -210,8 +178,8 @@ public class ResourceController {
         if(!userTokenService.tokenIsValid(userPhone, userToken))
             return Response.invalidUserToken();
         if(valid)
-            return resourceService.acceptResource(resourceCode, userPhone);
-        return resourceService.rejectResource(resourceCode, userPhone);
+            return resourceService.acceptOrRejectResource(resourceCode, userPhone, true);
+        return resourceService.acceptOrRejectResource(resourceCode, userPhone, false);
     }
 
     /**
@@ -241,7 +209,7 @@ public class ResourceController {
         filter.setCampus(campus);
         filter.setResourceCode(resourceCode);
         System.out.println(filter);
-        return Response.success(resourceService.getItem(filter));
+        return Response.success(resourceService.getItemByFilter(filter));
     }
 
 
@@ -281,7 +249,7 @@ public class ResourceController {
         filter.setTag(tag);
         filter.setOwner_phone(owner_phone);
         System.out.println(filter);
-        return Response.success(resourceService.getResource(filter, requestCount));
+        return Response.success(resourceService.getResourceByFilter(filter, requestCount));
     }
 
 

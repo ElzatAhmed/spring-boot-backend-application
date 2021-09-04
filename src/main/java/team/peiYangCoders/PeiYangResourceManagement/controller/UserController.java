@@ -43,7 +43,7 @@ public class UserController {
     public Response ordinaryLogin(@RequestParam(name = "phone") String userPhone,
                                   @RequestParam(name = "password") String password){
         Body.Login info = new Body.Login(userPhone, password);
-        Response response = userService.ordinaryLogin(info);
+        Response response = userService.ordinaryLogin(userPhone, password);
         return response.succeeded() ? userTokenService.provideNewCode(userPhone) : response;
     }
 
@@ -76,11 +76,6 @@ public class UserController {
 
     /**
      * user update password api
-     * @param info : NewPassword information body
-     *             {
-     *                  "newPassword": "",
-     *                  "token": ""
-     *             }
      * @param userPhone : user phone number
      * @param userToken : the valid token system has distributed to the user
      * */
@@ -162,8 +157,7 @@ public class UserController {
     @GetMapping("admin")
     public Response adminLogin(@RequestParam(name = "phone") String userPhone,
                                @RequestParam(name = "password") String password){
-        Body.Login info = new Body.Login(userPhone, password);
-        Response response = userService.adminLogin(info);
+        Response response = userService.adminLogin(userPhone, password);
         return response.succeeded() ? userTokenService.provideNewCode(userPhone) : response;
     }
 

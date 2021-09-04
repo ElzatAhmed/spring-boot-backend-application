@@ -144,7 +144,7 @@ public class ResourceService {
         return Response.success(resource.getResourceCode());
     }
 
-    public Response acceptResource(String resourceCode, String adminPhone){
+    public Response acceptOrRejectResource(String resourceCode, String adminPhone, boolean accept){
         Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
         if(!maybeUser.isPresent())
             return Response.invalidPhone();
@@ -156,29 +156,12 @@ public class ResourceService {
             return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         resource.setVerified(true);
-        resource.setAccepted(true);
+        resource.setAccepted(accept);
         resourceRepo.save(resource);
         return Response.success(null);
     }
 
-    public Response rejectResource(String resourceCode, String adminPhone){
-        Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
-        User user = maybeUser.get();
-        if(!user.isAdmin())
-            return Response.permissionDenied();
-        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
-        if(!maybeResource.isPresent())
-            return Response.invalidResourceCode();
-        Resource resource = maybeResource.get();
-        resource.setVerified(true);
-        resource.setAccepted(false);
-        resource = resourceRepo.save(resource);
-        return Response.success(resource.getResourceCode());
-    }
-
-    public List<Item> getItem(ItemFilter filter){
+    public List<Item> getItemByFilter(ItemFilter filter){
         if(filter.allNull())
             return itemRepo.findAll();
         else if(filter.nullExceptCode()){
@@ -204,7 +187,7 @@ public class ResourceService {
                 MyUtils.itemListIntersection(campus, resourceCode));
     }
 
-    public List<Resource> getResource(ResourceFilter filter, Integer requestCount){
+    public List<Resource> getResourceByFilter(ResourceFilter filter, Integer requestCount){
         if(filter.allNull())
             return resourceRepo.findAll();
         else if(filter.nullExceptCode()){

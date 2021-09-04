@@ -22,13 +22,13 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    public Response ordinaryLogin(Body.Login loginInfo){
-        Optional<User> maybe = userRepo.findByPhone(loginInfo.getUser_phone());
+    public Response ordinaryLogin(String phone, String password){
+        Optional<User> maybe = userRepo.findByPhone(phone);
         if(!maybe.isPresent()) return Response.invalidPhone();
         User user = maybe.get();
         if(user.getUserTag().equals(UserTag.admin.toString()))
             return Response.invalidPhone();
-        if(!user.getPassword().equals(loginInfo.getPassword()))
+        if(!user.getPassword().equals(password))
             return Response.invalidPassword();
         return Response.success(null);
     }
@@ -46,12 +46,12 @@ public class UserService {
         return Response.success(null);
     }
 
-    public Response adminLogin(Body.Login info){
-        Response response = isAdmin(info.getUser_phone());
+    public Response adminLogin(String phone, String password){
+        Response response = isAdmin(phone);
         if(response.failed())
             return response;
         User userInfo = (User) response.getData();
-        if(!userInfo.getPassword().equals(info.getPassword()))
+        if(!userInfo.getPassword().equals(password))
             return Response.invalidPassword();
         return Response.success(null);
     }

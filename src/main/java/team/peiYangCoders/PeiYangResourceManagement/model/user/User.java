@@ -78,7 +78,8 @@ public class User {
      * assigned after student certification
      * */
     @Column(
-            name = "student_id"
+            name = "student_id",
+            columnDefinition = "VARCHAR(20)"
     )
     private String studentId;
 
@@ -89,7 +90,7 @@ public class User {
      * */
     @Column(
             name = "qq_id",
-            columnDefinition = "VARCHAR(50)"
+            columnDefinition = "VARCHAR(20)"
     )
     private String qqId;
 
@@ -100,7 +101,7 @@ public class User {
      * */
     @Column(
             name = "wechat_id",
-            columnDefinition = "VARCHAR(50)"
+            columnDefinition = "VARCHAR(20)"
     )
     private String wechatId;
 
@@ -115,8 +116,8 @@ public class User {
     @Column(
             name = "user_name",
             nullable = false,
-            columnDefinition = "VARCHAR(50)",
-            length = 50
+            columnDefinition = "VARCHAR(20)",
+            length = 20
     )
     private String userName;
 
