@@ -177,10 +177,4 @@ public class User {
     public boolean isAdmin(){
         return userTag.equals("admin");
     }
-
-    public User(Body.Register info){
-        this.phone = info.getUserPhone();
-        this.userName = info.getUserName();
-        this.password = info.getPassword();
-    }
 }

@@ -182,6 +182,10 @@
       ```
 
     * ```java
+      public Response updatePassword(User user, String newPassword);
+      ```
+
+    * ```java
       public Response adminLogin(String userPhone, String password);
       ```
 
@@ -237,5 +241,132 @@
 
 * **OrderService**
 
+  * ```java
+    public Response newOrder(String getterPhone, String itemCode, Order order);
+    ```
   
+  * ```java
+    public Response cancelOrder(String getterPhone, String orderCode);
+    ```
+  
+  * ```java
+    public Response acceptOrRejectOrder(String ownerPhone, String orderCode, boolean accept);
+    ```
+  
+  * ```java
+    public Response getterCompleteOrder(String getterPhone, String orderCode);
+    ```
+  
+  * ```java
+    public Response ownerCompleteOrder(String ownerPhone, String orderCode);
+    ```
+  
+  * **Scheduled methods**
+  
+    * ```java
+      @Scheduled(fixedRate = 600000L)
+      void checkOrders();
+      ```
+  
+    * ```java
+      public boolean expiredFromOwner(Order order);
+      ```
+  
+    * ```java
+      public boolean completionExpired(Order order);
+      ```
+  
+* **ConfirmationTokenService**
+
+    * ```java
+        public ConfirmationToken send(String phone);
+        ```
+
+    * ```java
+        public Response receive(String user_phone, String token);
+        ```
+
+    * ```java
+        private void sendConfirmationToken(String phone, String token)
+        ```
+
+* **AdminRegistrationCodeService**
+
+    * ```java
+        public boolean isValid(String code);
+        ```
+
+    * ```java
+        public void use(AdminRegistrationCode code)
+        ```
+
+    * ```java
+        public Response addCode(String code, String phone)
+        ```
+
+* **StudentIdService**
+
+    * ```java
+        public Response studentCertification(User student, String studentId, String name, String password)
+        ```
+
+* **UserTokenService**
+
+    * ```java
+        public Response provideNewCode(String phone);
+        ```
+
+    * ```java
+        public boolean tokenIsValid(String phone, String code);
+        ```
+
+### 4.Response
+
+ * **属性**
+
+    * ```java
+      private String message;
+      ```
+
+    * ```java
+      private int code;
+      ```
+
+    * ```java
+      private Object data
+      ```
+
+ * **定义了多个public static方法，可直接获取相对应的Response结构：**
+
+   | code | message                              | data   |
+   | ---- | ------------------------------------ | ------ |
+   | 100  | success                              | Object |
+   | 600  | sending confirmation token failed    | null   |
+   | 601  | invalid phone                        | null   |
+   | 602  | invalid confirmation token           | null   |
+   | 603  | invalid password                     | null   |
+   | 604  | invalid student information          | null   |
+   | 605  | invalid registration code            | null   |
+   | 606  | insufficient authority               | null   |
+   | 607  | invalid user token                   | null   |
+   | 701  | invalid resource code                | null   |
+   | 702  | resource unavailable to release      | null   |
+   | 703  | resource already released            | null   |
+   | 704  | resource not belong to the user      | null   |
+   | 801  | invalid item code                    | null   |
+   | 802  | item already ordered                 | null   |
+   | 803  | item not belong to the user          | null   |
+   | 804  | item is not sufficient               | null   |
+   | 901  | invalid order code                   | null   |
+   | 902  | order not belonged to the user       | null   |
+   | 903  | order already accepted by owner      | null   |
+   | 904  | order is closed by at least one side | null   |
+   | 905  | order already canceled               | null   |
+   | 906  | order expired                        | null   |
+   | 907  | order not accepted                   | null   |
+   | 908  | order is closed at your side         | null   |
+   | 909  | order closed                         | null   |
+   | 1001 | image not found                      | null   |
+
+   
 

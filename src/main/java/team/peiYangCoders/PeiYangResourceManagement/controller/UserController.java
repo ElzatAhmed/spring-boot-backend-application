@@ -42,7 +42,6 @@ public class UserController {
     @GetMapping("/user")
     public Response ordinaryLogin(@RequestParam(name = "phone") String userPhone,
                                   @RequestParam(name = "password") String password){
-        Body.Login info = new Body.Login(userPhone, password);
         Response response = userService.ordinaryLogin(userPhone, password);
         return response.succeeded() ? userTokenService.provideNewCode(userPhone) : response;
     }

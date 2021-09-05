@@ -71,7 +71,7 @@ public class Response {
         return new Response("item already ordered", 802, null);
     }
     public static Response itemNotOwned(){
-        return new Response("item belong to the user", 803, null);
+        return new Response("item not belong to the user", 803, null);
     }
     public static Response itemNotSufficient(){
         return new Response("item is not sufficient", 804, null);
