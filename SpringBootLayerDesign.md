@@ -171,156 +171,407 @@
 
 ### 3.Service设计
 
- * **UserService**
+####  **UserService**
+
+* **为controller层提供的接口**
+
+   * ```java
+     public Response login(String userPhone, String password, boolean admin);
+     ```
+
+   * ```java
+     public Response register(User newUser, String cToken);
+     ```
+
+   * ```java
+       public Response register(User newUser, String cToken, String regCode);
+       ```
+
+   * ```java
+     public Response update(User newInfo, String userPhone, String uToken);
+     ```
+
+   * ```java
+       public Response update(String userPhone, String uToken, String cToken, String newPassword);
+       ```
+
+   * ```java
+     public Response studentCertification(StudentCertificate certificate, 
+                                          String userPhone, String uToken)
+     ```
+
+   * ```java
+     public Response getByFilter(UserFilter filter, String userPhone, String uToken, 
+                                 Integer requestCount)
+     ```
+
+* **私有方法**
 
     * ```java
-      public Response ordinaryLogin(String userPhone, String password);
+        private Response ordinaryLogin(String userPhone, String password);
+        ```
+
+    * ```java
+        private Response adminLogin(String userPhone, String password);
+        ```
+
+    * ```java
+        private boolean cTokenValid(String phone, String cToken);
+        ```
+
+    * ```java
+        private boolean regCodeValid(String regCode);
+        ```
+
+    * ```java
+        private UserToken generateUToken(String userPhone, String userName);
+        ```
+
+    * ```java
+        private boolean uTokenValid(String userPhone, String uToken);
+        ```
+
+    * ```java
+        private boolean studentInfoValid(StudentCertificate certificate);
+        ```
+
+#### **ResourceService**
+
+* **为controller层提供的接口**
+
+   * ```java
+     public Response post(Resource resource, String ownerPhone, String uToken);
+     ```
+
+   * ```java
+     public Response release(String resourceCode, String ownerPhone, String uToken, Item item);
+     ```
+
+   * ```java
+     public Response retract(String itemCode, String ownerPhone, String uToken);
+     ```
+
+   * ```java
+     public Response delete(String resourceCode, String ownerPhone, String uToken);
+     ```
+
+   * ```java
+     public Response update(Resource newResource, String resourceCode, 
+                            String ownerPhone, String uToken);
+     ```
+
+   * ```java
+     public Response check(String resourceCode, String adminPhone, String uToken, boolean accept);
+     ```
+
+   * ```java
+     public Response getItemByFilter(ItemFilter filter, String userPhone,
+                                         String userToken, Integer requestCount);
+     ```
+
+   * ```java
+     public Response getResourceByFilter(ResourceFilter filter, String userPhone,
+                                             String userToken, Integer requestCount);
+     ```
+
+#### **OrderService**
+
+ * **为controller层提供的接口**
+
+    * ```java
+      public Response post(String getterPhone, String userToken, String itemCode, Order order);
       ```
 
     * ```java
-      public Response updateInfo(String userPhone, User user);
+      public Response delete(String userPhone, String userToken, String orderCode);
       ```
 
     * ```java
-      public Response updatePassword(User user, String newPassword);
+      public Response accept(String ownerPhone, String userToken, String orderCode);
       ```
 
     * ```java
-      public Response adminLogin(String userPhone, String password);
+      public Response complete(String userPhone, String userToken, String orderCode);
       ```
 
-    * ```java
-      public void addNewUser(User user, boolean isAdmin);
-      ```
-
-    * ```java
-      public Response isAdmin(String phone);
-      ```
-
-    * ```java
-      public List<User> getByFilter(UserFilter filter);
-      ```
-
- * **ResourceService**
-
-    * ```java
-      public Response postNewResource(Resource resource, String ownerPhone);
-      ```
-
-    * ```java
-      public Response releaseResource(String resourceCode, String ownerPhone, Item itemInfo);
-      ```
-
-    * ```java
-      public Response retractItem(String itemCode, String ownerPhone);
-      ```
-
-    * ```java
-      public Response deleteResource(String resourceCode, String ownerPhone);
-      ```
-
-    * ```java
-      public Response updateResourceInfo(Resource resourceInfo, String resourceCode, String ownerPhone)
-      ```
-
-    * ```java
-      public Respone acceptOrRejectResource(String resourceCode, String adminPhone, boolean accepted);
-      ```
-
-    * ```java
-      public Response getItemByFilter(ItemFilter filter);
-      ```
-
-    * ```java
-      public Response getResourceByFilter(ResourceFilter filter);
-      ```
-
-    * ```java
-      public Response getPage(ItemPage page); 
-      ```
-
-* **OrderService**
+* **私有方法**
 
   * ```java
-    public Response newOrder(String getterPhone, String itemCode, Order order);
+    private boolean isOwnerOfOrder(String userPhone, Order order);
     ```
-  
+
   * ```java
-    public Response cancelOrder(String getterPhone, String orderCode);
+    private boolean isOwnerOfOrder(String userPhone, Order order);
     ```
-  
+
   * ```java
-    public Response acceptOrRejectOrder(String ownerPhone, String orderCode, boolean accept);
+    private Response cancel(Order order);
     ```
-  
+
   * ```java
-    public Response getterCompleteOrder(String getterPhone, String orderCode);
+    private Response acceptOrReject(Order order, boolean accept);
     ```
-  
+
   * ```java
-    public Response ownerCompleteOrder(String ownerPhone, String orderCode);
+    private Response getterCompleteOrder(Order order);
     ```
-  
-  * **Scheduled methods**
-  
+
+  * ```java
+    private Response ownerCompleteOrder(Order order);
+    ```
+
+* **Scheduled methods**
+
     * ```java
       @Scheduled(fixedRate = 600000L)
       void checkOrders();
       ```
-  
+
     * ```java
       public boolean expiredFromOwner(Order order);
       ```
-  
+
     * ```java
       public boolean completionExpired(Order order);
       ```
-  
-* **ConfirmationTokenService**
 
+#### **ConfirmationTokenService**
+
+* **为controller层提供的接口**
+    
     * ```java
         public ConfirmationToken send(String phone);
         ```
-
+    
+* **私有方法**
+    
     * ```java
-        public Response receive(String user_phone, String token);
-        ```
+      private void sendConfirmationToken(String phone, String token);
+      ```
 
+#### **AdminRegistrationCodeService**
+
+* **为controller层提供的接口**
+    
     * ```java
-        private void sendConfirmationToken(String phone, String token)
-        ```
+      public Response addCode(String phone, String userToken);
+      ```
+    
 
-* **AdminRegistrationCodeService**
 
-    * ```java
-        public boolean isValid(String code);
-        ```
 
-    * ```java
-        public void use(AdminRegistrationCode code)
-        ```
+### 4.Controller的实现
 
-    * ```java
-        public Response addCode(String code, String phone)
-        ```
+	#### User Controller
 
-* **StudentIdService**
+ * ```java
+   @GetMapping("/user")
+       public Response ordinaryLogin(@RequestParam(name = "phone") String userPhone,
+                                     @RequestParam(name = "password") String password){
+           return userService.login(userPhone, password, false);
+       }
+   ```
 
-    * ```java
-        public Response studentCertification(User student, String studentId, String name, String password)
-        ```
+ * ```java
+   @PostMapping("/user")
+       public Response ordinaryRegister(
+               @RequestBody User info,
+               @RequestParam(name = "cToken") String confirmationToken){
+           return userService.register(info, confirmationToken);
+       }
+   ```
 
-* **UserTokenService**
+ * ```java
+   @PutMapping("user/password")
+       public Response updatePassword(
+               @RequestParam(name = "phone") String userPhone,
+               @RequestParam(name = "uToken") String userToken,
+               @RequestParam(name = "cToken") String cToken,
+               @RequestParam(name = "newPassword") String newPassword){
+           return userService.update(userPhone, userToken, cToken, newPassword);
+       }
+   ```
 
-    * ```java
-        public Response provideNewCode(String phone);
-        ```
+ * ```java
+   @PutMapping("user")
+       public Response updateInfo(
+               @RequestBody User user,
+               @RequestParam(name = "phone") String userPhone,
+               @RequestParam(name = "uToken") String userToken){
+           return userService.update(user, userPhone, userToken);
+       }
+   ```
 
-    * ```java
-        public boolean tokenIsValid(String phone, String code);
-        ```
+ * ```java
+   @PostMapping("user/student")
+       public Response studentCertification(
+               @RequestBody StudentCertificate certificate,
+               @RequestParam(name = "phone") String userPhone,
+               @RequestParam(name = "uToken") String userToken){
+           return userService.studentCertification(certificate, userPhone, userToken);
+       }
+   ```
 
-### 4.Response
+ * ```java
+   @GetMapping("admin")
+       public Response adminLogin(@RequestParam(name = "phone") String userPhone,
+                                  @RequestParam(name = "password") String password){
+           return userService.login(userPhone, password, true);
+       }
+   ```
+
+ * ```java
+   @PostMapping("admin")
+       public Response adminRegister(
+               @RequestBody User info,
+               @RequestParam(name = "regCode") String registrationCode,
+               @RequestParam(name = "cToken") String confirmationToken){
+           return userService.register(info, registrationCode, confirmationToken);
+       }
+   ```
+
+ * ```java
+   @GetMapping("users")
+       public Response getByFilter(
+               @RequestParam(name = "uPhone") String userPhone,
+               @RequestParam(name = "uToken") String userToken,
+               @RequestParam(name = "phone", required = false) String phone,
+               @RequestParam(name = "name", required = false) String name,
+               @RequestParam(name = "qqId", required = false) String qqId,
+               @RequestParam(name = "wechatId", required = false) String wechatId,
+               @RequestParam(name = "studentCertified", required = false) Boolean student_certified,
+               @RequestParam(name = "requestCount", required = false) Integer requestCount){
+           return userService.getByFilter(filter, userPhone, userToken, requestCount);
+       }
+   ```
+
+#### ResourceController
+
+ * ```java
+   @PostMapping("resource")
+       public Response postNewResource(
+               @RequestBody Resource resource,
+               @RequestParam(name = "phone") String phone,
+               @RequestParam(name = "uToken") String userToken){
+           return resourceService.post(resource, phone, userToken);
+       }
+   ```
+
+ * ```java
+   @PostMapping("item")
+   public Response releaseResource(
+           @RequestParam(name = "phone") String phone,
+           @RequestParam(name = "resourceCode") String resourceCode,
+           @RequestParam(name = "uToken") String userToken,
+           @RequestBody Item item){
+       return resourceService.release(resourceCode, phone, userToken, item);
+   }
+   ```
+
+ * ```java
+   @DeleteMapping("item")
+       public Response retractResource(@RequestParam(name = "phone") String phone,
+                                       @RequestParam(name = "itemCode") String itemCode,
+                                       @RequestParam(name = "uToken") String userToken){
+           return resourceService.retract(itemCode, phone, userToken);
+       }
+   ```
+
+ * ```java
+   @PutMapping("resource")
+       public Response updateResourceInfo(
+               @RequestBody Resource resource,
+               @RequestParam(name = "phone") String phone,
+               @RequestParam(name = "resourceCode") String resourceCode,
+               @RequestParam(name = "uToken") String userToken){
+           return resourceService.update(resource, resourceCode, phone, userToken);
+       }
+   ```
+
+ * ```java
+   @PostMapping("resource/admin")
+       public Response checkResource(@RequestParam(name = "phone") String userPhone,
+                                     @RequestParam(name = "resourceCode") String resourceCode,
+                                     @RequestParam(name = "uToken") String userToken,
+                                     @RequestParam(name = "valid") Boolean valid){
+           return resourceService.check(resourceCode, userPhone, userToken, valid);
+       }
+   ```
+
+ * ```java
+   @GetMapping("items")
+       public Response getItem(@RequestParam(name = "uPhone") String userPhone,
+                               @RequestParam(name = "uToken") String userToken,
+                               @RequestParam(required = false) String code,
+                               @RequestParam(required = false) String type,
+                               @RequestParam(required = false) Boolean needs2pay,
+                               @RequestParam(required = false) Integer campus,
+                               @RequestParam(required = false) String resourceCode,
+                               @RequestParam(required = false) Integer requestCount){
+           return Response.success(resourceService.getItemByFilter(filter, userPhone, 
+                                                                   userToken, requestCount));
+       }
+   ```
+
+ * ```java
+   @GetMapping("resources")
+       public Response getResource(@RequestParam(name = "uPhone") String userPhone,
+                                   @RequestParam(name = "uToken") String userToken,
+                                   @RequestParam(name = "code", required = false) String code,
+                                   @RequestParam(name = "name", required = false) String name,
+                                   @RequestParam(name = "verified", required = false) Boolean verified,
+                                   @RequestParam(name = "released", required = false) Boolean released,
+                                   @RequestParam(name = "accepted", required = false) Boolean accepted,
+                                   @RequestParam(name = "description", required = false) String description,
+                                   @RequestParam(name = "tag", required = false) String tag,
+                                   @RequestParam(name = "phone", required = false) String owner_phone,
+                                   @RequestParam(name = "requestCount", required = false) 
+                                   Integer requestCount){
+           return Response.success(resourceService.getResourceByFilter(filter, userPhone, 
+                                                                       userToken, requestCount));
+       }
+   ```
+
+#### Order Controller
+
+ * ```java
+   @PostMapping ("order/new")
+       public Response newOrder(@RequestParam(name = "phone") String phone,
+                                @RequestParam(name = "itemCode") String itemCode,
+                                @RequestParam(name = "uToken") String userToken,
+                                @RequestBody(required = false) Order order){
+           return orderService.post(phone, userToken, itemCode, order);
+       }
+   ```
+
+ * ```java
+   @DeleteMapping("order")
+       public Response deleteOrder(@RequestParam(name = "phone") String phone,
+                                   @RequestParam(name = "orderCode") String orderCode,
+                                   @RequestParam(name = "uToken") String userToken){
+           return orderService.delete(phone, userToken, orderCode);
+       }
+   ```
+
+ * ```java
+   @PostMapping("order")
+       public Response acceptOrder(@RequestParam(name = "phone") String phone,
+                                   @RequestParam(name = "orderCode") String orderCode,
+                                   @RequestParam(name = "uToken") String userToken){
+           return orderService.accept(phone, userToken, orderCode);
+       }
+   ```
+
+ * ```java
+   @PutMapping("order")
+       public Response completeOrder(@RequestParam(name = "phone") String phone,
+                                     @RequestParam(name = "orderCode") String orderCode,
+                                     @RequestParam(name = "uToken") String userToken){
+           return orderService.complete(phone, userToken, orderCode);
+       }
+   ```
+
+### 5.Response
 
  * **属性**
 

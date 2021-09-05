@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.service.ResourceService;
 import team.peiYangCoders.PeiYangResourceManagement.service.UserService;
-import team.peiYangCoders.PeiYangResourceManagement.service.UserTokenService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,8 +25,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @RequestMapping("api/v1")
 public class ImageController {
 
-    private final UserService userService;
-    private final UserTokenService userTokenService;
+//    private final UserService userService;
     private final ResourceService resourceService;
 
 
@@ -36,11 +34,7 @@ public class ImageController {
     public static final String RESOURCE_DIRECTORY =
             "E:\\school\\junior\\java-web-project\\codes\\PeiYangResourceManagement_Backend\\images\\resource";
 
-    public ImageController(UserService userService,
-                           UserTokenService userTokenService,
-                           ResourceService resourceService) {
-        this.userService = userService;
-        this.userTokenService = userTokenService;
+    public ImageController(ResourceService resourceService) {
         this.resourceService = resourceService;
     }
 
@@ -48,10 +42,10 @@ public class ImageController {
     public Response uploadUserImage(@RequestParam(name = "phone") String phone,
                                     @RequestParam(name = "uToken") String userToken,
                                     @RequestParam(name = "image") MultipartFile file) throws IOException {
-        if(!userService.getByPhone(phone).isPresent())
-            return Response.invalidPhone();
-        if(!userTokenService.tokenIsValid(phone, userToken))
-            return Response.invalidUserToken();
+//        if(!userService.getByPhone(phone).isPresent())
+//            return Response.invalidPhone();
+//        if(!userTokenService.tokenIsValid(phone, userToken))
+//            return Response.invalidUserToken();
         String fileName = phone + ".jpg";
         Path fileStorage = get(USER_DIRECTORY, fileName).toAbsolutePath().normalize();
         copy(file.getInputStream(), fileStorage, REPLACE_EXISTING);
@@ -62,10 +56,10 @@ public class ImageController {
     public ResponseEntity<Resource> downloadUserImage(@RequestParam(name = "phone") String phone,
                                                       @RequestParam(name = "uToken") String userToken)
                                                         throws IOException {
-        if(!userService.getByPhone(phone).isPresent())
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        if(!userTokenService.tokenIsValid(phone, userToken))
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        if(!userService.getByPhone(phone).isPresent())
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        if(!userTokenService.tokenIsValid(phone, userToken))
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         Path filePath = get(USER_DIRECTORY).toAbsolutePath().normalize().resolve(phone + ".jpg");
         Resource resource = new UrlResource(filePath.toUri());
         HttpHeaders headers = new HttpHeaders();
@@ -81,10 +75,10 @@ public class ImageController {
                                         @RequestParam(name = "uToken") String userToken,
                                         @RequestParam(name = "resourceCode") String resourceCode,
                                         @RequestParam(name = "image") MultipartFile file) throws IOException {
-        if(!userService.getByPhone(userPhone).isPresent())
-            return Response.invalidPhone();
-        if(!userTokenService.tokenIsValid(userPhone, userToken))
-            return Response.invalidUserToken();
+//        if(!userService.getByPhone(userPhone).isPresent())
+//            return Response.invalidPhone();
+//        if(!userTokenService.tokenIsValid(userPhone, userToken))
+//            return Response.invalidUserToken();
         Optional<team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource> maybe =
                 resourceService.getByCode(resourceCode);
         if(!maybe.isPresent())
@@ -102,10 +96,10 @@ public class ImageController {
                                                           @RequestParam(name = "uToken") String userToken,
                                                           @RequestParam(name = "resourceCode") String resourceCode)
             throws IOException {
-        if(!userService.getByPhone(userPhone).isPresent())
-            return ResponseEntity.badRequest().build();
-        if(!userTokenService.tokenIsValid(userPhone, userToken))
-            return ResponseEntity.badRequest().build();
+//        if(!userService.getByPhone(userPhone).isPresent())
+//            return ResponseEntity.badRequest().build();
+//        if(!userTokenService.tokenIsValid(userPhone, userToken))
+//            return ResponseEntity.badRequest().build();
         Optional<team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource> maybe =
                 resourceService.getByCode(resourceCode);
         if(!maybe.isPresent())

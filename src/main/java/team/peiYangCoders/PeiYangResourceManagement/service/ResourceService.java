@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.Item.Item;
 import team.peiYangCoders.PeiYangResourceManagement.model.Item.ItemPage;
+import team.peiYangCoders.PeiYangResourceManagement.model.UserToken;
 import team.peiYangCoders.PeiYangResourceManagement.model.filter.ItemFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.filter.ResourceFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.*;
@@ -15,6 +16,7 @@ import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ItemRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ResourceRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
+import team.peiYangCoders.PeiYangResourceManagement.repository.UserTokenRepository;
 import team.peiYangCoders.PeiYangResourceManagement.utils.MyUtils;
 
 import java.time.LocalDateTime;
@@ -24,136 +26,116 @@ import java.util.*;
 public class ResourceService {
 
     private final ResourceRepository resourceRepo;
+    private final UserTokenRepository userTokenRepo;
     private final UserRepository userRepo;
     private final ItemRepository itemRepo;
 
     @Autowired
     public ResourceService(ResourceRepository resourceRepo,
+                           UserTokenRepository userTokenRepo,
                            UserRepository userRepo,
                            ItemRepository itemRepo) {
         this.resourceRepo = resourceRepo;
+        this.userTokenRepo = userTokenRepo;
         this.userRepo = userRepo;
         this.itemRepo = itemRepo;
     }
 
-    public Response postNewResource(Resource resource, String ownerPhone){
+    // post new resource interface for upper layer
+    public Response post(Resource resource, String ownerPhone, String uToken){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(ownerPhone, uToken)) return Response.invalidUserToken();
         resource.setOwnerPhone(ownerPhone);
         return Response.success(resourceRepo.save(resource).getResourceCode());
     }
 
-    public Response postMultipleNewResources(List<Resource> resources, String ownerPhone){
-        Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
-        List<String> responses = new ArrayList<>();
-        resources = resourceRepo.saveAll(resources);
-        for(Resource resource : resources)
-            responses.add(resource.getResourceCode());
-        return Response.success(responses);
-    }
 
-    public Response releaseResource(String resourceCode, String ownerPhone, Item item){
+    // release new item interface for upper layer
+    public Response release(String resourceCode, String ownerPhone, String uToken, Item item){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
         Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
-        if(!maybeResource.isPresent())
-            return Response.invalidResourceCode();
+        if(!maybeResource.isPresent()) return Response.invalidResourceCode();
+        if(!uTokenValid(ownerPhone, uToken)) return Response.invalidUserToken();
         Resource resource = maybeResource.get();
-        if(!resource.getOwnerPhone().equals(ownerPhone))
-            return Response.resourceNotOwned();
-        if(!resource.isVerified())
-            return Response.resourceUnavailableToRelease();
-        if(!resource.isAccepted())
-            return Response.resourceUnavailableToRelease();
+        User owner = maybeUser.get();
+        if(!resource.getOwnerPhone().equals(owner.getPhone())) return Response.resourceNotOwned();
+        if(!resource.isVerified()) return Response.resourceUnavailableToRelease();
+        if(!resource.isAccepted()) return Response.resourceUnavailableToRelease();
         item.setOnTime(LocalDateTime.now());
-        item.setOwnerPhone(ownerPhone);
-        item.setResourceCode(resourceCode);
-        item = itemRepo.save(item);
-        return Response.success(item.getItemCode());
+        item.setOwnerPhone(owner.getPhone());
+        item.setResourceCode(resource.getResourceCode());
+        return Response.success(itemRepo.save(item).getItemCode());
     }
 
-    public Response retractItem(String itemCode, String ownerPhone){
+
+    // retract interface for upper layer
+    public Response retract(String itemCode, String ownerPhone, String uToken){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
-        Optional<Item> maybeRe = itemRepo.findByItemCode(itemCode);
-        if(!maybeRe.isPresent())
-            return Response.invalidItemCode();
-        Item item = maybeRe.get();
-        Optional<Resource> resource = resourceRepo.findByResourceCode(item.getResourceCode());
-        if(!resource.isPresent())
-            return Response.invalidResourceCode();
-        if(!resource.get().getOwnerPhone().equals(ownerPhone))
-            return Response.itemNotOwned();
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(ownerPhone, uToken)) return Response.invalidUserToken();
+        Optional<Item> maybeItem = itemRepo.findByItemCode(itemCode);
+        if(!maybeItem.isPresent()) return Response.invalidItemCode();
+        Item item = maybeItem.get();
+        User owner = maybeUser.get();
+        Optional<Resource> maybeResource = resourceRepo.findByResourceCode(item.getResourceCode());
+        if(!maybeResource.isPresent()) return Response.invalidResourceCode();
+        Resource resource = maybeResource.get();
+        if(!resource.getOwnerPhone().equals(owner.getPhone())) return Response.resourceNotOwned();
+        if(!item.getOwnerPhone().equals(owner.getPhone())) return Response.itemNotOwned();
+        if(item.isOrdered()) return Response.itemAlreadyOrdered();
         itemRepo.delete(item);
         return Response.success(null);
     }
 
-    public Response deleteResource(String resourceCode, String ownerPhone){
+
+    // delete resource interface for upper layer
+    public Response delete(String resourceCode, String ownerPhone, String uToken){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(ownerPhone, uToken)) return Response.invalidUserToken();
         Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
-        if(!maybeResource.isPresent())
-            return Response.invalidResourceCode();
+        if(!maybeResource.isPresent()) return Response.invalidResourceCode();
+        User owner = maybeUser.get();
         Resource resource = maybeResource.get();
-        if(!resource.getOwnerPhone().equals(ownerPhone))
-            return Response.resourceNotOwned();
-        boolean exists = itemRepo.existsByResourceCode(resourceCode);
-        if(exists)
-            return Response.resourceAlreadyReleased();
+        if(!resource.getOwnerPhone().equals(owner.getPhone())) return Response.resourceNotOwned();
+        if(itemRepo.existsByResourceCode(resourceCode)) return Response.resourceAlreadyReleased();
         resourceRepo.delete(resource);
         return Response.success(null);
     }
 
-    public Response deleteMultipleResources(List<String> resourceCodes, String ownerPhone){
-        Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
-        List<String> codes = new ArrayList<>();
-        for(String resourceCode : resourceCodes){
-            Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
-            if(!maybeResource.isPresent()) continue;
-            Resource resource = maybeResource.get();
-            if(!resource.getOwnerPhone().equals(ownerPhone)) continue;
-            codes.add(resource.getResourceCode());
-            resourceRepo.delete(resource);
-        }
-        return Response.success(codes);
-    }
 
-    public Response updateResourceInfo(Resource newResource, String resourceCode, String ownerPhone){
+    // update resource info interface for upper layer
+    public Response update(Resource newResource, String resourceCode, String ownerPhone, String uToken){
         Optional<User> maybeUser = userRepo.findByPhone(ownerPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(ownerPhone, uToken)) return Response.invalidUserToken();
         Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
-        if(!maybeResource.isPresent())
-            return Response.invalidResourceCode();
+        if(!maybeResource.isPresent()) return Response.invalidResourceCode();
+        User owner = maybeUser.get();
         Resource resource = maybeResource.get();
-        if(!resource.getOwnerPhone().equals(ownerPhone))
-            return Response.resourceNotOwned();
-        boolean exists = itemRepo.existsByResourceCode(resourceCode);
-        if(exists)
-            return Response.resourceAlreadyReleased();
-        newResource.setResourceCode(resource.getResourceCode());
-        resource = resourceRepo.save(newResource);
-        return Response.success(resource.getResourceCode());
+        if(!resource.getOwnerPhone().equals(owner.getPhone())) return Response.resourceNotOwned();
+        if(itemRepo.existsByResourceCode(resourceCode)) return Response.resourceAlreadyReleased();
+        resource.setResourceName(newResource.getResourceName());
+        resource.setResourceTag(newResource.getResourceTag());
+        resource.setDescription(newResource.getDescription());
+        resource.setImageUrl(newResource.getImageUrl());
+        resource.setVerified(false);
+        resource.setAccepted(false);
+        return Response.success(resourceRepo.save(resource).getResourceCode());
     }
 
-    public Response acceptOrRejectResource(String resourceCode, String adminPhone, boolean accept){
+
+    // admin check resource interface for upper layer
+    public Response check(String resourceCode, String adminPhone, String uToken, boolean accept){
         Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
-        if(!maybeUser.isPresent())
-            return Response.invalidPhone();
-        User user = maybeUser.get();
-        if(!user.isAdmin())
-            return Response.permissionDenied();
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        User admin = maybeUser.get();
+        if(!admin.isAdmin()) return Response.permissionDenied();
+        if(!uTokenValid(adminPhone, uToken)) return Response.invalidUserToken();
         Optional<Resource> maybeResource = resourceRepo.findByResourceCode(resourceCode);
-        if(!maybeResource.isPresent())
-            return Response.invalidResourceCode();
+        if(!maybeResource.isPresent()) return Response.invalidResourceCode();
         Resource resource = maybeResource.get();
         resource.setVerified(true);
         resource.setAccepted(accept);
@@ -161,16 +143,22 @@ public class ResourceService {
         return Response.success(null);
     }
 
-    public List<Item> getItemByFilter(ItemFilter filter){
+
+    // get items by filter interface for upper layer
+    public Response getItemByFilter(ItemFilter filter, String userPhone,
+                                    String userToken, Integer requestCount){
+        Optional<User> maybeUser = userRepo.findByPhone(userPhone);
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
         if(filter.allNull())
-            return itemRepo.findAll();
+            return Response.success(itemRepo.findAll());
         else if(filter.nullExceptCode()){
             Optional<Item> maybe = itemRepo.findByItemCode(filter.getCode());
-            return maybe.map(Collections::singletonList).orElse(Collections.emptyList());
+            return maybe.map(item -> Response.success(Collections.singletonList(item)))
+                    .orElseGet(() -> Response.success(Collections.emptyList()));
         }
         else if(filter.getCode() != null)
-            return Collections.emptyList();
-
+            return Response.success(Collections.emptyList());
         List<Item> type = null;
         List<Item> needs2Pay = null;
         List<Item> campus = null;
@@ -183,19 +171,28 @@ public class ResourceService {
             campus = itemRepo.findAllByCampus(filter.getCampus());
         if(filter.getResourceCode() != null)
             resourceCode = itemRepo.findAllByResourceCode(filter.getResourceCode());
-        return MyUtils.itemListIntersection(MyUtils.itemListIntersection(type, needs2Pay),
-                MyUtils.itemListIntersection(campus, resourceCode));
+        MyUtils<Item> util = new MyUtils<>();
+        List<Item> result = util.intersect(util.intersect(type, needs2Pay),
+                util.intersect(campus, resourceCode));
+        return Response.success(util.contract(result, requestCount));
     }
 
-    public List<Resource> getResourceByFilter(ResourceFilter filter, Integer requestCount){
+
+    // get resources by filter interface for upper layer
+    public Response getResourceByFilter(ResourceFilter filter, String userPhone,
+                                        String userToken, Integer requestCount){
+        Optional<User> maybeUser = userRepo.findByPhone(userPhone);
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
         if(filter.allNull())
-            return resourceRepo.findAll();
+            return Response.success(resourceRepo.findAll());
         else if(filter.nullExceptCode()){
             Optional<Resource> maybe = resourceRepo.findByResourceCode(filter.getCode());
-            return maybe.map(Collections::singletonList).orElse(Collections.emptyList());
+            return maybe.map(resource -> Response.success(Collections.singletonList(resource)))
+                    .orElseGet(() -> Response.success(Collections.emptyList()));
         }
         else if(filter.getCode() != null)
-            return Collections.emptyList();
+            return Response.success(Collections.emptyList());
 
         List<Resource> name = null;
         List<Resource> verified = null;
@@ -218,25 +215,16 @@ public class ResourceService {
             ownerPhone = resourceRepo.findAllByOwnerPhone(filter.getOwner_phone());
         if(filter.getAccepted() != null)
             accepted = resourceRepo.findAllByAccepted(filter.getAccepted());
-        List<Resource> r1 = MyUtils.resourceListIntersection(name, verified);
-        List<Resource> r2 = MyUtils.resourceListIntersection(released, description);
-        List<Resource> r3 = MyUtils.resourceListIntersection(tag, ownerPhone);
-        List<Resource> intersected = MyUtils.resourceListIntersection(
-                MyUtils.resourceListIntersection(r1, accepted),
-                MyUtils.resourceListIntersection(r2, r3));
-        if(intersected == null) return null;
-        if(requestCount != null){
-            List<Resource> result = new ArrayList<>();
-            for(int i = 0; i < requestCount; i++){
-                if(i >= intersected.size())
-                    break;
-                result.add(intersected.get(i));
-            }
-            return result;
-        }
-        return intersected;
+        MyUtils<Resource> util = new MyUtils<>();
+        List<Resource> r1 = util.intersect(name, verified);
+        List<Resource> r2 = util.intersect(released, description);
+        List<Resource> r3 = util.intersect(tag, ownerPhone);
+        List<Resource> result = util.intersect(util.intersect(r1, accepted), util.intersect(r2, r3));
+        return Response.success(util.contract(result, requestCount));
     }
 
+
+    // get item page interface for upper layer
     public Response getPage(ItemPage page){
         Sort sort = Sort.by(page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
@@ -245,5 +233,15 @@ public class ResourceService {
 
     public Optional<Resource> getByCode(String code){
         return resourceRepo.findByResourceCode(code);
+    }
+
+
+    /**----------------------private methods----------------------------------**/
+
+    private boolean uTokenValid(String userPhone, String uToken){
+        Optional<UserToken> maybe = userTokenRepo.findByUserPhone(userPhone);
+        if(!maybe.isPresent()) return false;
+        UserToken token = maybe.get();
+        return token.getToken().equals(uToken);
     }
 }

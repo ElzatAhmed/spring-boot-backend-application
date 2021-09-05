@@ -18,7 +18,7 @@ import javax.persistence.*;
                 @UniqueConstraint(name = "student_id_unique", columnNames = "student_id")
         }
 )
-public class StudentId {
+public class StudentCertificate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

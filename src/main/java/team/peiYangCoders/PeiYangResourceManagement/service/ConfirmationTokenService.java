@@ -5,7 +5,6 @@ import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.config.SMSConfig;
 import team.peiYangCoders.PeiYangResourceManagement.model.ConfirmationToken;
 import team.peiYangCoders.PeiYangResourceManagement.repository.ConfirmationTokenRepository;
@@ -27,6 +26,8 @@ public class ConfirmationTokenService {
         this.smsConfig = smsConfig;
     }
 
+
+    // send confirmation token interface for upper layer
     public ConfirmationToken send(String phone){
         Optional<ConfirmationToken> maybe = confirmationTokenRepo.findByUserPhone(phone);
         if(maybe.isPresent() && !maybe.get().isConfirmed() && maybe.get().getExpiresAt().isAfter(LocalDateTime.now()))
@@ -38,22 +39,8 @@ public class ConfirmationTokenService {
 //        sendConfirmationToken(phone, cToken.getToken());
     }
 
-    public Response receive(String user_phone, String token){
-        Optional<ConfirmationToken> cToken = confirmationTokenRepo.findByToken(token);
-        if(!cToken.isPresent()
-                || cToken.get().isConfirmed()
-                || !cToken.get().getUserPhone().equals(user_phone))
-            return Response.invalidConfirmationToken();
-        LocalDateTime now = LocalDateTime.now();
-        boolean valid = now.isBefore(cToken.get().getExpiresAt());
-        if(valid) {
-            cToken.get().setConfirmedAt(now);
-            cToken.get().setConfirmed(true);
-            confirmationTokenRepo.save(cToken.get());
-            return Response.success(null);
-        }
-        return Response.invalidConfirmationToken();
-    }
+
+    /**----------------------private methods----------------------------------**/
 
     private void sendConfirmationToken(String phone, String token){
         String[] params = {token, smsConfig.getLatency().toString()};

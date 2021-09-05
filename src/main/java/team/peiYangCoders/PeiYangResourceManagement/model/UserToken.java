@@ -21,14 +21,14 @@ public class UserToken {
 
     @Id
     @Column(
-            name = "userPhone",
+            name = "user_phone",
             nullable = false,
             updatable = false
     )
     private String userPhone;
 
     @Column(
-            name = "userName",
+            name = "user_name",
             nullable = false
     )
     private String userName;
