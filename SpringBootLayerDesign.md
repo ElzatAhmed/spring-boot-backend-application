@@ -328,23 +328,23 @@
       ```
 
     * ```java
-      public boolean expiredFromOwner(Order order);
+      private boolean expiredFromOwner(Order order);
       ```
 
     * ```java
-      public boolean completionExpired(Order order);
+      private boolean completionExpired(Order order);
       ```
 
 #### **ConfirmationTokenService**
 
 * **为controller层提供的接口**
-    
+  
     * ```java
         public ConfirmationToken send(String phone);
         ```
     
 * **私有方法**
-    
+  
     * ```java
       private void sendConfirmationToken(String phone, String token);
       ```
@@ -352,7 +352,7 @@
 #### **AdminRegistrationCodeService**
 
 * **为controller层提供的接口**
-    
+  
     * ```java
       public Response addCode(String phone, String userToken);
       ```
@@ -362,7 +362,7 @@
 
 ### 4.Controller的实现
 
-	#### User Controller
+#### User Controller
 
  * ```java
    @GetMapping("/user")
