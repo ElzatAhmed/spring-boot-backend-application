@@ -36,6 +36,14 @@ public interface UserService {
 
 
     /**
+     * get user info
+     * @param phone : user phone
+     * @param uToken : user token
+     * */
+    Response getUserInfo(String phone, String uToken);
+
+
+    /**
      * update user info
      * @param userPhone : user phone
      * @param newInfo : new information

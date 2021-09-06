@@ -184,6 +184,7 @@ public class ResourceController {
                                 @RequestParam(name = "phone", required = false) String owner_phone,
                                 @RequestParam(name = "requestCount", required = false) Integer requestCount){
         ResourceFilter filter = new ResourceFilter();
+        if("*".equals(name)) name = null;
         filter.setCode(code);
         filter.setName(name);
         filter.setVerified(verified);

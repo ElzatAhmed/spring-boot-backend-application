@@ -86,6 +86,13 @@ public class UserController {
     }
 
 
+    @GetMapping("user/info")
+    public Response getUserInfo(@RequestParam(name = "phone") String phone,
+                                @RequestParam(name = "uToken") String uToken){
+        return userService.getUserInfo(phone, uToken);
+    }
+
+
     /**
      * user student certification api
      * @param certificate : Certification information body
@@ -134,7 +141,7 @@ public class UserController {
             @RequestBody User info,
             @RequestParam(name = "regCode") String registrationCode,
             @RequestParam(name = "cToken") String confirmationToken){
-        return userService.register(info, registrationCode, confirmationToken);
+        return userService.register(info, confirmationToken, registrationCode);
     }
 
 

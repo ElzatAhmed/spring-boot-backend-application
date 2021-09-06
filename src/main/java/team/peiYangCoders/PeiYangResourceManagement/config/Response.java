@@ -19,6 +19,8 @@ public class Response {
 
     private Object data;
 
+    public static final int SUCCESS_CODE = 100;
+
     public boolean succeeded(){
         return code == 100;
     }

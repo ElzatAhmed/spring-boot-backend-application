@@ -116,7 +116,7 @@
       )
   ```
 
-* **StudentId**
+* **StudentCertificate**
 
   ```sql
   CREATE TABLE student_id (
@@ -163,7 +163,7 @@
   * `ResourceRepository`
   * `ItemRepository`
   * `OrderRepository`
-  * `StudentIdRepository`
+  * `StudentCertificateRepository`
   * `ConfirmationTokenRepository`
   * `AdminResgitrationCodeRepository`
   * `UserTokenRepository`

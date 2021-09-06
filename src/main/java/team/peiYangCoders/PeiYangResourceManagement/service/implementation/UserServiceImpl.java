@@ -1,6 +1,9 @@
 package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.AdminRegistrationCode;
@@ -15,10 +18,7 @@ import team.peiYangCoders.PeiYangResourceManagement.service.UserService;
 import team.peiYangCoders.PeiYangResourceManagement.utils.MyUtils;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,18 +28,21 @@ public class UserServiceImpl implements UserService {
     private final ConfirmationTokenRepository cTokenRepo;
     private final AdminRegistrationCodeRepository regCodeRepo;
     private final StudentCertificateRepository certificateRepo;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepo,
                            UserTokenRepository userTokenRepo,
                            ConfirmationTokenRepository cTokenRepo,
                            AdminRegistrationCodeRepository regCodeRepo,
-                           StudentCertificateRepository certificateRepo) {
+                           StudentCertificateRepository certificateRepo,
+                           BCryptPasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.userTokenRepo = userTokenRepo;
         this.cTokenRepo = cTokenRepo;
         this.regCodeRepo = regCodeRepo;
         this.certificateRepo = certificateRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -58,6 +61,7 @@ public class UserServiceImpl implements UserService {
         if(maybe.isPresent()) return Response.invalidPhone();
         if(!cTokenValid(newUser.getPhone(), cToken)) return Response.invalidConfirmationToken();
         newUser.setUserTag(UserTag.ordinary.toString());
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepo.save(newUser);
         return Response.success(null);
     }
@@ -71,8 +75,17 @@ public class UserServiceImpl implements UserService {
         if(!regCodeValid(regCode)) return Response.invalidRegistrationCode();
         if(!cTokenValid(newUser.getPhone(), cToken)) return Response.invalidConfirmationToken();
         newUser.setUserTag(UserTag.admin.toString());
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepo.save(newUser);
         return Response.success(null);
+    }
+
+    @Override
+    public Response getUserInfo(String userPhone, String uToken) {
+        Optional<User> maybe = userRepo.findByPhone(userPhone);
+        if(!maybe.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(userPhone, uToken)) return Response.invalidUserToken();
+        return Response.success(maybe.get());
     }
 
 
@@ -127,6 +140,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> maybe = userRepo.findByPhone(userPhone);
         if(!maybe.isPresent()) return Response.invalidPhone();
         if(!uTokenValid(userPhone, uToken)) return Response.invalidUserToken();
+        if(!maybe.get().isAdmin()) return Response.permissionDenied();
         if(filter.allNull())
             return Response.success(userRepo.findAll());
         else if(filter.nullExceptPhone()){
@@ -153,6 +167,10 @@ public class UserServiceImpl implements UserService {
         MyUtils<User> util = new MyUtils<>();
         List<User> result = util.intersect(util.intersect(name, qqId),
                 util.intersect(wechatId, studentCertified));
+        if(result != null){
+            for(User user : result)
+                user.setPassword(null);
+        }
         return Response.success(util.contract(result, requestCount));
     }
 
@@ -164,8 +182,9 @@ public class UserServiceImpl implements UserService {
         if(!maybe.isPresent())
             return Response.invalidPhone();
         User user = maybe.get();
-        if(user.getPassword().equals(password))
+        if(passwordEncoder.matches(password, user.getPassword())) {
             return Response.success(userTokenRepo.save(generateUToken(userPhone, user.getUserName())));
+        }
         return Response.invalidPassword();
     }
 
@@ -176,7 +195,7 @@ public class UserServiceImpl implements UserService {
         User user = maybe.get();
         if(!user.isAdmin())
             return Response.permissionDenied();
-        if(user.getPassword().equals(password))
+        if(passwordEncoder.matches(password, user.getPassword()))
             return Response.success(userTokenRepo.save(generateUToken(userPhone, user.getUserName())));
         return Response.invalidPassword();
     }

@@ -133,7 +133,7 @@ public class User {
     @Column(
             name = "password",
             nullable = false,
-            columnDefinition = "VARCHAR(16)",
+            columnDefinition = "VARCHAR",
             length = 16
     )
     private String password;
