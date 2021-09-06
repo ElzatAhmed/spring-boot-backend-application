@@ -22,7 +22,8 @@ public class MyUtils<T> {
         return result;
     }
 
-    public List<T> contract(List<T> list, int count){
+    public List<T> contract(List<T> list, Integer count){
+        if(count == null) return list;
         List<T> result = new ArrayList<>();
         int i = 0;
         for(T t : list){

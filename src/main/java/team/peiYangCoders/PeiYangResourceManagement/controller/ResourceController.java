@@ -193,7 +193,7 @@ public class ResourceController {
         filter.setTag(tag);
         filter.setOwner_phone(owner_phone);
         System.out.println(filter);
-        return Response.success(resourceService.getResourceByFilter(filter, userPhone, userToken, requestCount));
+        return resourceService.getResourceByFilter(filter, userPhone, userToken, requestCount);
     }
 
 
