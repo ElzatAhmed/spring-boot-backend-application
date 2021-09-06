@@ -3,14 +3,12 @@ package team.peiYangCoders.PeiYangResourceManagement.controller;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
-import team.peiYangCoders.PeiYangResourceManagement.service.ResourceService;
-import team.peiYangCoders.PeiYangResourceManagement.service.UserService;
+import team.peiYangCoders.PeiYangResourceManagement.service.implementation.ResourceServiceImpl;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +24,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class ImageController {
 
 //    private final UserService userService;
-    private final ResourceService resourceService;
+    private final ResourceServiceImpl resourceServiceImpl;
 
 
     public static final String USER_DIRECTORY =
@@ -34,8 +32,8 @@ public class ImageController {
     public static final String RESOURCE_DIRECTORY =
             "E:\\school\\junior\\java-web-project\\codes\\PeiYangResourceManagement_Backend\\images\\resource";
 
-    public ImageController(ResourceService resourceService) {
-        this.resourceService = resourceService;
+    public ImageController(ResourceServiceImpl resourceServiceImpl) {
+        this.resourceServiceImpl = resourceServiceImpl;
     }
 
     @PostMapping("user/image")
@@ -80,7 +78,7 @@ public class ImageController {
 //        if(!userTokenService.tokenIsValid(userPhone, userToken))
 //            return Response.invalidUserToken();
         Optional<team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource> maybe =
-                resourceService.getByCode(resourceCode);
+                resourceServiceImpl.getByCode(resourceCode);
         if(!maybe.isPresent())
             return Response.invalidResourceCode();
         if(!maybe.get().getOwnerPhone().equals(userPhone))
@@ -101,7 +99,7 @@ public class ImageController {
 //        if(!userTokenService.tokenIsValid(userPhone, userToken))
 //            return ResponseEntity.badRequest().build();
         Optional<team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource> maybe =
-                resourceService.getByCode(resourceCode);
+                resourceServiceImpl.getByCode(resourceCode);
         if(!maybe.isPresent())
             return ResponseEntity.badRequest().build();
         if(!maybe.get().getOwnerPhone().equals(userPhone))

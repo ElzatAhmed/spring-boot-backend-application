@@ -1,4 +1,4 @@
-package team.peiYangCoders.PeiYangResourceManagement.service;
+package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
 
 import org.springframework.stereotype.Service;

@@ -6,7 +6,7 @@ import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.StudentCertificate;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.model.filter.UserFilter;
-import team.peiYangCoders.PeiYangResourceManagement.service.*;
+import team.peiYangCoders.PeiYangResourceManagement.service.UserService;
 
 @RestController
 @RequestMapping("api/v1/")
@@ -18,7 +18,6 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
 
 
     /**

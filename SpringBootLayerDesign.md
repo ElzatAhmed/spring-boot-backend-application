@@ -176,32 +176,32 @@
 * **为controller层提供的接口**
 
    * ```java
-     public Response login(String userPhone, String password, boolean admin);
+     Response login(String userPhone, String password, boolean admin);
      ```
 
    * ```java
-     public Response register(User newUser, String cToken);
+     Response register(User newUser, String cToken);
      ```
 
    * ```java
-       public Response register(User newUser, String cToken, String regCode);
+       Response register(User newUser, String cToken, String regCode);
        ```
 
    * ```java
-     public Response update(User newInfo, String userPhone, String uToken);
+     Response update(User newInfo, String userPhone, String uToken);
      ```
 
    * ```java
-       public Response update(String userPhone, String uToken, String cToken, String newPassword);
+       Response update(String userPhone, String uToken, String cToken, String newPassword);
        ```
 
    * ```java
-     public Response studentCertification(StudentCertificate certificate, 
+     Response studentCertification(StudentCertificate certificate, 
                                           String userPhone, String uToken)
      ```
 
    * ```java
-     public Response getByFilter(UserFilter filter, String userPhone, String uToken, 
+     Response getByFilter(UserFilter filter, String userPhone, String uToken, 
                                  Integer requestCount)
      ```
 
@@ -240,37 +240,37 @@
 * **为controller层提供的接口**
 
    * ```java
-     public Response post(Resource resource, String ownerPhone, String uToken);
+     Response post(Resource resource, String ownerPhone, String uToken);
      ```
 
    * ```java
-     public Response release(String resourceCode, String ownerPhone, String uToken, Item item);
+     Response release(String resourceCode, String ownerPhone, String uToken, Item item);
      ```
 
    * ```java
-     public Response retract(String itemCode, String ownerPhone, String uToken);
+     Response retract(String itemCode, String ownerPhone, String uToken);
      ```
 
    * ```java
-     public Response delete(String resourceCode, String ownerPhone, String uToken);
+     Response delete(String resourceCode, String ownerPhone, String uToken);
      ```
 
    * ```java
-     public Response update(Resource newResource, String resourceCode, 
+     Response update(Resource newResource, String resourceCode, 
                             String ownerPhone, String uToken);
      ```
 
    * ```java
-     public Response check(String resourceCode, String adminPhone, String uToken, boolean accept);
+     Response check(String resourceCode, String adminPhone, String uToken, boolean accept);
      ```
 
    * ```java
-     public Response getItemByFilter(ItemFilter filter, String userPhone,
+     Response getItemByFilter(ItemFilter filter, String userPhone,
                                          String userToken, Integer requestCount);
      ```
 
    * ```java
-     public Response getResourceByFilter(ResourceFilter filter, String userPhone,
+     Response getResourceByFilter(ResourceFilter filter, String userPhone,
                                              String userToken, Integer requestCount);
      ```
 
@@ -279,19 +279,19 @@
  * **为controller层提供的接口**
 
     * ```java
-      public Response post(String getterPhone, String userToken, String itemCode, Order order);
+      Response post(String getterPhone, String userToken, String itemCode, Order order);
       ```
 
     * ```java
-      public Response delete(String userPhone, String userToken, String orderCode);
+      Response delete(String userPhone, String userToken, String orderCode);
       ```
 
     * ```java
-      public Response accept(String ownerPhone, String userToken, String orderCode);
+      Response accept(String ownerPhone, String userToken, String orderCode);
       ```
 
     * ```java
-      public Response complete(String userPhone, String userToken, String orderCode);
+      Response complete(String userPhone, String userToken, String orderCode);
       ```
 
 * **私有方法**
@@ -340,7 +340,7 @@
 * **为controller层提供的接口**
   
     * ```java
-        public ConfirmationToken send(String phone);
+        ConfirmationToken send(String phone);
         ```
     
 * **私有方法**
@@ -354,7 +354,7 @@
 * **为controller层提供的接口**
   
     * ```java
-      public Response addCode(String phone, String userToken);
+      Response addCode(String phone, String userToken);
       ```
     
 
@@ -453,7 +453,7 @@
                @RequestBody Resource resource,
                @RequestParam(name = "phone") String phone,
                @RequestParam(name = "uToken") String userToken){
-           return resourceService.post(resource, phone, userToken);
+           return resourceServiceImpl.post(resource, phone, userToken);
        }
    ```
 
@@ -464,7 +464,7 @@
            @RequestParam(name = "resourceCode") String resourceCode,
            @RequestParam(name = "uToken") String userToken,
            @RequestBody Item item){
-       return resourceService.release(resourceCode, phone, userToken, item);
+       return resourceServiceImpl.release(resourceCode, phone, userToken, item);
    }
    ```
 
@@ -473,7 +473,7 @@
        public Response retractResource(@RequestParam(name = "phone") String phone,
                                        @RequestParam(name = "itemCode") String itemCode,
                                        @RequestParam(name = "uToken") String userToken){
-           return resourceService.retract(itemCode, phone, userToken);
+           return resourceServiceImpl.retract(itemCode, phone, userToken);
        }
    ```
 
@@ -484,7 +484,7 @@
                @RequestParam(name = "phone") String phone,
                @RequestParam(name = "resourceCode") String resourceCode,
                @RequestParam(name = "uToken") String userToken){
-           return resourceService.update(resource, resourceCode, phone, userToken);
+           return resourceServiceImpl.update(resource, resourceCode, phone, userToken);
        }
    ```
 
@@ -494,7 +494,7 @@
                                      @RequestParam(name = "resourceCode") String resourceCode,
                                      @RequestParam(name = "uToken") String userToken,
                                      @RequestParam(name = "valid") Boolean valid){
-           return resourceService.check(resourceCode, userPhone, userToken, valid);
+           return resourceServiceImpl.check(resourceCode, userPhone, userToken, valid);
        }
    ```
 
@@ -508,7 +508,7 @@
                                @RequestParam(required = false) Integer campus,
                                @RequestParam(required = false) String resourceCode,
                                @RequestParam(required = false) Integer requestCount){
-           return Response.success(resourceService.getItemByFilter(filter, userPhone, 
+           return Response.success(resourceServiceImpl.getItemByFilter(filter, userPhone, 
                                                                    userToken, requestCount));
        }
    ```
@@ -527,7 +527,7 @@
                                    @RequestParam(name = "phone", required = false) String owner_phone,
                                    @RequestParam(name = "requestCount", required = false) 
                                    Integer requestCount){
-           return Response.success(resourceService.getResourceByFilter(filter, userPhone, 
+           return Response.success(resourceServiceImpl.getResourceByFilter(filter, userPhone, 
                                                                        userToken, requestCount));
        }
    ```

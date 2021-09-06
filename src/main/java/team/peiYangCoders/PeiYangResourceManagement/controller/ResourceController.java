@@ -9,6 +9,7 @@ import team.peiYangCoders.PeiYangResourceManagement.model.filter.ItemFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.filter.ResourceFilter;
 import team.peiYangCoders.PeiYangResourceManagement.model.resource.*;
 import team.peiYangCoders.PeiYangResourceManagement.service.ResourceService;
+import team.peiYangCoders.PeiYangResourceManagement.service.implementation.ResourceServiceImpl;
 
 @RestController
 @RequestMapping("api/v1")
