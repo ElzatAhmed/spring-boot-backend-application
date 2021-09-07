@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
         if(!uTokenValid(userPhone, uToken)) return Response.invalidUserToken();
         if(!cTokenValid(userPhone, cToken)) return Response.invalidConfirmationToken();
         User user = maybe.get();
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
         return Response.success(null);
     }
