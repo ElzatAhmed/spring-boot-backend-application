@@ -110,7 +110,6 @@ public class Resource {
     *   users can upload one image for each resource;
     *   but don`t have to.
     * */
-    @URL
     @Column(
             name = "image_url",
             columnDefinition = "TEXT",

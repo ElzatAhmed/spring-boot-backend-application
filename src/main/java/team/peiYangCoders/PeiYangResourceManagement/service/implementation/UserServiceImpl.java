@@ -182,6 +182,8 @@ public class UserServiceImpl implements UserService {
         if(!maybe.isPresent())
             return Response.invalidPhone();
         User user = maybe.get();
+        if(user.isAdmin())
+            return Response.permissionDenied();
         if(passwordEncoder.matches(password, user.getPassword())) {
             return Response.success(userTokenRepo.save(generateUToken(userPhone, user.getUserName())));
         }

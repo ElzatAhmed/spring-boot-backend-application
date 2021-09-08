@@ -67,4 +67,17 @@ public class OrderController {
                                   @RequestParam(name = "uToken") String userToken){
         return orderService.complete(phone, userToken, orderCode);
     }
+
+
+    @GetMapping("order")
+    public Response getOrderInfo(@RequestParam(name = "phone") String phone,
+                                 @RequestParam(name = "uToken") String userToken){
+        return orderService.getOrderInfo(phone, userToken);
+    }
+
+    @GetMapping("orders")
+    public Response getAll(@RequestParam(name = "phone") String phone,
+                           @RequestParam(name = "uToken") String userToken){
+        return orderService.getAll(phone, userToken);
+    }
 }

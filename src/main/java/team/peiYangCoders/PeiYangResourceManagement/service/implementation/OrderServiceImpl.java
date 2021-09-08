@@ -108,7 +108,22 @@ public class OrderServiceImpl implements OrderService {
         return Response.orderNotOwned();
     }
 
+    @Override
+    public Response getOrderInfo(String userPhone, String userToken) {
+        Optional<User> maybeUser = userRepo.findByPhone(userPhone);
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
+        return Response.success(orderRepo.findAllByGetterPhoneOrOwnerPhone(userPhone, userPhone));
+    }
 
+    @Override
+    public Response getAll(String adminPhone, String userToken) {
+        Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(adminPhone, userToken)) return Response.invalidUserToken();
+        if(!maybeUser.get().isAdmin()) return Response.permissionDenied();
+        return Response.success(orderRepo.findAll());
+    }
 
 
     /**----------------------private methods----------------------------------**/

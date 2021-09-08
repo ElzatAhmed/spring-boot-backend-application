@@ -22,4 +22,6 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     List<Order> findByAccepted(boolean accepted);
 
+    List<Order> findAllByGetterPhoneOrOwnerPhone(String getterPhone, String ownerPhone);
+
 }

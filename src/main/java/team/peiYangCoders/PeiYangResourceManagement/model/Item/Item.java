@@ -37,6 +37,19 @@ public class Item {
     private String itemCode;
 
     @Column(
+            name = "item_name",
+            nullable = false
+    )
+    private String name;
+
+
+    @Column(
+            name = "description",
+            nullable = false
+    )
+    private String description;
+
+    @Column(
             name = "item_type",
             nullable = false,
             updatable = false,

@@ -71,6 +71,8 @@ public class ResourceServiceImpl implements ResourceService {
         item.setOnTime(LocalDateTime.now());
         item.setOwnerPhone(owner.getPhone());
         item.setResourceCode(resource.getResourceCode());
+        item.setName(resource.getResourceName());
+        item.setDescription(resource.getDescription());
         return Response.success(itemRepo.save(item).getItemCode());
     }
 

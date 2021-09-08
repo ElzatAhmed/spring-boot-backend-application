@@ -67,7 +67,7 @@ public class User {
             name = "phone",
             updatable = false,
             nullable = false,
-            columnDefinition = "VARCHAR(11)",
+            columnDefinition = "VARCHAR",
             length = 11
     )
     private String phone;
@@ -79,7 +79,7 @@ public class User {
      * */
     @Column(
             name = "student_id",
-            columnDefinition = "VARCHAR(20)"
+            columnDefinition = "VARCHAR"
     )
     private String studentId;
 
@@ -90,7 +90,7 @@ public class User {
      * */
     @Column(
             name = "qq_id",
-            columnDefinition = "VARCHAR(20)"
+            columnDefinition = "VARCHAR"
     )
     private String qqId;
 
@@ -101,7 +101,7 @@ public class User {
      * */
     @Column(
             name = "wechat_id",
-            columnDefinition = "VARCHAR(20)"
+            columnDefinition = "VARCHAR"
     )
     private String wechatId;
 
@@ -116,7 +116,7 @@ public class User {
     @Column(
             name = "user_name",
             nullable = false,
-            columnDefinition = "VARCHAR(20)",
+            columnDefinition = "VARCHAR",
             length = 20
     )
     private String userName;
@@ -143,7 +143,6 @@ public class User {
     * avatar url
     * each user can have one avatar image.
     * */
-    @URL
     @Column(
             name = "avatar_url",
             columnDefinition = "TEXT"
@@ -168,7 +167,7 @@ public class User {
     @Column(
             name = "user_tag",
             nullable = false,
-            columnDefinition = "VARCHAR(20)"
+            columnDefinition = "VARCHAR"
     )
     private String userTag = "ordinary";
 

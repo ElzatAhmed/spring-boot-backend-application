@@ -44,4 +44,9 @@ public interface OrderService {
      * */
     Response complete(String userPhone, String userToken, String orderCode);
 
+
+    Response getOrderInfo(String userPhone, String userToken);
+
+
+    Response getAll(String adminPhone, String userToken);
 }
