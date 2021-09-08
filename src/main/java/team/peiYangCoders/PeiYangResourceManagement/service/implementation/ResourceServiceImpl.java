@@ -1,5 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +46,8 @@ public class ResourceServiceImpl implements ResourceService {
         this.itemRepo = itemRepo;
     }
 
+    private final Logger logger = LoggerFactory.getLogger(ResourceService.class);
+
     // post new resource interface for upper layer
     @Override
     public Response post(Resource resource, String ownerPhone, String uToken){
@@ -51,7 +55,10 @@ public class ResourceServiceImpl implements ResourceService {
         if(!maybeUser.isPresent()) return Response.invalidPhone();
         if(!uTokenValid(ownerPhone, uToken)) return Response.invalidUserToken();
         resource.setOwnerPhone(ownerPhone);
-        return Response.success(resourceRepo.save(resource).getResourceCode());
+        resource = resourceRepo.save(resource);
+        logger.info("user " + ownerPhone + " posted new resource," +
+                "\nthe given resource code is " + resource.getResourceCode());
+        return Response.success(resource.getResourceCode());
     }
 
 
@@ -73,7 +80,10 @@ public class ResourceServiceImpl implements ResourceService {
         item.setResourceCode(resource.getResourceCode());
         item.setName(resource.getResourceName());
         item.setDescription(resource.getDescription());
-        return Response.success(itemRepo.save(item).getItemCode());
+        item = itemRepo.save(item);
+        logger.info("user " + ownerPhone + " released a new item," +
+                "\nthe given item code is " + item.getItemCode());
+        return Response.success(item.getItemCode());
     }
 
 
@@ -94,6 +104,7 @@ public class ResourceServiceImpl implements ResourceService {
         if(!item.getOwnerPhone().equals(owner.getPhone())) return Response.itemNotOwned();
         if(item.isOrdered()) return Response.itemAlreadyOrdered();
         itemRepo.delete(item);
+        logger.info("user " + ownerPhone + " retracted item " + itemCode);
         return Response.success(null);
     }
 
@@ -111,6 +122,7 @@ public class ResourceServiceImpl implements ResourceService {
         if(!resource.getOwnerPhone().equals(owner.getPhone())) return Response.resourceNotOwned();
         if(itemRepo.existsByResourceCode(resourceCode)) return Response.resourceAlreadyReleased();
         resourceRepo.delete(resource);
+        logger.info("user " + ownerPhone + " retracted resource " + resourceCode);
         return Response.success(null);
     }
 
@@ -133,6 +145,7 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setImageUrl(newResource.getImageUrl());
         resource.setVerified(false);
         resource.setAccepted(false);
+        logger.info("user " + ownerPhone + " updated the infos of resource " + resourceCode);
         return Response.success(resourceRepo.save(resource).getResourceCode());
     }
 
@@ -151,6 +164,8 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setVerified(true);
         resource.setAccepted(accept);
         resourceRepo.save(resource);
+        logger.info("admin " + adminPhone + (accept ? " accepted" : " rejected")
+                + "resource" + resourceCode);
         return Response.success(null);
     }
 
@@ -243,10 +258,6 @@ public class ResourceServiceImpl implements ResourceService {
         Sort sort = Sort.by(page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
         return Response.success(itemRepo.findAll(pageable));
-    }
-
-    public Optional<Resource> getByCode(String code){
-        return resourceRepo.findByResourceCode(code);
     }
 
 

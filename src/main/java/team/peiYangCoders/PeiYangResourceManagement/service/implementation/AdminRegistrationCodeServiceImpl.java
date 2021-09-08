@@ -1,5 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
@@ -30,6 +32,7 @@ public class AdminRegistrationCodeServiceImpl implements AdminRegistrationCodeSe
         this.userTokenRepo = userTokenRepo;
     }
 
+    private final Logger logger = LoggerFactory.getLogger(AdminRegistrationCodeService.class);
 
     @Override
     public Response addCode(String phone, String userToken){
@@ -37,8 +40,10 @@ public class AdminRegistrationCodeServiceImpl implements AdminRegistrationCodeSe
         if(!adder.isPresent()) return Response.invalidPhone();
         if(!uTokenValid(phone, userToken)) return Response.invalidUserToken();
         if(!adder.get().isAdmin()) return Response.permissionDenied();
-        return Response.success(adminCodeRepo.save(
-                new AdminRegistrationCode(UUID.randomUUID().toString())));
+        AdminRegistrationCode adminCode = new AdminRegistrationCode(UUID.randomUUID().toString());
+        logger.info("new admin code " + adminCode.getCode() + " has been registered by " +
+                "admin " + phone);
+        return Response.success(adminCodeRepo.save(adminCode));
     }
 
     /**--------------------------private methods--------------------------------**/

@@ -1,5 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -41,6 +43,8 @@ public class OrderServiceImpl implements OrderService {
         this.userTokenRepo = userTokenRepo;
     }
 
+    private final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
     // post new order interface for upper layer
     @Override
     public Response post(String getterPhone, String userToken, String itemCode, Order order){
@@ -62,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
         order.setGetterPhone(getter.getPhone());
         order.setOwnerPhone(item.getOwnerPhone());
         order.setItemCode(itemCode);
+        logger.info("user " + getterPhone + " posted a new order on item " + itemCode);
         return Response.success(orderRepo.save(order).getOrderCode());
     }
 
@@ -159,6 +164,7 @@ public class OrderServiceImpl implements OrderService {
         Optional<Item> maybe = itemRepo.findByItemCode(order.getItemCode());
         maybe.ifPresent(item -> item.setCount(item.getCount() + order.getCount()));
         orderRepo.save(order);
+        logger.info("order " + order.getOrderCode() + " has been canceled");
         return Response.success(null);
     }
 
@@ -177,6 +183,8 @@ public class OrderServiceImpl implements OrderService {
         order.setAccepted(accept);
         order.setAcceptedOrRejected(true);
         orderRepo.save(order);
+        logger.info("order " + order.getOrderCode() + " has been "
+                + (accept ? "accepted" : "rejected"));
         return Response.success(null);
     }
 
@@ -192,6 +200,8 @@ public class OrderServiceImpl implements OrderService {
         if(order.isCompletedByGetter())
             return Response.orderIsClosedAtYourSide();
         order.setCompletedByGetter(true);
+        logger.info("order " + order.getOrderCode() + " has been " +
+                "completed by getter side user " + order.getGetterPhone());
         return Response.success(orderRepo.save(order));
     }
 
@@ -207,6 +217,8 @@ public class OrderServiceImpl implements OrderService {
         if(order.isCompletedByOwner())
             return Response.orderIsClosedAtYourSide();
         order.setCompletedByOwner(true);
+        logger.info("order " + order.getOrderCode() + " has been " +
+                "completed by owner side user " + order.getOwnerPhone());
         return Response.success(orderRepo.save(order));
     }
 

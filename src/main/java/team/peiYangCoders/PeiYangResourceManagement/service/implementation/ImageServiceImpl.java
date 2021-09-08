@@ -1,5 +1,7 @@
 package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -51,6 +53,8 @@ public class ImageServiceImpl implements ImageService{
         this.userTokenRepo = userTokenRepo;
         this.resourceRepo = resourceRepo;
     }
+
+    private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
     @Override
     public Response upload(String phone, String userToken, MultipartFile image) throws IOException {
@@ -119,6 +123,7 @@ public class ImageServiceImpl implements ImageService{
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("File-Name", fileName);
         httpHeaders.add(CONTENT_DISPOSITION, "attachment;File-Name=" + transResource.getFilename());
+        logger.info("image " + fileName + " has been sent to the user");
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(Files.probeContentType(imagePath)))
                 .headers(httpHeaders).body(transResource);
@@ -127,6 +132,7 @@ public class ImageServiceImpl implements ImageService{
     private Response upload_image(String fileName, String dir, MultipartFile image) throws IOException {
         Path imagePath = get(dir, fileName).toAbsolutePath().normalize();
         copy(image.getInputStream(), imagePath, REPLACE_EXISTING);
+        logger.info("image " + fileName + " has been uploaded to the server");
         return Response.success(null);
     }
 }

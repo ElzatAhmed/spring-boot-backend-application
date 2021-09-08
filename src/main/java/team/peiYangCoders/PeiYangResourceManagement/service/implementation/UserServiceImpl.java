@@ -1,9 +1,9 @@
 package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.AdminRegistrationCode;
@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
     // login interface for upper layer
     @Override
@@ -63,6 +65,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUserTag(UserTag.ordinary.toString());
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepo.save(newUser);
+        logger.info("created new ordinary user with user phone: " + newUser.getPhone());
         return Response.success(null);
     }
 
@@ -77,6 +80,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUserTag(UserTag.admin.toString());
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepo.save(newUser);
+        logger.info("created new admin user with user phone: " + newUser.getPhone());
         return Response.success(null);
     }
 
@@ -101,6 +105,7 @@ public class UserServiceImpl implements UserService {
         user.setWechatId(newInfo.getWechatId());
         user.setAvatarUrl(newInfo.getAvatarUrl());
         userRepo.save(user);
+        logger.info("user " + userPhone + " has updated user info.");
         return Response.success(null);
     }
 
@@ -115,6 +120,7 @@ public class UserServiceImpl implements UserService {
         User user = maybe.get();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepo.save(user);
+        logger.info("user " + userPhone + " has updated user password.");
         return Response.success(null);
     }
 
@@ -130,6 +136,7 @@ public class UserServiceImpl implements UserService {
         user.setStudentCertified(true);
         user.setStudentId(certificate.getStudentId());
         userRepo.save(user);
+        logger.info("user " + userPhone + " successfully certified as a student.");
         return Response.success(null);
     }
 
@@ -178,6 +185,7 @@ public class UserServiceImpl implements UserService {
     /**--------------------------private methods--------------------------------**/
 
     private Response ordinaryLogin(String userPhone, String password){
+        logger.info("user with phone number " + userPhone + " is logging in...");
         Optional<User> maybe = userRepo.findByPhone(userPhone);
         if(!maybe.isPresent())
             return Response.invalidPhone();
@@ -185,20 +193,26 @@ public class UserServiceImpl implements UserService {
         if(user.isAdmin())
             return Response.permissionDenied();
         if(passwordEncoder.matches(password, user.getPassword())) {
-            return Response.success(userTokenRepo.save(generateUToken(userPhone, user.getUserName())));
+            UserToken uToken =  generateUToken(userPhone, user.getUserName());
+            logger.info("user " + userPhone + " has logged in, " +
+                    "the given user token: " + uToken.getToken());
+            return Response.success(userTokenRepo.save(uToken));
         }
         return Response.invalidPassword();
     }
 
     private Response adminLogin(String userPhone, String password){
+        logger.info("user with phone number " + userPhone + " is logging in...");
         Optional<User> maybe = userRepo.findByPhone(userPhone);
-        if(!maybe.isPresent())
-            return Response.invalidPhone();
+        if(!maybe.isPresent()) return Response.invalidPhone();
         User user = maybe.get();
-        if(!user.isAdmin())
-            return Response.permissionDenied();
-        if(passwordEncoder.matches(password, user.getPassword()))
-            return Response.success(userTokenRepo.save(generateUToken(userPhone, user.getUserName())));
+        if(!user.isAdmin()) return Response.permissionDenied();
+        if(passwordEncoder.matches(password, user.getPassword())) {
+            UserToken uToken =  generateUToken(userPhone, user.getUserName());
+            logger.error("user " + userPhone + " has logged in, " +
+                    "the given user token is " + uToken.getToken());
+            return Response.success(userTokenRepo.save(uToken));
+        }
         return Response.invalidPassword();
     }
 

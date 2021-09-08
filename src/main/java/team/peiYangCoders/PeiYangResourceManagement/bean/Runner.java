@@ -1,6 +1,8 @@
 package team.peiYangCoders.PeiYangResourceManagement.bean;
 
 import com.github.javafaker.Faker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -38,8 +40,12 @@ public class Runner implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    private final Logger logger = LoggerFactory.getLogger(Runner.class);
+
     @Override
     public void run(String... args) {
+
+        logger.info("initializing database...");
 
         // fake data
         for(int i = 0; i < 100; i++){
@@ -102,6 +108,9 @@ public class Runner implements CommandLineRunner {
         elzat1.setUserTag("admin");
         elzat1.setPassword(passwordEncoder.encode("300059"));
         userRepo.save(elzat1);
+
+
+        logger.info("database has initialized");
     }
 
     private User fakeUser(){

@@ -3,6 +3,8 @@ package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ConfirmationTokenServiceImpl implements ConfirmationTokenService {
         this.smsConfig = smsConfig;
     }
 
+    private final Logger logger = LoggerFactory.getLogger(ConfirmationTokenService.class);
 
     // send confirmation token interface for upper layer
     @Override
@@ -39,8 +42,10 @@ public class ConfirmationTokenServiceImpl implements ConfirmationTokenService {
         ConfirmationToken cToken = ConfirmationToken.construct(smsConfig.getTokenLen(),
                 smsConfig.getLatency(), phone);
         confirmationTokenRepo.save(cToken);
-        return cToken;
 //        sendConfirmationToken(phone, cToken.getToken());
+        logger.info("confirmation token " + cToken.getToken() + " sent to user " + phone);
+        return cToken;
+
     }
 
 
