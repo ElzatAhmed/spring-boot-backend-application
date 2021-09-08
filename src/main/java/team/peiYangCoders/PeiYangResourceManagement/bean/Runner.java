@@ -90,7 +90,7 @@ public class Runner implements CommandLineRunner {
 
         User peng2 = fakeUser();
         peng2.setUserName("PengPeng");
-        peng2.setUserTag("admin");
+        peng2.setUserTag("ordinary");
         peng2.setPhone("12345678910");
         peng2.setPassword(passwordEncoder.encode("123456"));
         userRepo.save(peng2);
