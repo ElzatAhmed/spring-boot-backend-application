@@ -57,7 +57,7 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setOwnerPhone(ownerPhone);
         resource = resourceRepo.save(resource);
         logger.info("user " + ownerPhone + " posted new resource," +
-                "\nthe given resource code is " + resource.getResourceCode());
+                "the given resource code is " + resource.getResourceCode());
         return Response.success(resource.getResourceCode());
     }
 
@@ -82,7 +82,7 @@ public class ResourceServiceImpl implements ResourceService {
         item.setDescription(resource.getDescription());
         item = itemRepo.save(item);
         logger.info("user " + ownerPhone + " released a new item," +
-                "\nthe given item code is " + item.getItemCode());
+                "the given item code is " + item.getItemCode());
         return Response.success(item.getItemCode());
     }
 
@@ -190,6 +190,7 @@ public class ResourceServiceImpl implements ResourceService {
         List<Item> needs2Pay = null;
         List<Item> campus = null;
         List<Item> resourceCode = null;
+        List<Item> phone = null;
         if(filter.getType() != null)
             type = itemRepo.findAllByItemType(filter.getType());
         if(filter.getNeeds2Pay() != null)
@@ -198,9 +199,12 @@ public class ResourceServiceImpl implements ResourceService {
             campus = itemRepo.findAllByCampus(filter.getCampus());
         if(filter.getResourceCode() != null)
             resourceCode = itemRepo.findAllByResourceCode(filter.getResourceCode());
+        if(filter.getPhone() != null)
+            phone = itemRepo.findAllByOwnerPhone(filter.getPhone());
         MyUtils<Item> util = new MyUtils<>();
         List<Item> result = util.intersect(util.intersect(type, needs2Pay),
                 util.intersect(campus, resourceCode));
+        result = util.intersect(result, phone);
         return Response.success(util.contract(result, requestCount));
     }
 
@@ -255,7 +259,7 @@ public class ResourceServiceImpl implements ResourceService {
     // get item page interface for upper layer
     @Override
     public Response getPage(ItemPage page){
-        Sort sort = Sort.by(page.getSortBy());
+        Sort sort = Sort.by(page.getDirection(), page.getSortBy());
         Pageable pageable = PageRequest.of(page.getPageNum(), page.getPageSize(), sort);
         return Response.success(itemRepo.findAll(pageable));
     }

@@ -66,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
         order.setGetterPhone(getter.getPhone());
         order.setOwnerPhone(item.getOwnerPhone());
         order.setItemCode(itemCode);
+        itemRepo.save(item);
         logger.info("user " + getterPhone + " posted a new order on item " + itemCode);
         return Response.success(orderRepo.save(order).getOrderCode());
     }
@@ -73,6 +74,7 @@ public class OrderServiceImpl implements OrderService {
     // cancel or reject order interface for upper layer
     @Override
     public Response delete(String userPhone, String userToken, String orderCode){
+        logger.info("user " + userPhone + " is deleting order " + orderCode);
         Optional<User> maybeUser = userRepo.findByPhone(userPhone);
         if(!maybeUser.isPresent()) return Response.invalidPhone();
         if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
@@ -149,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Response cancel(Order order){
+        logger.info("user " + order.getGetterPhone() + " is canceling order " + order.getOrderCode());
         if(order.isExpired())
             return Response.orderExpired();
         if(order.isCanceled())
@@ -164,11 +167,13 @@ public class OrderServiceImpl implements OrderService {
         Optional<Item> maybe = itemRepo.findByItemCode(order.getItemCode());
         maybe.ifPresent(item -> item.setCount(item.getCount() + order.getCount()));
         orderRepo.save(order);
-        logger.info("order " + order.getOrderCode() + " has been canceled");
+        logger.info("order " + order.getOrderCode() + " has been canceled by user " + order.getOrderCode());
         return Response.success(null);
     }
 
     private Response acceptOrReject(Order order, boolean accept){
+        logger.info("user " + order.getOwnerPhone() + " is "
+                + (accept ? "accepting" : "rejecting") + " order " + order.getOrderCode());
         if(order.isExpired())
             return Response.orderExpired();
         if(order.isCanceled())
@@ -184,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
         order.setAcceptedOrRejected(true);
         orderRepo.save(order);
         logger.info("order " + order.getOrderCode() + " has been "
-                + (accept ? "accepted" : "rejected"));
+                + (accept ? "accepted" : "rejected") + " by user " + order.getOwnerPhone());
         return Response.success(null);
     }
 

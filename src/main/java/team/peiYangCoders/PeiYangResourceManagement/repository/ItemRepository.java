@@ -22,4 +22,6 @@ public interface ItemRepository extends JpaRepository<Item, String> {
     List<Item> findAllByNeeds2Pay(boolean needs2Pay);
 
     List<Item> findAllByResourceCode(String resourceCode);
+
+    List<Item> findAllByOwnerPhone(String ownerPhone);
 }

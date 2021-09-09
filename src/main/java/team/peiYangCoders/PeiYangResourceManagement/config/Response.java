@@ -1,5 +1,9 @@
 package team.peiYangCoders.PeiYangResourceManagement.config;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.*;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,11 +14,24 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 public class Response {
 
+    @JsonProperty
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String message;
 
+    @JsonProperty
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
     private int code;
 
+    @JsonProperty
+    @JsonFormat(shape = JsonFormat.Shape.NATURAL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object data;
+
+    public Response(String message, int code){
+        this.message = message;
+        this.code = code;
+        this.data = null;
+    }
 
     public static final int SUCCESS_CODE = 100;
 
@@ -46,7 +63,7 @@ public class Response {
         return new Response("invalid registration code", 605, null);
     }
     public static Response permissionDenied(){
-        return new Response("insufficient authority", 606, null);
+        return new Response("permission denied", 606, null);
     }
     public static Response invalidUserToken(){
         return new Response("invalid user token", 607, null);

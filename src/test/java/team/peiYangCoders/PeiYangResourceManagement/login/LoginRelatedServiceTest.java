@@ -71,7 +71,6 @@ public class LoginRelatedServiceTest {
 
         // then
         verify(userRepo, times(2)).findByPhone(phoneCaptor.capture());
-        verify(userRepo, never()).save(any());
         assertThat(phoneCaptor.getValue()).isEqualTo(u.getPhone());
         assertThat(r.getCode()).isEqualTo(Response.invalidPhone().getCode());
     }
