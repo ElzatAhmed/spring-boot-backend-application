@@ -113,7 +113,7 @@ public class Response {
     public static Response orderNotAccepted(){
         return new Response("order not accepted", 907, null);
     }
-    public static Response orderIsClosedAtYourSide(){
+    public static Response orderIsCompletedAtYourSide(){
         return new Response("order is closed at your side", 908, null);
     }
     public static Response orderClosed(){

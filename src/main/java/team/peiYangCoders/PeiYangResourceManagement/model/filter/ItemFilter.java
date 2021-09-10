@@ -24,14 +24,16 @@ public class ItemFilter implements Filter{
 
     private String phone = null;
 
+    private String name = null;
+
     @Override
     public boolean allNull() {
         return code == null && type == null && needs2Pay == null
-                 && campus == null && resourceCode == null && phone == null;
+                 && campus == null && resourceCode == null && phone == null && name == null;
     }
 
     public boolean nullExceptCode(){
         return code != null && type == null && needs2Pay == null
-                 && campus == null && resourceCode == null && phone == null;
+                 && campus == null && resourceCode == null && phone == null && name == null;
     }
 }

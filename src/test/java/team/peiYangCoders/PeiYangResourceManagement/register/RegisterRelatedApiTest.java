@@ -2,6 +2,7 @@ package team.peiYangCoders.PeiYangResourceManagement.register;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,8 +17,12 @@ import team.peiYangCoders.PeiYangResourceManagement.model.AdminRegistrationCode;
 import team.peiYangCoders.PeiYangResourceManagement.model.ConfirmationToken;
 import team.peiYangCoders.PeiYangResourceManagement.model.UserToken;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
+import team.peiYangCoders.PeiYangResourceManagement.repository.AdminRegistrationCodeRepository;
+import team.peiYangCoders.PeiYangResourceManagement.repository.ConfirmationTokenRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
+import team.peiYangCoders.PeiYangResourceManagement.repository.UserTokenRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -38,24 +43,37 @@ public class RegisterRelatedApiTest {
 
     @Autowired private UserRepository userRepo;
 
+    @Autowired private ConfirmationTokenRepository cTokenRepo;
+
+    @Autowired private AdminRegistrationCodeRepository adminCodeRepo;
+
+    @BeforeEach
+    void setUp() {
+        cTokenRepo.deleteAll();
+        adminCodeRepo.deleteAll();
+        userRepo.deleteAll();
+        cTokenRepo.save(
+                new ConfirmationToken(
+                        null, "123456", LocalDateTime.now(),
+                        LocalDateTime.now().plusMinutes(10L), null,
+                        false, "13899095284"
+                )
+        );
+        adminCodeRepo.save(
+                new AdminRegistrationCode(null, "456789789456", false)
+        );
+    }
 
     @Test void canRegisterOrdinary() throws Exception {
 
         // given
         User user = randomUser();
+        user.setPhone("13899095284");
         user.setUserTag("ordinary");
 
         // when
-
-        MvcResult tokeRequest = mockMvc
-                .perform(post("/api/v1/token/?phone="
-                        + user.getPhone())).andReturn();
-        Response r0 = mapper.readValue(tokeRequest.getResponse().getContentAsString(), Response.class);
-        ConfirmationToken cToken = mapper.readValue(mapper.writeValueAsString(r0.getData()),
-                ConfirmationToken.class);
-
         ResultActions registerRequest = mockMvc
-                .perform(post("/api/v1/user/?cToken=" + cToken.getToken())
+                .perform(post("/api/v1/user/?cToken=123456")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(user)));
         MvcResult mvcResult = registerRequest.andReturn();
@@ -75,35 +93,12 @@ public class RegisterRelatedApiTest {
 
         // given
         User user = randomUser();
+        user.setPhone("13899095284");
         user.setUserTag("admin");
 
         // when
-        MvcResult adminLoginRequest = mockMvc
-                .perform(get("/api/v1/admin/?phone="
-                        + "18799081038&password=300059")).andReturn();
-        Response r0 = mapper.readValue(adminLoginRequest.getResponse().getContentAsString(),
-                Response.class);
-        UserToken uToken = mapper.readValue(mapper.writeValueAsString(r0.getData()), UserToken.class);
-
-        MvcResult addAdminCodeRequest = mockMvc
-                .perform(get("/api/v1/admin-code/?phone=" +
-                        "18799081038&uToken=" + uToken.getToken())).andReturn();
-        Response r1 = mapper.readValue(addAdminCodeRequest.getResponse().getContentAsString(),
-                Response.class);
-        AdminRegistrationCode adminCode = mapper.readValue(mapper.writeValueAsString(r1.getData()),
-                AdminRegistrationCode.class);
-
-        MvcResult cTokenRequest = mockMvc
-                .perform(post("/api/v1/token/?phone=" +
-                        user.getPhone())).andReturn();
-        Response r2 = mapper.readValue(cTokenRequest.getResponse().getContentAsString(),
-                Response.class);
-        ConfirmationToken cToken = mapper.readValue(mapper.writeValueAsString(r2.getData()),
-                ConfirmationToken.class);
-
         ResultActions adminRegisterRequest = mockMvc
-                .perform(post("/api/v1/admin/?regCode=" +
-                        adminCode.getCode() + "&cToken=" + cToken.getToken())
+                .perform(post("/api/v1/admin/?regCode=456789789456&cToken=123456")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)));
 

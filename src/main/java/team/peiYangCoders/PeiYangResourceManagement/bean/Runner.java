@@ -13,6 +13,14 @@ import team.peiYangCoders.PeiYangResourceManagement.model.resource.Resource;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.StudentCertificate;
 import team.peiYangCoders.PeiYangResourceManagement.model.user.User;
 import team.peiYangCoders.PeiYangResourceManagement.repository.*;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDateTime;
 
 @Component
@@ -43,7 +51,7 @@ public class Runner implements CommandLineRunner {
     private final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws IOException {
 
         logger.info("initializing database...");
 
@@ -94,6 +102,13 @@ public class Runner implements CommandLineRunner {
         peng2.setPhone("12345678910");
         peng2.setPassword(passwordEncoder.encode("123456"));
         userRepo.save(peng2);
+
+        User peng3 = fakeUser();
+        peng3.setUserName("PengPeng");
+        peng3.setUserTag("ordinary");
+        peng3.setPhone("10987654321");
+        peng3.setPassword(passwordEncoder.encode("123456"));
+        userRepo.save(peng3);
 
         User elzat0 = fakeUser();
         elzat0.setUserName("Elzat");

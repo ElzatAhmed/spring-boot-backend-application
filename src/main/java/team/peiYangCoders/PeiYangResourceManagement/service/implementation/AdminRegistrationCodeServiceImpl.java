@@ -3,6 +3,7 @@ package team.peiYangCoders.PeiYangResourceManagement.service.implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import team.peiYangCoders.PeiYangResourceManagement.config.Response;
 import team.peiYangCoders.PeiYangResourceManagement.model.AdminRegistrationCode;
@@ -16,6 +17,7 @@ import team.peiYangCoders.PeiYangResourceManagement.service.AdminRegistrationCod
 import java.util.Optional;
 import java.util.UUID;
 
+@Component
 @Service
 public class AdminRegistrationCodeServiceImpl implements AdminRegistrationCodeService {
 

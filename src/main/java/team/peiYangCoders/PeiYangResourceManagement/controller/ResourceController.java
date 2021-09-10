@@ -142,6 +142,7 @@ public class ResourceController {
     @GetMapping("items")
     public Response getItem(@RequestParam(name = "uPhone") String userPhone,
                             @RequestParam(name = "uToken") String userToken,
+                            @RequestParam(required = false) String name,
                             @RequestParam(required = false) String phone,
                             @RequestParam(required = false) String code,
                             @RequestParam(required = false) String type,
@@ -156,6 +157,7 @@ public class ResourceController {
         filter.setCampus(campus);
         filter.setResourceCode(resourceCode);
         filter.setPhone(phone);
+        filter.setName(name);
         return Response.success(resourceService.getItemByFilter(filter, userPhone, userToken, requestCount));
     }
 

@@ -64,8 +64,10 @@ public class OrderController {
     @PutMapping("order")
     public Response completeOrder(@RequestParam(name = "phone") String phone,
                                   @RequestParam(name = "orderCode") String orderCode,
-                                  @RequestParam(name = "uToken") String userToken){
-        return orderService.complete(phone, userToken, orderCode);
+                                  @RequestParam(name = "uToken") String userToken,
+                                  @RequestParam(name = "complete") Boolean complete){
+        if(complete) return orderService.complete(phone, userToken, orderCode);
+        else return orderService.unComplete(phone, userToken, orderCode);
     }
 
 
@@ -76,6 +78,13 @@ public class OrderController {
     }
 
     @GetMapping("orders")
+    public Response getOrdersByPhone(@RequestParam(name = "uPhone") String adminPhone,
+                                     @RequestParam(name = "uToken") String uToken,
+                                     @RequestParam(name = "phone") String phone){
+        return orderService.getOrdersByPhone(adminPhone, uToken, phone);
+    }
+
+    @GetMapping("orders/all")
     public Response getAll(@RequestParam(name = "phone") String phone,
                            @RequestParam(name = "uToken") String userToken){
         return orderService.getAll(phone, userToken);

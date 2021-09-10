@@ -112,10 +112,9 @@ public class UserServiceImpl implements UserService {
 
     // update password interface for upper layer
     @Override
-    public Response update(String userPhone, String uToken, String cToken, String newPassword){
+    public Response update(String userPhone, String cToken, String newPassword){
         Optional<User> maybe = userRepo.findByPhone(userPhone);
         if(!maybe.isPresent()) return Response.invalidPhone();
-        if(!uTokenValid(userPhone, uToken)) return Response.invalidUserToken();
         if(!cTokenValid(userPhone, cToken)) return Response.invalidConfirmationToken();
         User user = maybe.get();
         user.setPassword(passwordEncoder.encode(newPassword));

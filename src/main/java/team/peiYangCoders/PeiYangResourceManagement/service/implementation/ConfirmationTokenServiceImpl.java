@@ -42,7 +42,7 @@ public class ConfirmationTokenServiceImpl implements ConfirmationTokenService {
         ConfirmationToken cToken = ConfirmationToken.construct(smsConfig.getTokenLen(),
                 smsConfig.getLatency(), phone);
         confirmationTokenRepo.save(cToken);
-//        sendConfirmationToken(phone, cToken.getToken());
+        sendConfirmationToken(phone, cToken.getToken());
         logger.info("confirmation token " + cToken.getToken() + " sent to user " + phone);
         return cToken;
 

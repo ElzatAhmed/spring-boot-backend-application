@@ -45,8 +45,13 @@ public interface OrderService {
     Response complete(String userPhone, String userToken, String orderCode);
 
 
+    Response unComplete(String userPhone, String usrToken, String orderCode);
+
+
     Response getOrderInfo(String userPhone, String userToken);
 
 
     Response getAll(String adminPhone, String userToken);
+
+    Response getOrdersByPhone(String adminPhone, String userToken, String phone);
 }

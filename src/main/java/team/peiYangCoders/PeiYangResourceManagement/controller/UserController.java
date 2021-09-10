@@ -59,10 +59,9 @@ public class UserController {
     @PutMapping("user/password")
     public Response updatePassword(
             @RequestParam(name = "phone") String userPhone,
-            @RequestParam(name = "uToken") String userToken,
             @RequestParam(name = "cToken") String cToken,
             @RequestParam(name = "newPassword") String newPassword){
-        return userService.update(userPhone, userToken, cToken, newPassword);
+        return userService.update(userPhone, cToken, newPassword);
     }
 
 

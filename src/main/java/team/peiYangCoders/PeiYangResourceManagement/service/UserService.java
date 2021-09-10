@@ -59,7 +59,7 @@ public interface UserService {
      * @param cToken : confirmation token
      * @param newPassword : new password
      * */
-    Response update(String userPhone, String uToken, String cToken, String newPassword);
+    Response update(String userPhone, String cToken, String newPassword);
 
 
     /**

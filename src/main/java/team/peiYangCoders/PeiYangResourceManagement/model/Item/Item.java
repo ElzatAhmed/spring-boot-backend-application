@@ -59,8 +59,7 @@ public class Item {
 
     @Column(
             name = "count",
-            nullable = false,
-            updatable = false
+            nullable = false
     )
     private int count;
 

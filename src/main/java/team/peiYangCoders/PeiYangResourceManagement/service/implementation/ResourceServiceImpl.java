@@ -165,7 +165,7 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setAccepted(accept);
         resourceRepo.save(resource);
         logger.info("admin " + adminPhone + (accept ? " accepted" : " rejected")
-                + "resource" + resourceCode);
+                + " resource " + resourceCode);
         return Response.success(null);
     }
 
@@ -191,6 +191,7 @@ public class ResourceServiceImpl implements ResourceService {
         List<Item> campus = null;
         List<Item> resourceCode = null;
         List<Item> phone = null;
+        List<Item> name = null;
         if(filter.getType() != null)
             type = itemRepo.findAllByItemType(filter.getType());
         if(filter.getNeeds2Pay() != null)
@@ -201,10 +202,13 @@ public class ResourceServiceImpl implements ResourceService {
             resourceCode = itemRepo.findAllByResourceCode(filter.getResourceCode());
         if(filter.getPhone() != null)
             phone = itemRepo.findAllByOwnerPhone(filter.getPhone());
+        if(filter.getName() != null)
+            name = itemRepo.findAllByNameContains(filter.getName());
         MyUtils<Item> util = new MyUtils<>();
         List<Item> result = util.intersect(util.intersect(type, needs2Pay),
                 util.intersect(campus, resourceCode));
         result = util.intersect(result, phone);
+        result = util.intersect(result, name);
         return Response.success(util.contract(result, requestCount));
     }
 

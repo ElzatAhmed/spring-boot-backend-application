@@ -91,11 +91,8 @@ public class Order {
     private LocalDateTime openedTime;
 
 
-    @Column(
-            updatable = false,
-            name = "closed_time"
-    )
     private LocalDateTime closedTime;
+
 
 
     @Column(
@@ -170,11 +167,18 @@ public class Order {
     private boolean completedByOwner = false;
 
 
+    private LocalDateTime OwnerCompletedTime = null;
+
+
     @Column(
             name = "completed_by_getter",
             nullable = false
     )
     private boolean completedByGetter = false;
+
+
+    private LocalDateTime GetterCompletedTime = null;
+
 
     @Column(
             name = "uncompleted_by_owner",

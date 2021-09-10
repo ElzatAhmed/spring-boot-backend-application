@@ -57,7 +57,6 @@ public class OrderServiceImpl implements OrderService {
         User getter = maybeUser.get();
         if(item.getCount() < order.getCount())
             return Response.itemNotSufficient();
-        item.setCount(item.getCount() - order.getCount());
         LocalDateTime now = LocalDateTime.now();
         OrderConfig config = new OrderConfig();
         order.setOpenedTime(now);
@@ -66,6 +65,8 @@ public class OrderServiceImpl implements OrderService {
         order.setGetterPhone(getter.getPhone());
         order.setOwnerPhone(item.getOwnerPhone());
         order.setItemCode(itemCode);
+        item.setCount(item.getCount() - order.getCount());
+        item.setOrdered(true);
         itemRepo.save(item);
         logger.info("user " + getterPhone + " posted a new order on item " + itemCode);
         return Response.success(orderRepo.save(order).getOrderCode());
@@ -104,6 +105,7 @@ public class OrderServiceImpl implements OrderService {
     // complete order interface for upper layer
     @Override
     public Response complete(String userPhone, String userToken, String orderCode){
+        logger.info("user " + userPhone + " is completing order " + orderCode);
         Optional<User> maybeUser = userRepo.findByPhone(userPhone);
         if(!maybeUser.isPresent()) return Response.invalidPhone();
         if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
@@ -116,10 +118,39 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Response getOrderInfo(String userPhone, String userToken) {
+    public Response unComplete(String userPhone, String userToken, String orderCode) {
+        logger.info("user " + userPhone + " is unCompleting order " + orderCode);
         Optional<User> maybeUser = userRepo.findByPhone(userPhone);
         if(!maybeUser.isPresent()) return Response.invalidPhone();
         if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
+        Optional<Order> maybeOrder = orderRepo.findByOrderCode(orderCode);
+        if(!maybeOrder.isPresent()) return Response.invalidOrderCode();
+        Order order = maybeOrder.get();
+        if(order.isExpired())
+            return Response.orderExpired();
+        if(order.isCanceled())
+            return Response.orderAlreadyCanceled();
+        if(!order.isAccepted())
+            return Response.orderNotAccepted();
+        if(order.isCompleted() || order.isUncompleted())
+            return Response.orderClosed();
+        if(order.isCompletedByOwner())
+            return Response.orderIsCompletedAtYourSide();
+        order.setUncompleted(true);
+        order.setUncompletedByOwner(true);
+        order.setClosedTime(LocalDateTime.now());
+        logger.info("order " + orderCode + " has been unCompleted by user " + userPhone);
+        return Response.success(orderRepo.save(order));
+    }
+
+    @Override
+    public Response getOrderInfo(String userPhone, String userToken) {
+        logger.info("user " + userPhone + " is requesting the information of its orders");
+        Optional<User> maybeUser = userRepo.findByPhone(userPhone);
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(userPhone, userToken)) return Response.invalidUserToken();
+        logger.info("the information of orders related with user " + userPhone + " has been" +
+                " sent to the user");
         return Response.success(orderRepo.findAllByGetterPhoneOrOwnerPhone(userPhone, userPhone));
     }
 
@@ -130,6 +161,15 @@ public class OrderServiceImpl implements OrderService {
         if(!uTokenValid(adminPhone, userToken)) return Response.invalidUserToken();
         if(!maybeUser.get().isAdmin()) return Response.permissionDenied();
         return Response.success(orderRepo.findAll());
+    }
+
+    @Override
+    public Response getOrdersByPhone(String adminPhone, String userToken, String phone) {
+        Optional<User> maybeUser = userRepo.findByPhone(adminPhone);
+        if(!maybeUser.isPresent()) return Response.invalidPhone();
+        if(!uTokenValid(adminPhone, userToken)) return Response.invalidUserToken();
+        if(!maybeUser.get().isAdmin()) return Response.permissionDenied();
+        return Response.success(orderRepo.findAllByGetterPhoneOrOwnerPhone(phone, phone));
     }
 
 
@@ -143,11 +183,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private boolean isOwnerOfOrder(String userPhone, Order order){
-        return order.getOwnerPhone().equals(userPhone);
+        if(order.getOwnerPhone().equals(userPhone)){
+            logger.info("user " + userPhone + " is the owner side of the order " + order.getOrderCode());
+            return true;
+        }
+        else return false;
     }
 
     private boolean isGetterOfOrder(String userPhone, Order order){
-        return order.getGetterPhone().equals(userPhone);
+        if(order.getGetterPhone().equals(userPhone)){
+            logger.info("user " + userPhone + " is the getter side of the order " + order.getOrderCode());
+            return true;
+        }
+        else return false;
     }
 
     private Response cancel(Order order){
@@ -187,6 +235,10 @@ public class OrderServiceImpl implements OrderService {
         order.setAcceptedOrRejectedTime(LocalDateTime.now());
         order.setAccepted(accept);
         order.setAcceptedOrRejected(true);
+        if(!accept){
+            Optional<Item> maybe = itemRepo.findByItemCode(order.getItemCode());
+            maybe.ifPresent(item -> item.setCount(item.getCount() + order.getCount()));
+        }
         orderRepo.save(order);
         logger.info("order " + order.getOrderCode() + " has been "
                 + (accept ? "accepted" : "rejected") + " by user " + order.getOwnerPhone());
@@ -203,8 +255,10 @@ public class OrderServiceImpl implements OrderService {
         if(order.isCompleted() || order.isUncompleted())
             return Response.orderClosed();
         if(order.isCompletedByGetter())
-            return Response.orderIsClosedAtYourSide();
+            return Response.orderIsCompletedAtYourSide();
         order.setCompletedByGetter(true);
+        order.setGetterCompletedTime(LocalDateTime.now());
+        if(order.isCompletedByOwner()) order.setCompleted(true);
         logger.info("order " + order.getOrderCode() + " has been " +
                 "completed by getter side user " + order.getGetterPhone());
         return Response.success(orderRepo.save(order));
@@ -219,9 +273,11 @@ public class OrderServiceImpl implements OrderService {
             return Response.orderNotAccepted();
         if(order.isCompleted() || order.isUncompleted())
             return Response.orderClosed();
-        if(order.isCompletedByOwner())
-            return Response.orderIsClosedAtYourSide();
+        if(order.isCompletedByOwner() || order.isUncompletedByOwner())
+            return Response.orderIsCompletedAtYourSide();
         order.setCompletedByOwner(true);
+        order.setOwnerCompletedTime(LocalDateTime.now());
+        if(order.isCompletedByGetter()) order.setCompleted(true);
         logger.info("order " + order.getOrderCode() + " has been " +
                 "completed by owner side user " + order.getOwnerPhone());
         return Response.success(orderRepo.save(order));
@@ -256,7 +312,7 @@ public class OrderServiceImpl implements OrderService {
         if(order.isUncompleted()) return false;
         LocalDateTime now = LocalDateTime.now();
         if(!order.isCompleted())
-            return order.getCompletionExpiresAt().isAfter(now);
+            return order.getCompletionExpiresAt().isBefore(now);
         return false;
     }
 }

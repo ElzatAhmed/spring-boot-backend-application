@@ -19,8 +19,7 @@ import team.peiYangCoders.PeiYangResourceManagement.repository.UserRepository;
 import team.peiYangCoders.PeiYangResourceManagement.repository.UserTokenRepository;
 import team.peiYangCoders.PeiYangResourceManagement.service.ImageService;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -41,9 +40,14 @@ public class ImageServiceImpl implements ImageService{
     private final static String RESOURCE_DIR = "E:\\school\\junior\\java-web-project" +
             "\\codes\\PeiYangResourceManagement_Backend\\images\\resource";
 
+    private final static String DEFAULT_PATH = "E:\\school\\junior\\java-web-project" +
+            "\\codes\\PeiYangResourceManagement_Backend\\images\\default.jpg";
+
     private final UserRepository userRepo;
     private final UserTokenRepository userTokenRepo;
     private final ResourceRepository resourceRepo;
+
+
 
     @Autowired
     public ImageServiceImpl(UserRepository userRepo,
@@ -119,6 +123,7 @@ public class ImageServiceImpl implements ImageService{
     private ResponseEntity<org.springframework.core.io.Resource> download_image(String fileName, String dir)
             throws IOException{
         Path imagePath = get(dir).toAbsolutePath().normalize().resolve(fileName);
+        if(!Files.exists(imagePath)) imagePath = get(DEFAULT_PATH).normalize();
         org.springframework.core.io.Resource transResource = new UrlResource(imagePath.toUri());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("File-Name", fileName);
